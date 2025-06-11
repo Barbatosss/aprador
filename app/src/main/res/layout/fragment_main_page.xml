@@ -6,17 +6,112 @@
     android:layout_height="match_parent"
     tools:context=".MainPage">
 
+    <LinearLayout
+        android:id="@+id/header_layout"
+        android:layout_width="411dp"
+        android:layout_height="88dp"
+        android:background="#FEFEFE"
+        android:elevation="4dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TextView"
+        <ImageView
+            android:id="@+id/aprador_logo"
+            android:layout_width="254dp"
+            android:layout_height="57dp"
+            android:contentDescription="Aprador Logo"
+            android:scaleType="fitCenter"
+            android:src="@drawable/aprador" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/MyOutfit"
+        android:layout_width="217dp"
+        android:layout_height="37dp"
+        android:background="@drawable/myoutfits"
+        android:clipToOutline="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.18"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintVertical_bias="0.131" />
+
+    <View
+        android:id="@+id/OutfitIcons"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
+        android:background="@drawable/add"
+        android:clipToOutline="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.776"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.132" />
+
+    <View
+        android:id="@+id/OutfitView"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
+        android:background="@drawable/ic_view"
+        android:clipToOutline="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="Outfit View Icon"
+        android:foreground="?attr/selectableItemBackgroundBorderless"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.914"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.132" />
+
+
+    <View
+        android:id="@+id/MyItem"
+        android:layout_width="133dp"
+        android:layout_height="37dp"
+        android:background="@drawable/ic_items"
+        android:clipToOutline="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.603" />
+
+    <View
+        android:id="@+id/ItemIcons"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
+        android:background="@drawable/add"
+        android:clipToOutline="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.778"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.603" />
+
+    <View
+        android:id="@+id/ItemView"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
+        android:background="@drawable/ic_view"
+        android:clipToOutline="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.914"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.603" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

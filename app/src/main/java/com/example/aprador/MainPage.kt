@@ -14,6 +14,17 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Move to MyOutfits
+        val outfitView: View = view.findViewById(R.id.OutfitView)
+
+        outfitView.setOnClickListener {
+
+            val outfitFragment = MyOuftits()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.flFragment, outfitFragment)
+                .addToBackStack(null)
+                .commit()
+        }
 
     }
 

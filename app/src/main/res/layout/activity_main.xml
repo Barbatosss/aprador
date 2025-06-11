@@ -56,7 +56,7 @@
 
 
     <View
-        android:id="@+id/rectangle_1"
+        android:id="@+id/Login"
         android:layout_width="263dp"
         android:layout_height="79dp"
         android:layout_alignParentLeft="true"

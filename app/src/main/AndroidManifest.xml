@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Aprador"
         tools:targetApi="31" >
+
+        <activity android:name=".NavBar" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true" >

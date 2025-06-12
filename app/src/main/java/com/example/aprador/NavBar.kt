@@ -37,11 +37,12 @@ class NavBar : AppCompatActivity() {
             true
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.navbar)) { v, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.bottomNavigationView)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            view.setPadding(view.paddingLeft, view.paddingTop, view.paddingRight, systemBars.bottom)
             insets
         }
+
     }
 
     private fun setFragment(fragment: Fragment) =

@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#d9d9d9"
+    tools:context=".AddItem">
+
+    <LinearLayout
+        android:id="@+id/header_layout_addItem"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        android:background="#FEFEFE"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Back Icon -->
+        <View
+            android:id="@+id/BackAddItem"
+            android:layout_width="37dp"
+            android:layout_height="37dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ic_view"
+            android:clickable="true"
+            android:contentDescription="Back"
+            android:focusable="true"
+            android:scaleX="-1" />
+
+        <!-- Logo in the center -->
+        <View
+            android:id="@+id/AddItemLogo"
+            android:layout_width="242dp"
+            android:layout_height="39dp"
+            android:layout_weight="1"
+            android:background="@drawable/ic_add_item"
+            android:contentDescription="Logo" />
+
+        <!-- Create Icon -->
+        <View
+            android:id="@+id/ConfirmAdd"
+            android:layout_width="37dp"
+            android:layout_height="37dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/ic_confirm_add"
+            android:clickable="true"
+            android:contentDescription="Create Outfit"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <!-- Image Container -->
+    <View
+        android:id="@+id/BlackShirt"
+        android:layout_width="366dp"
+        android:layout_height="249dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/shirt"
+        android:clickable="true"
+        android:contentDescription="Black Shirt"
+        android:focusable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header_layout_addItem" />
+
+    <!-- Select Category Section -->
+
+    <!-- Category Tabs Container -->
+
+    <View
+        android:id="@+id/SelectCategoryHeader"
+        android:layout_width="237dp"
+        android:layout_height="39dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/ic_select_category"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.132"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/BlackShirt"
+        app:layout_constraintVertical_bias="0.024" />
+
+    <View
+        android:id="@+id/AddCategory"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.911"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/BlackShirt"
+        app:layout_constraintVertical_bias="0.024" />
+
+    <LinearLayout
+        android:id="@+id/category_tabs_container"
+        android:layout_width="366dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SelectCategoryHeader">
+
+        <!-- Bottom Tab -->
+        <TextView
+            android:id="@+id/tab_bottom"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/tab_unselected_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="Bottom"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- Top Tab -->
+        <TextView
+            android:id="@+id/tab_top"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/tab_selected_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="Top"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- Second Row of Category Tabs -->
+    <LinearLayout
+        android:id="@+id/category_tabs_container_2"
+        android:layout_width="366dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_tabs_container">
+
+        <!-- Outerwear Tab -->
+        <TextView
+            android:id="@+id/tab_outerwear"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/tab_unselected_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="Outerwear"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- Empty space to match layout -->
+        <View
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp" />
+
+    </LinearLayout>
+
+    <!-- Select Subcategory Section -->
+
+    <!-- Subcategory Tabs Container -->
+
+    <View
+        android:id="@+id/SelectSubcategoryHeader"
+        android:layout_width="237dp"
+        android:layout_height="38dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/ic_select_subcategory"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.132"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_tabs_container_2"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <View
+        android:id="@+id/AddSubcategory"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/add"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.911"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_tabs_container_2"
+        app:layout_constraintVertical_bias="0.006" />
+
+    <LinearLayout
+        android:id="@+id/subcategory_tabs_container"
+        android:layout_width="366dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SelectSubcategoryHeader">
+
+        <!-- T-Shirt Tab -->
+        <TextView
+            android:id="@+id/tab_tshirt"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/tab_selected_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="T-Shirt"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- Sweater Tab -->
+        <TextView
+            android:id="@+id/tab_sweater"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/tab_unselected_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="Sweater"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- Second Row of Subcategory Tabs -->
+    <LinearLayout
+        android:id="@+id/subcategory_tabs_container_2"
+        android:layout_width="366dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subcategory_tabs_container">
+
+        <!-- Shirt Tab -->
+        <TextView
+            android:id="@+id/tab_shirt"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/tab_unselected_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="Shirt"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- Jacket Tab -->
+        <TextView
+            android:id="@+id/tab_jacket"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/tab_unselected_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="Jacket"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

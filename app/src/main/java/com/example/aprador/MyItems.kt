@@ -41,6 +41,17 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
                 .addToBackStack(null)
                 .commit()
         }
+
+        // Move to AddItem
+        val addItemView: View = view.findViewById(R.id.CreateItem)
+        addItemView.setOnClickListener {
+            val outfitFragment = AddItem()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.flFragment, outfitFragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
     }
 
     override fun onDestroyView() {

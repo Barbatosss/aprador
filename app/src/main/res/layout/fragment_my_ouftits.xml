@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:background="#d9d9d9"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MyOuftits">
@@ -31,11 +32,11 @@
             android:layout_width="37dp"
             android:layout_height="37dp"
             android:layout_marginEnd="16dp"
-            android:scaleX="-1"
             android:background="@drawable/ic_view"
             android:clickable="true"
             android:contentDescription="Back"
-            android:focusable="true" />
+            android:focusable="true"
+            android:scaleX="-1" />
 
         <!-- Logo in the center (use weight to center it) -->
         <View
@@ -70,9 +71,9 @@
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
-        app:layout_constraintTop_toBottomOf="@id/header_layout"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintTop_toBottomOf="@id/header_layout">
 
         <TextView
             android:id="@+id/tab_all"

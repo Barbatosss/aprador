@@ -25,7 +25,6 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
                 .addToBackStack(null)
                 .commit()
         }
-
     }
 
 }

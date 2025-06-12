@@ -2,6 +2,7 @@ package com.example.aprador
 
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -15,9 +16,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 class NavBar : AppCompatActivity() {
 
     private lateinit var firstFragment: Fragment
-//    private var secondFragment: Fragment = ProfileFragment()
-
-
+    private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,16 +24,15 @@ class NavBar : AppCompatActivity() {
         setContentView(R.layout.activity_navbar)
 
         firstFragment = MainPage()
-//        secondFragment = ProfileFragment()
 
         setFragment(firstFragment)
 
-        val bottomNavigationView: BottomNavigationView = findViewById(R.id.bottomNavigationView)
+        // Initialize the class property, not a local variable
+        bottomNavigationView = findViewById(R.id.bottomNavigationView)
 
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.navHome -> setFragment(firstFragment)
-//                R.id.navProfile -> setFragment(secondFragment)
             }
             true
         }
@@ -51,4 +49,13 @@ class NavBar : AppCompatActivity() {
             replace(R.id.flFragment, fragment)
             commit()
         }
+
+    // Public functions that fragments can call
+    fun hideBottomNavigation() {
+        bottomNavigationView.visibility = View.GONE
+    }
+
+    fun showBottomNavigation() {
+        bottomNavigationView.visibility = View.VISIBLE
+    }
 }

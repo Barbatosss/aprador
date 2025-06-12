@@ -32,16 +32,16 @@
 
     <View
         android:id="@+id/MyOutfit"
-        android:layout_width="217dp"
+        android:layout_width="150dp"
         android:layout_height="37dp"
-        android:background="@drawable/myoutfits"
+        android:background="@drawable/ic_outfits"
         android:clipToOutline="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.18"
+        app:layout_constraintHorizontal_bias="0.134"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.131" />
+        app:layout_constraintVertical_bias="0.148" />
 
     <View
         android:id="@+id/OutfitIcons"
@@ -51,28 +51,28 @@
         android:clipToOutline="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.776"
+        app:layout_constraintHorizontal_bias="0.778"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.132" />
+        app:layout_constraintVertical_bias="0.148" />
+
 
     <View
         android:id="@+id/OutfitView"
         android:layout_width="37dp"
         android:layout_height="37dp"
         android:background="@drawable/ic_view"
-        android:clipToOutline="true"
         android:clickable="true"
-        android:focusable="true"
+        android:clipToOutline="true"
         android:contentDescription="Outfit View Icon"
+        android:focusable="true"
         android:foreground="?attr/selectableItemBackgroundBorderless"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.914"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.132" />
-
+        app:layout_constraintVertical_bias="0.148" />
 
     <View
         android:id="@+id/MyItem"

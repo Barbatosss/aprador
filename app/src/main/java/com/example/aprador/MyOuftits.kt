@@ -19,27 +19,44 @@ class MyOuftits : Fragment(R.layout.fragment_my_ouftits) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize tabs
-        tabAll = view.findViewById(R.id.tab_all)
-        tabClassic = view.findViewById(R.id.tab_classic)
-        tabSport = view.findViewById(R.id.tab_sport)
-        tabHome = view.findViewById(R.id.tab_home)
+        // Hide bottom navigation when this fragment loads
+        (activity as? NavBar)?.hideBottomNavigation()
 
-        // Set click listeners for tabs
-        tabAll.setOnClickListener { selectTab(tabAll) }
-        tabClassic.setOnClickListener { selectTab(tabClassic) }
-        tabSport.setOnClickListener { selectTab(tabSport) }
-        tabHome.setOnClickListener { selectTab(tabHome) }
+        // Move to MainPage (Back button)
+        val outfitView: View? = view.findViewById(R.id.BackOutfit)
+        outfitView?.setOnClickListener {
+            // Show bottom navigation when going back to MainPage
+            (activity as? NavBar)?.showBottomNavigation()
 
-        // Move to MainPage
-        val outfitView: View = view.findViewById(R.id.BackOutfit)
-        outfitView.setOnClickListener {
             val outfitFragment = MainPage()
             parentFragmentManager.beginTransaction()
                 .replace(R.id.flFragment, outfitFragment)
                 .addToBackStack(null)
                 .commit()
         }
+
+        // Initialize tabs with null checks
+        try {
+            tabAll = view.findViewById(R.id.tab_all)
+            tabClassic = view.findViewById(R.id.tab_classic)
+            tabSport = view.findViewById(R.id.tab_sport)
+            tabHome = view.findViewById(R.id.tab_home)
+
+            // Set click listeners for tabs
+            tabAll.setOnClickListener { selectTab(tabAll) }
+            tabClassic.setOnClickListener { selectTab(tabClassic) }
+            tabSport.setOnClickListener { selectTab(tabSport) }
+            tabHome.setOnClickListener { selectTab(tabHome) }
+        } catch (e: Exception) {
+            // Handle case where tab views don't exist in layout
+            e.printStackTrace()
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Show bottom navigation when leaving this fragment (safety net)
+        (activity as? NavBar)?.showBottomNavigation()
     }
 
     private fun selectTab(selectedTab: TextView) {
@@ -47,8 +64,12 @@ class MyOuftits : Fragment(R.layout.fragment_my_ouftits) {
         resetAllTabs()
 
         // Set selected tab appearance
-        selectedTab.setBackgroundResource(R.drawable.tab_selected_background)
-        selectedTab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+        try {
+            selectedTab.setBackgroundResource(R.drawable.tab_selected_background)
+            selectedTab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
 
         // Handle tab selection logic here
         when (selectedTab) {
@@ -68,11 +89,15 @@ class MyOuftits : Fragment(R.layout.fragment_my_ouftits) {
     }
 
     private fun resetAllTabs() {
-        val tabs = arrayOf(tabAll, tabClassic, tabSport, tabHome)
+        try {
+            val tabs = arrayOf(tabAll, tabClassic, tabSport, tabHome)
 
-        tabs.forEach { tab ->
-            tab.setBackgroundResource(R.drawable.tab_unselected_background)
-            tab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+            tabs.forEach { tab ->
+                tab.setBackgroundResource(R.drawable.tab_unselected_background)
+                tab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

@@ -19,6 +19,8 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Hide bottom navigation when this fragment loads
+        (activity as? NavBar)?.hideBottomNavigation()
 
         // Initialize tabs
         tabAllItem = view.findViewById(R.id.tab_all_item)
@@ -39,6 +41,12 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
                 .addToBackStack(null)
                 .commit()
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // Show bottom navigation when leaving this fragment (safety net)
+        (activity as? NavBar)?.showBottomNavigation()
     }
 
     private fun selectTab(selectedTab: TextView) {

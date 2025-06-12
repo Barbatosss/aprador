@@ -1,10 +1,17 @@
 package com.example.aprador
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
+import java.io.File
 
 class AddItem : Fragment(R.layout.fragment_add_item) {
 
@@ -19,16 +26,41 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     private lateinit var tabShirt: TextView
     private lateinit var tabJacket: TextView
 
+    // Photo display
+    private lateinit var blackShirtView: View
+
     // Current selections
     private var selectedCategory = "Top"
     private var selectedSubcategory = "T-Shirt"
+
+    // Photo data
+    private var photoPath: String? = null
+    private var photoUri: String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // Hide bottom navigation when this fragment loads
-        (activity as? NavBar)?.hideBottomNavigation()
+        view.post {
+            (activity as? NavBar)?.hideBottomNavigation()
+        }
+        // Get photo data from arguments
+        arguments?.let { bundle ->
+            photoPath = bundle.getString("photo_path")
+            photoUri = bundle.getString("photo_uri")
+        }
 
+        // Initialize views
+        initializeViews(view)
+
+        // Load and display the captured photo
+        loadCapturedPhoto()
+
+        // Set up click listeners
+        setupClickListeners(view)
+    }
+
+    private fun initializeViews(view: View) {
         // Initialize category tabs
         tabBottom = view.findViewById(R.id.tab_bottom)
         tabTop = view.findViewById(R.id.tab_top)
@@ -40,6 +72,11 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         tabShirt = view.findViewById(R.id.tab_shirt)
         tabJacket = view.findViewById(R.id.tab_jacket)
 
+        // Initialize photo display view
+        blackShirtView = view.findViewById(R.id.BlackShirt)
+    }
+
+    private fun setupClickListeners(view: View) {
         // Set up category tab click listeners
         tabBottom.setOnClickListener { selectCategoryTab("Bottom") }
         tabTop.setOnClickListener { selectCategoryTab("Top") }
@@ -51,15 +88,82 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         tabShirt.setOnClickListener { selectSubcategoryTab("Shirt") }
         tabJacket.setOnClickListener { selectSubcategoryTab("Jacket") }
 
-        // Move to AddItem
+        // Back button
         val myItemsView: View = view.findViewById(R.id.BackAddItem)
         myItemsView.setOnClickListener {
-            val outfitFragment = MainPage()
+            val mainPageFragment = MainPage()
             parentFragmentManager.beginTransaction()
-                .replace(R.id.flFragment, outfitFragment)
+                .replace(R.id.flFragment, mainPageFragment)
                 .addToBackStack(null)
                 .commit()
         }
+
+        // Confirm add button
+        val confirmAddView: View = view.findViewById(R.id.ConfirmAdd)
+        confirmAddView.setOnClickListener {
+            addItem()
+        }
+
+        // Allow clicking on photo to retake
+        blackShirtView.setOnClickListener {
+            // Navigate back to MyItems to retake photo
+            val myItemsFragment = MyItems()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.flFragment, myItemsFragment)
+                .addToBackStack(null)
+                .commit()
+        }
+    }
+
+    private fun loadCapturedPhoto() {
+        photoPath?.let { path ->
+            try {
+                val file = File(path)
+                if (file.exists()) {
+                    // Load the bitmap from file
+                    val bitmap = BitmapFactory.decodeFile(path)
+
+                    if (bitmap != null) {
+                        // Scale the bitmap to fit the view while maintaining aspect ratio
+                        val scaledBitmap = scaleBitmapToFitView(bitmap, 366, 249)
+
+                        // Create a custom drawable that centers the image on white background
+                        val drawable = createCenteredImageDrawable(scaledBitmap)
+
+                        // Set the drawable as background
+                        blackShirtView.background = drawable
+
+                        Toast.makeText(requireContext(), "Photo loaded successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to load photo", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Photo file not found", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(), "Error loading photo: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun scaleBitmapToFitView(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
+        val originalWidth = bitmap.width
+        val originalHeight = bitmap.height
+
+        val scaleX = maxWidth.toFloat() / originalWidth
+        val scaleY = maxHeight.toFloat() / originalHeight
+        val scale = minOf(scaleX, scaleY)
+
+        val scaledWidth = (originalWidth * scale).toInt()
+        val scaledHeight = (originalHeight * scale).toInt()
+
+        return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, true)
+    }
+
+    private fun createCenteredImageDrawable(bitmap: Bitmap): BitmapDrawable {
+        val drawable = BitmapDrawable(resources, bitmap)
+        drawable.setTileModeXY(android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP)
+        return drawable
     }
 
     override fun onDestroyView() {
@@ -169,12 +273,22 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
 
     private fun addItem() {
         // Handle the logic for adding the item with selected category and subcategory
-        // You can access selectedCategory and selectedSubcategory variables here
+        // You can access selectedCategory, selectedSubcategory, and photoPath variables here
 
-        // Example: Log the selections or save to database
-        println("Adding item - Category: $selectedCategory, Subcategory: $selectedSubcategory")
+        if (photoPath != null) {
+            // Example: Log the selections or save to database
+            println("Adding item - Category: $selectedCategory, Subcategory: $selectedSubcategory, Photo: $photoPath")
 
-        // Navigate back or show confirmation
-        parentFragmentManager.popBackStack()
+            Toast.makeText(requireContext(), "Item added successfully!", Toast.LENGTH_SHORT).show()
+
+            // Navigate back to MyItems
+            val myItemsFragment = MyItems()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.flFragment, myItemsFragment)
+                .addToBackStack(null)
+                .commit()
+        } else {
+            Toast.makeText(requireContext(), "No photo available", Toast.LENGTH_SHORT).show()
+        }
     }
 }

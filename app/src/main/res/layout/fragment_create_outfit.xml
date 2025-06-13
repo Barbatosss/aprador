@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".CreateOutfit"
-    android:background="#d9d9d9">
+    android:background="#F0F0F0">
 
     <LinearLayout
         android:id="@+id/header_layout"
@@ -75,7 +75,6 @@
                     android:id="@+id/outfitPreviewImage"
                     android:layout_width="0dp"
                     android:layout_height="200dp"
-                    android:src=""
                     android:scaleType="centerInside"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -114,7 +113,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Select Items"
-                        android:textColor="#1A1A1A"
+                        android:textColor="@color/my_custom_brown"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -139,12 +138,12 @@
                         android:orientation="horizontal">
 
                         <Button
+                            android:id="@+id/btnAllItems"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="All (0)"
                             android:background="@drawable/selected_button_background"
-                            android:textColor="@color/white"
-                            app:backgroundTint="@null"
+                            android:textColor="@color/my_custom_brown"
                             android:paddingStart="24dp"
                             android:paddingEnd="24dp"
                             android:paddingTop="10dp"
@@ -154,15 +153,16 @@
                             android:gravity="center"
                             android:minWidth="0dp"
                             android:minHeight="0dp"
-                            android:textAllCaps="false"/>
+                            android:textAllCaps="false"
+                            app:backgroundTint="@null" />
 
                         <Button
+                            android:id="@+id/btnClassicItems"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Classic (0)"
                             android:background="@drawable/unselected_button_background"
-                            android:textColor="#1A1A1A"
-                            app:backgroundTint="@null"
+                            android:textColor="@color/my_custom_brown"
                             android:paddingStart="24dp"
                             android:paddingEnd="24dp"
                             android:paddingTop="10dp"
@@ -171,15 +171,16 @@
                             android:gravity="center"
                             android:minWidth="0dp"
                             android:minHeight="0dp"
-                            android:textAllCaps="false"/>
+                            android:textAllCaps="false"
+                            app:backgroundTint="@null" />
 
                         <Button
+                            android:id="@+id/btnSportItems"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Sport (0)"
                             android:background="@drawable/unselected_button_background"
-                            android:textColor="#1A1A1A"
-                            app:backgroundTint="@null"
+                            android:textColor="@color/my_custom_brown"
                             android:paddingStart="24dp"
                             android:paddingEnd="24dp"
                             android:paddingTop="10dp"
@@ -188,14 +189,15 @@
                             android:gravity="center"
                             android:minWidth="0dp"
                             android:minHeight="0dp"
-                            android:textAllCaps="false"/>
+                            android:textAllCaps="false"
+                            app:backgroundTint="@null" />
                         <Button
+                            android:id="@+id/btnCasualItems"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Casual (0)"
                             android:background="@drawable/unselected_button_background"
-                            android:textColor="#1A1A1A"
-                            app:backgroundTint="@null"
+                            android:textColor="@color/my_custom_brown"
                             android:paddingStart="24dp"
                             android:paddingEnd="24dp"
                             android:paddingTop="10dp"
@@ -204,7 +206,8 @@
                             android:gravity="center"
                             android:minWidth="0dp"
                             android:minHeight="0dp"
-                            android:textAllCaps="false"/>
+                            android:textAllCaps="false"
+                            app:backgroundTint="@null" />
                     </LinearLayout>
                 </HorizontalScrollView>
 
@@ -253,7 +256,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Select Category"
-                        android:textColor="#1A1A1A"
+                        android:textColor="@color/my_custom_brown"
                         android:textSize="20sp"
                         android:textStyle="bold" />
 
@@ -270,7 +273,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="The category into which the look falls after it has been created"
-                    android:textColor="#666666"
+                    android:textColor="@color/my_custom_brown"
                     android:textSize="14sp"
                     android:layout_marginBottom="16dp"/>
 
@@ -283,88 +286,94 @@
                     android:columnOrderPreserved="false">
 
                     <Button
+                        android:id="@+id/btnCategoryClassic"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
                         android:text="Classic"
                         android:background="@drawable/unselected_button_background"
-                        android:textColor="#1A1A1A"
-                        app:backgroundTint="@null"
+                        android:textColor="@color/my_custom_brown"
                         android:paddingTop="12dp"
                         android:paddingBottom="12dp"
                         android:layout_margin="8dp"
                         android:gravity="center"
-                        android:textAllCaps="false"/>
+                        android:textAllCaps="false"
+                        app:backgroundTint="@null" />
 
                     <Button
+                        android:id="@+id/btnCategorySport"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
                         android:text="Sport"
                         android:background="@drawable/unselected_button_background"
-                        android:textColor="#1A1A1A"
-                        app:backgroundTint="@null"
+                        android:textColor="@color/my_custom_brown"
                         android:paddingTop="12dp"
                         android:paddingBottom="12dp"
                         android:layout_margin="8dp"
                         android:gravity="center"
-                        android:textAllCaps="false"/>
+                        android:textAllCaps="false"
+                        app:backgroundTint="@null" />
 
                     <Button
+                        android:id="@+id/btnCategoryCasual"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
                         android:text="Casual"
                         android:background="@drawable/selected_button_background"
-                        android:textColor="@color/white"
-                        app:backgroundTint="@null"
+                        android:textColor="@color/my_custom_brown"
                         android:paddingTop="12dp"
                         android:paddingBottom="12dp"
                         android:layout_margin="8dp"
                         android:gravity="center"
-                        android:textAllCaps="false"/>
+                        android:textAllCaps="false"
+                        app:backgroundTint="@null"/>
 
                     <Button
+                        android:id="@+id/btnCategoryFestive"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
                         android:text="Festive"
                         android:background="@drawable/unselected_button_background"
-                        android:textColor="#1A1A1A"
-                        app:backgroundTint="@null"
+                        android:textColor="@color/my_custom_brown"
                         android:paddingTop="12dp"
                         android:paddingBottom="12dp"
                         android:layout_margin="8dp"
                         android:gravity="center"
-                        android:textAllCaps="false"/>
+                        android:textAllCaps="false"
+                        app:backgroundTint="@null" />
 
                     <Button
+                        android:id="@+id/btnCategoryHome"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
                         android:text="Home"
                         android:background="@drawable/unselected_button_background"
-                        android:textColor="#1A1A1A"
-                        app:backgroundTint="@null"
+                        android:textColor="@color/my_custom_brown"
                         android:paddingTop="12dp"
                         android:paddingBottom="12dp"
                         android:layout_margin="8dp"
                         android:gravity="center"
-                        android:textAllCaps="false"/>
+                        android:textAllCaps="false"
+                        app:backgroundTint="@null" />
 
                     <Button
+                        android:id="@+id/btnCategoryOutside"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_columnWeight="1"
                         android:text="Outside"
                         android:background="@drawable/unselected_button_background"
-                        android:textColor="#1A1A1A"
-                        app:backgroundTint="@null"
+                        android:textColor="@color/my_custom_brown"
                         android:paddingTop="12dp"
                         android:paddingBottom="12dp"
                         android:layout_margin="8dp"
                         android:gravity="center"
-                        android:textAllCaps="false"/>
+                        android:textAllCaps="false"
+                        app:backgroundTint="@null" />
 
                 </GridLayout>
 

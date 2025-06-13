@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="16dp"
+    android:background="#F0F0F0"
+    tools:context=".CalendarFragment">
+
+    <TextView
+        android:id="@+id/tvCalendarTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select a Date"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="@color/my_custom_brown"
+        android:layout_marginBottom="24dp"/>
+
+    <CalendarView
+        android:id="@+id/calendarView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weekDayTextAppearance="@style/CalendarWeekDay"
+        android:dateTextAppearance="@style/CalendarDate"
+        android:layout_marginBottom="24dp"/>
+
+    <TextView
+        android:id="@+id/tvSelectedDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Selected Date: None"
+        android:textSize="18sp"
+        android:textColor="@color/my_custom_brown"
+        android:padding="8dp"
+        android:background="@drawable/rounded_white_background"
+        android:elevation="2dp" />
+
+</LinearLayout>

@@ -436,7 +436,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
 
                 // Update subcategory texts based on gender
                 if (selectedGender == "Men") {
-                    subTab1.text = "T-Shirt"
+                    subTab1.text = "T-Shirts"
                     subTab2.text = "Polo"
                     subTab3.text = "Dress Shirt"
                     subTab4.text = "Tank Top"
@@ -447,7 +447,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
                         selectSubcategoryTab("T-Shirt")
                     }
                 } else { // Women
-                    subTab1.text = "T-Shirt"
+                    subTab1.text = "T-Shirts"
                     subTab2.text = "Blouse"
                     subTab3.text = "Camisole"
                     subTab4.text = "Crop Top"

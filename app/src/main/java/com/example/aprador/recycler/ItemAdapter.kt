@@ -23,7 +23,7 @@ class ItemAdapter(
     class ItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val itemImage: ImageView = itemView.findViewById(R.id.item_image)
         val itemName: TextView = itemView.findViewById(R.id.item_name)
-        val deleteButton: ImageView = itemView.findViewById(R.id.btn_delete)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {

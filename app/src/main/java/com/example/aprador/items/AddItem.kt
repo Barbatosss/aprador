@@ -26,7 +26,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 class AddItem : Fragment(R.layout.fragment_add_item) {
-
     private lateinit var nameView: TextView
     // Category tabs
     private lateinit var tabBottom: TextView

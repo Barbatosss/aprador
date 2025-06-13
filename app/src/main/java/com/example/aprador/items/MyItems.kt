@@ -1,17 +1,13 @@
-package com.example.aprador
+package com.example.aprador.items
 
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.Settings
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -24,11 +20,16 @@ import android.widget.TextView
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.aprador.outfits.MainPage
+import com.example.aprador.R
+import com.example.aprador.navigation.NavBar
+import com.example.aprador.recycler.CategorySection
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.core.net.toUri
+import com.example.aprador.recycler.CategorySectionAdapter
+import com.example.aprador.recycler.Item
 
 class MyItems : Fragment(R.layout.fragment_my_items) {
 

@@ -29,10 +29,10 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".NavBar" />
+        <activity android:name=".navigation.NavBar" />
 
         <activity
-            android:name=".MainActivity"
+            android:name=".login.MainActivity"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

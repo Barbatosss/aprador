@@ -6,7 +6,7 @@
     android:background="#d9d9d9"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MyItems">
+    tools:context=".items.MyItems">
 
     <LinearLayout
         android:id="@+id/header_layout_item"

@@ -1,4 +1,4 @@
-package com.example.aprador
+package com.example.aprador.items
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -13,9 +13,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import java.io.File
-import java.io.IOException
 import androidx.core.graphics.scale
 import androidx.core.net.toUri
+import com.example.aprador.outfits.MainPage
+import com.example.aprador.R
+import com.example.aprador.navigation.NavBar
 
 class AddItem : Fragment(R.layout.fragment_add_item) {
 
@@ -157,8 +159,12 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
             if (file.exists()) {
                 // Get the actual ImageView dimensions after layout
                 photoImageView.post {
-                    val imageViewWidth = if (photoImageView.width > 0) photoImageView.width else dpToPx(DEFAULT_IMAGE_VIEW_WIDTH_DP)
-                    val imageViewHeight = if (photoImageView.height > 0) photoImageView.height else dpToPx(DEFAULT_IMAGE_VIEW_HEIGHT_DP)
+                    val imageViewWidth = if (photoImageView.width > 0) photoImageView.width else dpToPx(
+                        DEFAULT_IMAGE_VIEW_WIDTH_DP
+                    )
+                    val imageViewHeight = if (photoImageView.height > 0) photoImageView.height else dpToPx(
+                        DEFAULT_IMAGE_VIEW_HEIGHT_DP
+                    )
 
                     // Decode the image with proper orientation and sizing
                     val bitmap = decodeImageWithOrientation(path, imageViewWidth, imageViewHeight)
@@ -192,8 +198,12 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     private fun loadImageFromUri(uri: Uri) {
         try {
             photoImageView.post {
-                val imageViewWidth = if (photoImageView.width > 0) photoImageView.width else dpToPx(DEFAULT_IMAGE_VIEW_WIDTH_DP)
-                val imageViewHeight = if (photoImageView.height > 0) photoImageView.height else dpToPx(DEFAULT_IMAGE_VIEW_HEIGHT_DP)
+                val imageViewWidth = if (photoImageView.width > 0) photoImageView.width else dpToPx(
+                    DEFAULT_IMAGE_VIEW_WIDTH_DP
+                )
+                val imageViewHeight = if (photoImageView.height > 0) photoImageView.height else dpToPx(
+                    DEFAULT_IMAGE_VIEW_HEIGHT_DP
+                )
 
                 val inputStream = requireContext().contentResolver.openInputStream(uri)
                 val bitmap = BitmapFactory.decodeStream(inputStream)

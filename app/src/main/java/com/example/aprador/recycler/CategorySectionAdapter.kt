@@ -1,4 +1,4 @@
-package com.example.aprador
+package com.example.aprador.recycler
 
 // CategorySectionAdapter.kt
 import android.view.LayoutInflater
@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.graphics.Rect
+import com.example.aprador.R
 
 class CategorySectionAdapter(
     private var categorySections: List<CategorySection>,

@@ -1,15 +1,13 @@
-package com.example.aprador
+package com.example.aprador.navigation
 
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import com.example.aprador.MainPage
+import com.example.aprador.outfits.MainPage
 import com.example.aprador.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
 

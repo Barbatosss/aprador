@@ -123,17 +123,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/item_name_edittext" />
 
-    <View
-        android:id="@+id/AddCategory"
-        android:layout_width="37dp"
-        android:layout_height="37dp"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/add"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.911"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/item_name_edittext" />
-
     <!-- Category Tabs Container -->
     <LinearLayout
         android:id="@+id/category_tabs_container"
@@ -224,29 +213,69 @@
 
     </LinearLayout>
 
-    <!-- Select Subcategory Section -->
-
-    <View
-        android:id="@+id/SelectSubcategoryHeader"
-        android:layout_width="180dp"
-        android:layout_height="30dp"
+    <!-- Select Subcategory Section with Gender Toggle -->
+    <LinearLayout
+        android:id="@+id/subcategory_header_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
         android:layout_marginTop="24dp"
-        android:background="@drawable/ic_select_subcategory"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.099"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/category_tabs_container_2" />
+        app:layout_constraintTop_toBottomOf="@+id/category_tabs_container_2">
 
-    <View
-        android:id="@+id/AddSubcategory"
-        android:layout_width="37dp"
-        android:layout_height="37dp"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/add"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.911"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/category_tabs_container_2" />
+        <View
+            android:id="@+id/SelectSubcategoryHeader"
+            android:layout_width="180dp"
+            android:layout_height="30dp"
+            android:background="@drawable/ic_select_subcategory" />
+
+        <!-- Gender Toggle Switch -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="@drawable/tab_unselected_background"
+            android:padding="4dp">
+
+            <TextView
+                android:id="@+id/toggle_men"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:background="@drawable/tab_selected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="Men"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/toggle_women"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:background="@drawable/tab_unselected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:text="Women"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <!-- Subcategory Tabs Container -->
     <LinearLayout
@@ -257,11 +286,11 @@
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/SelectSubcategoryHeader">
+        app:layout_constraintTop_toBottomOf="@+id/subcategory_header_container">
 
-        <!-- T-Shirt Tab -->
+        <!-- Subcategory Tab 1 -->
         <TextView
-            android:id="@+id/tab_tshirt"
+            android:id="@+id/subcategory_tab_1"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
@@ -275,9 +304,9 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- Sweater Tab -->
+        <!-- Subcategory Tab 2 -->
         <TextView
-            android:id="@+id/tab_sweater"
+            android:id="@+id/subcategory_tab_2"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
@@ -286,7 +315,7 @@
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
-            android:text="Sweater"
+            android:text="Blouse"
             android:textColor="#000000"
             android:textSize="16sp"
             android:textStyle="bold" />
@@ -304,9 +333,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/subcategory_tabs_container">
 
-        <!-- Shirt Tab -->
+        <!-- Subcategory Tab 3 -->
         <TextView
-            android:id="@+id/tab_shirt"
+            android:id="@+id/subcategory_tab_3"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
@@ -320,9 +349,9 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- Jacket Tab -->
+        <!-- Subcategory Tab 4 -->
         <TextView
-            android:id="@+id/tab_jacket"
+            android:id="@+id/subcategory_tab_4"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
@@ -331,7 +360,7 @@
             android:clickable="true"
             android:focusable="true"
             android:gravity="center"
-            android:text="Jacket"
+            android:text="Tank Top"
             android:textColor="#000000"
             android:textSize="16sp"
             android:textStyle="bold" />

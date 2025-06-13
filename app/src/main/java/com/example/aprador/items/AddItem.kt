@@ -25,12 +25,17 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     private lateinit var tabBottom: TextView
     private lateinit var tabTop: TextView
     private lateinit var tabOuterwear: TextView
+    private lateinit var tabFootwear: TextView
+
+    // Gender toggle tabs (you'll need to add these to your layout)
+    private lateinit var tabMen: TextView
+    private lateinit var tabWomen: TextView
 
     // Subcategory tabs
-    private lateinit var tabTShirt: TextView
-    private lateinit var tabSweater: TextView
-    private lateinit var tabShirt: TextView
-    private lateinit var tabJacket: TextView
+    private lateinit var subTab1: TextView
+    private lateinit var subTab2: TextView
+    private lateinit var subTab3: TextView
+    private lateinit var subTab4: TextView
 
     // Photo display
     private lateinit var photoImageView: ImageView
@@ -38,6 +43,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     // Current selections
     private var selectedCategory = "Top"
     private var selectedSubcategory = "T-Shirt"
+    private var selectedGender = "Men" // Default to Men
 
     // Photo data
     private var photoPath: String? = null
@@ -73,35 +79,61 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
 
         // Set up click listeners
         setupClickListeners(view)
+
+        // Initialize with default selections
+        selectGenderTab("Men")
+        selectCategoryTab("Top")
     }
 
     private fun initializeViews(view: View) {
+        // Initialize gender tabs (add these IDs to your layout XML)
+        tabMen = view.findViewById(R.id.toggle_men)
+        tabWomen = view.findViewById(R.id.toggle_women)
+
         // Initialize category tabs
         tabBottom = view.findViewById(R.id.tab_bottom)
         tabTop = view.findViewById(R.id.tab_top)
         tabOuterwear = view.findViewById(R.id.tab_outerwear)
+        tabFootwear = view.findViewById(R.id.tab_footwear)
 
         // Initialize subcategory tabs
-        tabTShirt = view.findViewById(R.id.tab_tshirt)
-        tabSweater = view.findViewById(R.id.tab_sweater)
-        tabShirt = view.findViewById(R.id.tab_shirt)
-        tabJacket = view.findViewById(R.id.tab_jacket)
+        subTab1 = view.findViewById(R.id.subcategory_tab_1)
+        subTab2 = view.findViewById(R.id.subcategory_tab_2)
+        subTab3 = view.findViewById(R.id.subcategory_tab_3)
+        subTab4 = view.findViewById(R.id.subcategory_tab_4)
 
         // Initialize photo display ImageView
         photoImageView = view.findViewById(R.id.BlackShirt)
     }
 
     private fun setupClickListeners(view: View) {
+        // Set up gender tab click listeners
+        tabMen.setOnClickListener { selectGenderTab("Men") }
+        tabWomen.setOnClickListener { selectGenderTab("Women") }
+
         // Set up category tab click listeners
         tabBottom.setOnClickListener { selectCategoryTab("Bottom") }
         tabTop.setOnClickListener { selectCategoryTab("Top") }
         tabOuterwear.setOnClickListener { selectCategoryTab("Outerwear") }
+        tabFootwear.setOnClickListener { selectCategoryTab("Footwear") }
 
         // Set up subcategory tab click listeners
-        tabTShirt.setOnClickListener { selectSubcategoryTab("T-Shirt") }
-        tabSweater.setOnClickListener { selectSubcategoryTab("Sweater") }
-        tabShirt.setOnClickListener { selectSubcategoryTab("Shirt") }
-        tabJacket.setOnClickListener { selectSubcategoryTab("Jacket") }
+        subTab1.setOnClickListener {
+            val subcategory = subTab1.text.toString()
+            selectSubcategoryTab(subcategory)
+        }
+        subTab2.setOnClickListener {
+            val subcategory = subTab2.text.toString()
+            selectSubcategoryTab(subcategory)
+        }
+        subTab3.setOnClickListener {
+            val subcategory = subTab3.text.toString()
+            selectSubcategoryTab(subcategory)
+        }
+        subTab4.setOnClickListener {
+            val subcategory = subTab4.text.toString()
+            selectSubcategoryTab(subcategory)
+        }
 
         // Back button
         val myItemsView: View = view.findViewById(R.id.BackAddItem)
@@ -129,6 +161,37 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
                 .commit()
         }
     }
+
+    private fun selectGenderTab(gender: String) {
+        selectedGender = gender
+
+        // Reset all gender tabs
+        resetGenderTabs()
+
+        // Set selected gender tab
+        val selectedTab = when (gender) {
+            "Men" -> tabMen
+            "Women" -> tabWomen
+            else -> tabMen
+        }
+
+        selectedTab.setBackgroundResource(R.drawable.tab_selected_background)
+        selectedTab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+
+        // Update subcategory options based on selected gender and category
+        updateSubcategoryOptions()
+    }
+
+    private fun resetGenderTabs() {
+        val genderTabs = arrayOf(tabMen, tabWomen)
+
+        genderTabs.forEach { tab ->
+            tab.setBackgroundResource(R.drawable.tab_unselected_background)
+            tab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
+        }
+    }
+
+    // ... (keep all the existing image loading methods unchanged) ...
 
     private fun loadCapturedPhoto() {
         when {
@@ -372,13 +435,14 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
             "Bottom" -> tabBottom
             "Top" -> tabTop
             "Outerwear" -> tabOuterwear
+            "Footwear" -> tabFootwear
             else -> tabTop
         }
 
         selectedTab.setBackgroundResource(R.drawable.tab_selected_background)
         selectedTab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
 
-        // Update subcategory options based on selected category
+        // Update subcategory options based on selected category and gender
         updateSubcategoryOptions()
     }
 
@@ -388,13 +452,13 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         // Reset all subcategory tabs
         resetSubcategoryTabs()
 
-        // Set selected subcategory tab
-        val selectedTab = when (subcategory) {
-            "T-Shirt" -> tabTShirt
-            "Sweater" -> tabSweater
-            "Shirt" -> tabShirt
-            "Jacket" -> tabJacket
-            else -> tabTShirt
+        // Find which tab contains this subcategory text and select it
+        val selectedTab = when {
+            subTab1.text.toString() == subcategory -> subTab1
+            subTab2.text.toString() == subcategory -> subTab2
+            subTab3.text.toString() == subcategory -> subTab3
+            subTab4.text.toString() == subcategory -> subTab4
+            else -> subTab1
         }
 
         selectedTab.setBackgroundResource(R.drawable.tab_selected_background)
@@ -402,7 +466,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     }
 
     private fun resetCategoryTabs() {
-        val categoryTabs = arrayOf(tabBottom, tabTop, tabOuterwear)
+        val categoryTabs = arrayOf(tabBottom, tabTop, tabOuterwear, tabFootwear)
 
         categoryTabs.forEach { tab ->
             tab.setBackgroundResource(R.drawable.tab_unselected_background)
@@ -411,7 +475,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     }
 
     private fun resetSubcategoryTabs() {
-        val subcategoryTabs = arrayOf(tabTShirt, tabSweater, tabShirt, tabJacket)
+        val subcategoryTabs = arrayOf(subTab1, subTab2, subTab3, subTab4)
 
         subcategoryTabs.forEach { tab ->
             tab.setBackgroundResource(R.drawable.tab_unselected_background)
@@ -420,53 +484,145 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     }
 
     private fun updateSubcategoryOptions() {
-        // Show/hide subcategory options based on selected category
         when (selectedCategory) {
             "Top" -> {
-                // Show T-Shirt, Sweater, Shirt options
-                tabTShirt.visibility = View.VISIBLE
-                tabSweater.visibility = View.VISIBLE
-                tabShirt.visibility = View.VISIBLE
-                tabJacket.visibility = View.GONE // Hide jacket for tops
+                // Show all subcategory tabs for tops
+                subTab1.visibility = View.VISIBLE
+                subTab2.visibility = View.VISIBLE
+                subTab3.visibility = View.VISIBLE
+                subTab4.visibility = View.VISIBLE
 
-                // Auto-select T-Shirt if current selection is not available
-                if (selectedSubcategory == "Jacket") {
-                    selectSubcategoryTab("T-Shirt")
+                // Update subcategory texts based on gender
+                if (selectedGender == "Men") {
+                    subTab1.text = "T-Shirt"
+                    subTab2.text = "Polo"
+                    subTab3.text = "Dress Shirt"
+                    subTab4.text = "Tank Top"
+
+                    // Auto-select appropriate subcategory for men
+                    if (!listOf("T-Shirt", "Polo", "Dress Shirt", "Tank Top").contains(selectedSubcategory)) {
+                        selectedSubcategory = "T-Shirt"
+                        selectSubcategoryTab("T-Shirt")
+                    }
+                } else { // Women
+                    subTab1.text = "T-Shirt"
+                    subTab2.text = "Blouse"
+                    subTab3.text = "Camisole"
+                    subTab4.text = "Crop Top"
+
+                    // Auto-select appropriate subcategory for women
+                    if (!listOf("T-Shirt", "Blouse", "Camisole", "Crop Top").contains(selectedSubcategory)) {
+                        selectedSubcategory = "T-Shirt"
+                        selectSubcategoryTab("T-Shirt")
+                    }
                 }
             }
             "Bottom" -> {
-                // You can customize subcategories for bottoms
-                // For now, hiding all current subcategories
-                tabTShirt.visibility = View.GONE
-                tabSweater.visibility = View.GONE
-                tabShirt.visibility = View.GONE
-                tabJacket.visibility = View.GONE
+                // Show all subcategory tabs for bottoms
+                subTab1.visibility = View.VISIBLE
+                subTab2.visibility = View.VISIBLE
+                subTab3.visibility = View.VISIBLE
+                subTab4.visibility = View.VISIBLE
 
-                // You might want to add bottom-specific subcategories like:
-                // Jeans, Shorts, Pants, Skirts, etc.
+                // Update subcategory texts based on gender
+                if (selectedGender == "Men") {
+                    subTab1.text = "Jeans"
+                    subTab2.text = "Chinos"
+                    subTab3.text = "Shorts"
+                    subTab4.text = "Joggers"
+
+                    // Auto-select appropriate subcategory for men
+                    if (!listOf("Jeans", "Chinos", "Shorts", "Joggers").contains(selectedSubcategory)) {
+                        selectedSubcategory = "Jeans"
+                        selectSubcategoryTab("Jeans")
+                    }
+                } else { // Women
+                    subTab1.text = "Jeans"
+                    subTab2.text = "Leggings"
+                    subTab3.text = "Skirt"
+                    subTab4.text = "Dress"
+
+                    // Auto-select appropriate subcategory for women
+                    if (!listOf("Jeans", "Leggings", "Skirt", "Dress").contains(selectedSubcategory)) {
+                        selectedSubcategory = "Jeans"
+                        selectSubcategoryTab("Jeans")
+                    }
+                }
             }
             "Outerwear" -> {
-                // Show Jacket, hide others
-                tabTShirt.visibility = View.GONE
-                tabSweater.visibility = View.VISIBLE // Sweaters can be outerwear
-                tabShirt.visibility = View.GONE
-                tabJacket.visibility = View.VISIBLE
+                // Show all subcategory tabs for outerwear
+                subTab1.visibility = View.VISIBLE
+                subTab2.visibility = View.VISIBLE
+                subTab3.visibility = View.VISIBLE
+                subTab4.visibility = View.VISIBLE
 
-                // Auto-select Jacket if current selection is not available
-                if (selectedSubcategory == "T-Shirt" || selectedSubcategory == "Shirt") {
-                    selectSubcategoryTab("Jacket")
+                // Update subcategory texts based on gender
+                if (selectedGender == "Men") {
+                    subTab1.text = "Jacket"
+                    subTab2.text = "Hoodie"
+                    subTab3.text = "Blazer"
+                    subTab4.text = "Coat"
+
+                    // Auto-select appropriate subcategory for men
+                    if (!listOf("Jacket", "Hoodie", "Blazer", "Coat").contains(selectedSubcategory)) {
+                        selectedSubcategory = "Jacket"
+                        selectSubcategoryTab("Jacket")
+                    }
+                } else { // Women
+                    subTab1.text = "Cardigan"
+                    subTab2.text = "Blazer"
+                    subTab3.text = "Coat"
+                    subTab4.text = "Kimono"
+
+                    // Auto-select appropriate subcategory for women
+                    if (!listOf("Cardigan", "Blazer", "Coat", "Kimono").contains(selectedSubcategory)) {
+                        selectedSubcategory = "Cardigan"
+                        selectSubcategoryTab("Cardigan")
+                    }
+                }
+            }
+            "Footwear" -> {
+                // Show all subcategory tabs for footwear
+                subTab1.visibility = View.VISIBLE
+                subTab2.visibility = View.VISIBLE
+                subTab3.visibility = View.VISIBLE
+                subTab4.visibility = View.VISIBLE
+
+                // Update subcategory texts based on gender
+                if (selectedGender == "Men") {
+                    subTab1.text = "Sneakers"
+                    subTab2.text = "Dress Shoes"
+                    subTab3.text = "Boots"
+                    subTab4.text = "Sandals"
+
+                    // Auto-select appropriate subcategory for men
+                    if (!listOf("Sneakers", "Dress Shoes", "Boots", "Sandals").contains(selectedSubcategory)) {
+                        selectedSubcategory = "Sneakers"
+                        selectSubcategoryTab("Sneakers")
+                    }
+                } else { // Women
+                    subTab1.text = "Sneakers"
+                    subTab2.text = "Heels"
+                    subTab3.text = "Flats"
+                    subTab4.text = "Boots"
+
+                    // Auto-select appropriate subcategory for women
+                    if (!listOf("Sneakers", "Heels", "Flats", "Boots").contains(selectedSubcategory)) {
+                        selectedSubcategory = "Sneakers"
+                        selectSubcategoryTab("Sneakers")
+                    }
                 }
             }
         }
     }
 
     private fun addItem() {
-        // Handle the logic for adding the item with selected category and subcategory
-        // You can access selectedCategory, selectedSubcategory, and photoPath variables here
+        // Handle the logic for adding the item with selected category, subcategory, gender, and photo
+        // You can access selectedCategory, selectedSubcategory, selectedGender, and photoPath variables here
 
         if (photoPath != null || photoUri != null) {
             // Example: Log the selections or save to database
-            println("Adding item - Category: $selectedCategory, Subcategory: $selectedSubcategory, Photo: $photoPath")
+            println("Adding item - Gender: $selectedGender, Category: $selectedCategory, Subcategory: $selectedSubcategory, Photo: $photoPath")
 
             Toast.makeText(requireContext(), "Item added successfully!", Toast.LENGTH_SHORT).show()
 

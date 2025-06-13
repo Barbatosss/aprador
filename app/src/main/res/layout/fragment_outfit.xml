@@ -75,7 +75,6 @@
                     android:id="@+id/outfitPreviewImage"
                     android:layout_width="0dp"
                     android:layout_height="200dp"
-                    android:src=""
                     android:scaleType="centerInside"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

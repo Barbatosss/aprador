@@ -18,6 +18,9 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
 
         val outfitView: View = view.findViewById(R.id.OutfitView)
 
+        val outfitIcons: View = view.findViewById(R.id.OutfitIcons)
+
+
         // Move to MyOutfits
         outfitView.setOnClickListener {
 
@@ -34,6 +37,16 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
             val itemFragment = MyItems()
             parentFragmentManager.beginTransaction()
                 .replace(R.id.flFragment, itemFragment)
+                .addToBackStack(null)
+                .commit()
+        }
+
+        // Move to Create outfit
+        outfitIcons.setOnClickListener {
+
+            val createOutfit = CreateOutfit()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.flFragment, createOutfit)
                 .addToBackStack(null)
                 .commit()
         }

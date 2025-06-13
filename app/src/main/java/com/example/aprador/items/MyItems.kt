@@ -3,12 +3,14 @@ package com.example.aprador.items
 import android.Manifest
 import android.app.Activity
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -30,6 +32,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import com.example.aprador.recycler.CategorySectionAdapter
 import com.example.aprador.recycler.Item
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+
 
 class MyItems : Fragment(R.layout.fragment_my_items) {
 
@@ -173,11 +178,18 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     }
 
     private fun loadItemsData() {
-        // TODO: Replace this with actual data loading from your database/storage
-        allItems = getSampleData() // Replace with your actual data source
+
+        allItems = loadItems(requireContext())
+
+        Log.d("LOAD_ITEMS", "Loaded ${allItems.size} items")
+        allItems.forEach {
+            Log.d("LOAD_ITEMS", it.toString())
+        }
+
         updateCategorySections()
         updateTabCounts()
         updateEmptyState()
+
     }
 
     private fun updateCategorySections() {
@@ -306,6 +318,22 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
             Item("4", "Cotton Sweater", "/path/to/sweater2.jpg", "Tops", "Sweaters"),
             Item("5", "Denim Jeans", "/path/to/jeans1.jpg", "Bottoms", "Jeans"),
         )
+    }
+
+    private fun loadItems(context: Context): List<Item> {
+        return try {
+            val file = File(context.filesDir, "db.json")
+            if (file.exists() && file.readText().isNotBlank()) {
+                val json = file.readText()
+                val type = object : TypeToken<List<Item>>() {}.type
+                Gson().fromJson(json, type)
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
     }
 
     // Method to refresh data (call this when returning from AddItem)

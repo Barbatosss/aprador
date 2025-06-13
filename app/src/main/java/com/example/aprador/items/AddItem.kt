@@ -1,16 +1,19 @@
 package com.example.aprador.items
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import java.io.File
 import androidx.core.graphics.scale
@@ -18,9 +21,12 @@ import androidx.core.net.toUri
 import com.example.aprador.outfits.MainPage
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
+import com.example.aprador.recycler.Item
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class AddItem : Fragment(R.layout.fragment_add_item) {
-
+    private lateinit var nameView: TextView
     // Category tabs
     private lateinit var tabBottom: TextView
     private lateinit var tabTop: TextView
@@ -51,6 +57,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         private const val THUMBNAIL_SIZE = 400 // For thumbnail processing
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -76,6 +83,8 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     }
 
     private fun initializeViews(view: View) {
+
+        nameView = view.findViewById(R.id.item_name_edittext)
         // Initialize category tabs
         tabBottom = view.findViewById(R.id.tab_bottom)
         tabTop = view.findViewById(R.id.tab_top)
@@ -130,183 +139,117 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun loadCapturedPhoto() {
         when {
             !photoUri.isNullOrEmpty() && photoUri != "null" -> {
-                // Check if it's a content URI (from gallery) or file URI (from camera)
                 val uri = photoUri!!.toUri()
                 if (uri.scheme == "content") {
-                    // Load from content URI (gallery selection)
-                    loadImageFromUri(uri)
+                    loadImage(uri = uri)
                 } else {
-                    // Load from file URI or path (camera capture)
-                    loadImageFromPath(photoPath ?: "")
+                    loadImage(path = photoPath)
                 }
             }
-            !photoPath.isNullOrEmpty() -> {
-                // Load from file path (camera capture fallback)
-                loadImageFromPath(photoPath!!)
-            }
-            else -> {
-                Toast.makeText(requireContext(), "No photo available", Toast.LENGTH_SHORT).show()
-            }
+            !photoPath.isNullOrEmpty() -> loadImage(path = photoPath)
+            else -> showToast("No photo available")
         }
     }
 
-    private fun loadImageFromPath(path: String) {
-        try {
-            val file = File(path)
-            if (file.exists()) {
-                // Get the actual ImageView dimensions after layout
-                photoImageView.post {
-                    val imageViewWidth = if (photoImageView.width > 0) photoImageView.width else dpToPx(
-                        DEFAULT_IMAGE_VIEW_WIDTH_DP
-                    )
-                    val imageViewHeight = if (photoImageView.height > 0) photoImageView.height else dpToPx(
-                        DEFAULT_IMAGE_VIEW_HEIGHT_DP
-                    )
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun loadImage(path: String? = null, uri: Uri? = null) {
+        photoImageView.post {
+            val width = photoImageView.width.takeIf { it > 0 } ?: dpToPx(DEFAULT_IMAGE_VIEW_WIDTH_DP)
+            val height = photoImageView.height.takeIf { it > 0 } ?: dpToPx(DEFAULT_IMAGE_VIEW_HEIGHT_DP)
 
-                    // Decode the image with proper orientation and sizing
-                    val bitmap = decodeImageWithOrientation(path, imageViewWidth, imageViewHeight)
+            val bitmap = when {
+                path != null && File(path).exists() -> decodeImageWithOrientation(path, width, height)
+                uri != null -> decodeBitmapFromUri(uri)?.let { correctOrientation(it, uri) }
+                else -> null
+            }
 
-                    if (bitmap != null) {
-                        // Scale and crop the bitmap to fit the ImageView dimensions
-                        val scaledBitmap = scaleAndCropBitmap(bitmap, imageViewWidth, imageViewHeight)
-
-                        // Set the bitmap to ImageView
-                        photoImageView.setImageBitmap(scaledBitmap)
-                        photoImageView.scaleType = ImageView.ScaleType.CENTER_CROP
-                        // Remove background when photo is loaded
-                        photoImageView.background = null
-
-                        Toast.makeText(requireContext(), "Photo loaded successfully", Toast.LENGTH_SHORT).show()
-                    } else {
-                        setPlaceholderImage()
-                        Toast.makeText(requireContext(), "Failed to load photo", Toast.LENGTH_SHORT).show()
-                    }
+            if (bitmap != null) {
+                photoImageView.apply {
+                    setImageBitmap(scaleAndCropBitmap(bitmap, width, height))
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    background = null
                 }
+                showToast("Photo loaded successfully")
             } else {
                 setPlaceholderImage()
-                Toast.makeText(requireContext(), "Photo file not found", Toast.LENGTH_SHORT).show()
+                showToast("Failed to load photo")
             }
-        } catch (e: Exception) {
-            setPlaceholderImage()
-            Toast.makeText(requireContext(), "Error loading photo: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun loadImageFromUri(uri: Uri) {
-        try {
-            photoImageView.post {
-                val imageViewWidth = if (photoImageView.width > 0) photoImageView.width else dpToPx(
-                    DEFAULT_IMAGE_VIEW_WIDTH_DP
-                )
-                val imageViewHeight = if (photoImageView.height > 0) photoImageView.height else dpToPx(
-                    DEFAULT_IMAGE_VIEW_HEIGHT_DP
-                )
-
-                val inputStream = requireContext().contentResolver.openInputStream(uri)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                inputStream?.close()
-
-                if (bitmap != null) {
-                    // Scale and crop the bitmap to fit the ImageView dimensions
-                    val scaledBitmap = scaleAndCropBitmap(bitmap, imageViewWidth, imageViewHeight)
-
-                    photoImageView.setImageBitmap(scaledBitmap)
-                    photoImageView.scaleType = ImageView.ScaleType.CENTER_CROP
-                    // Remove background when photo is loaded
-                    photoImageView.background = null
-
-                    Toast.makeText(requireContext(), "Photo loaded successfully", Toast.LENGTH_SHORT).show()
-                } else {
-                    setPlaceholderImage()
-                    Toast.makeText(requireContext(), "Failed to load photo from gallery", Toast.LENGTH_SHORT).show()
-                }
-            }
-        } catch (e: Exception) {
-            setPlaceholderImage()
-            Toast.makeText(requireContext(), "Error loading photo: ${e.message}", Toast.LENGTH_SHORT).show()
+    private fun decodeBitmapFromUri(uri: Uri): Bitmap? = try {
+        requireContext().contentResolver.openInputStream(uri).use {
+            BitmapFactory.decodeStream(it)
         }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 
-    private fun scaleAndCropBitmap(bitmap: Bitmap, targetWidthPx: Int, targetHeightPx: Int): Bitmap {
-        val originalWidth = bitmap.width
-        val originalHeight = bitmap.height
-
-        // Calculate scale factors
-        val scaleX = targetWidthPx.toFloat() / originalWidth
-        val scaleY = targetHeightPx.toFloat() / originalHeight
-
-        // Use the larger scale factor to ensure the image fills the entire view
-        val scale = maxOf(scaleX, scaleY)
-
-        // Calculate new dimensions
-        val scaledWidth = (originalWidth * scale).toInt()
-        val scaledHeight = (originalHeight * scale).toInt()
-
-        // Scale the bitmap
-        val scaledBitmap = bitmap.scale(scaledWidth, scaledHeight)
-
-        // Calculate crop coordinates to center the image
-        val cropX = maxOf(0, (scaledWidth - targetWidthPx) / 2)
-        val cropY = maxOf(0, (scaledHeight - targetHeightPx) / 2)
-
-        // Ensure crop dimensions don't exceed bitmap bounds
-        val cropWidth = minOf(targetWidthPx, scaledWidth - cropX)
-        val cropHeight = minOf(targetHeightPx, scaledHeight - cropY)
-
-        // Create the final cropped bitmap
-        return Bitmap.createBitmap(scaledBitmap, cropX, cropY, cropWidth, cropHeight)
-    }
-
-    private fun decodeImageWithOrientation(imagePath: String, targetWidth: Int, targetHeight: Int): Bitmap? {
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun correctOrientation(bitmap: Bitmap, uri: Uri): Bitmap {
         return try {
-            // First, decode image to get dimensions
-            val options = BitmapFactory.Options()
-            options.inJustDecodeBounds = true
-            BitmapFactory.decodeFile(imagePath, options)
-
-            // Calculate inSampleSize based on target dimensions
-            options.inSampleSize = calculateInSampleSize(options, targetWidth, targetHeight)
-            options.inJustDecodeBounds = false
-
-            // Decode the actual bitmap
-            var bitmap = BitmapFactory.decodeFile(imagePath, options)
-
-            // Check for EXIF orientation and rotate if necessary
-            val exif = ExifInterface(imagePath)
-            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-
-            bitmap = when (orientation) {
+            val inputStream = requireContext().contentResolver.openInputStream(uri)
+            val exif = inputStream?.let { ExifInterface(it) }
+            val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL) ?: 0
+            when (orientation) {
                 ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
                 ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
                 ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
                 else -> bitmap
             }
-
-            bitmap
         } catch (e: Exception) {
-            e.printStackTrace()
-            null
+            bitmap
         }
     }
 
+    private fun decodeImageWithOrientation(path: String, width: Int, height: Int): Bitmap? = try {
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
+        BitmapFactory.decodeFile(path, options)
+
+        options.inSampleSize = calculateInSampleSize(options, width, height)
+        options.inJustDecodeBounds = false
+
+        val bitmap = BitmapFactory.decodeFile(path, options)
+        val exif = ExifInterface(path)
+        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+        when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
+            ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
+            ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
+            else -> bitmap
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+
     private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(degrees)
+        val matrix = Matrix().apply { postRotate(degrees) }
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
+    private fun scaleAndCropBitmap(bitmap: Bitmap, targetWidth: Int, targetHeight: Int): Bitmap {
+        val scale = maxOf(targetWidth.toFloat() / bitmap.width, targetHeight.toFloat() / bitmap.height)
+        val scaled = Bitmap.createScaledBitmap(bitmap, (bitmap.width * scale).toInt(), (bitmap.height * scale).toInt(), true)
+        val cropX = maxOf(0, (scaled.width - targetWidth) / 2)
+        val cropY = maxOf(0, (scaled.height - targetHeight) / 2)
+        return Bitmap.createBitmap(scaled, cropX, cropY, targetWidth, targetHeight)
+    }
+
     private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-        val height = options.outHeight
-        val width = options.outWidth
         var inSampleSize = 1
-
+        val (width, height) = options.outWidth to options.outHeight
         if (height > reqHeight || width > reqWidth) {
-            val halfHeight = height / 2
-            val halfWidth = width / 2
-
+            var halfHeight = height / 2
+            var halfWidth = width / 2
             while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
                 inSampleSize *= 2
             }
@@ -314,12 +257,11 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         return inSampleSize
     }
 
-    // Utility function to convert dp to pixels
-    private fun dpToPx(dp: Int): Int {
-        val density = resources.displayMetrics.density
-        return (dp * density).toInt()
-    }
+    private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
 
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
     // Alternative methods for different image processing needs
     private fun createThumbnail(imagePath: String): Bitmap? {
         return decodeImageWithOrientation(imagePath, THUMBNAIL_SIZE, THUMBNAIL_SIZE)
@@ -459,18 +401,49 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
             }
         }
     }
+    private fun saveNewItemToJson(context: Context, newItem: Item) {
+        val file = File(context.filesDir, "db.json")
+
+        // Read existing items
+        val items: MutableList<Item> = if (file.exists() && file.readText().isNotBlank()) {
+            val json = file.readText()
+            val type = object : TypeToken<List<Item>>() {}.type
+            Gson().fromJson(json, type)
+        } else {
+            mutableListOf()
+        }
+
+        // Add new item
+        items.add(newItem)
+
+        // Write updated list back to file
+        val updatedJson = Gson().toJson(items)
+        file.writeText(updatedJson)
+    }
 
     private fun addItem() {
         // Handle the logic for adding the item with selected category and subcategory
         // You can access selectedCategory, selectedSubcategory, and photoPath variables here
 
         if (photoPath != null || photoUri != null) {
-            // Example: Log the selections or save to database
-            println("Adding item - Category: $selectedCategory, Subcategory: $selectedSubcategory, Photo: $photoPath")
+            if (photoPath != null || photoUri != null) {
+                val imagePathToUse = photoPath ?: photoUri.toString()
 
-            Toast.makeText(requireContext(), "Item added successfully!", Toast.LENGTH_SHORT).show()
+                val newItem = Item(
+                    id = System.currentTimeMillis().toString(), // or use UUID.randomUUID().toString()
+                    name = nameView.text.toString(), // You can replace this with actual user input
+                    imagePath = imagePathToUse,
+                    category = selectedCategory,
+                    subcategory = selectedSubcategory
+                )
 
-            // Navigate back to MyItems
+
+                saveNewItemToJson(requireContext(), newItem)
+
+                Toast.makeText(requireContext(), "Item added successfully!", Toast.LENGTH_SHORT).show()
+
+
+                // Navigate back to MyItems
             val myItemsFragment = MyItems()
             parentFragmentManager.beginTransaction()
                 .replace(R.id.flFragment, myItemsFragment)
@@ -479,5 +452,6 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         } else {
             Toast.makeText(requireContext(), "No photo available", Toast.LENGTH_SHORT).show()
         }
+    }
     }
 }

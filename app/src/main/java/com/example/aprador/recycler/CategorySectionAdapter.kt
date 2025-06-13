@@ -12,7 +12,9 @@ import com.example.aprador.R
 
 class CategorySectionAdapter(
     private var categorySections: List<CategorySection>,
-    private val onItemClick: (Item) -> Unit = {}
+    private val onItemClick: (Item) -> Unit = {},
+
+
 ) : RecyclerView.Adapter<CategorySectionAdapter.CategorySectionViewHolder>() {
 
     // ViewHolder pool for better performance

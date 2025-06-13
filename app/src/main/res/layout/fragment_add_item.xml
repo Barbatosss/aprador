@@ -8,10 +8,13 @@
     android:background="#d9d9d9"
     tools:context=".AddItem">
 
+    <!-- Image Container - Fixed size for better photo display -->
+
     <LinearLayout
         android:id="@+id/header_layout_addItem"
         android:layout_width="match_parent"
         android:layout_height="88dp"
+        android:layout_marginTop="4dp"
         android:background="#FEFEFE"
         android:elevation="4dp"
         android:gravity="center_vertical"
@@ -21,6 +24,7 @@
         android:paddingEnd="16dp"
         android:paddingBottom="12dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -53,55 +57,84 @@
             android:layout_marginStart="16dp"
             android:background="@drawable/ic_confirm_add"
             android:clickable="true"
-            android:contentDescription="Create Outfit"
+            android:contentDescription="Add Photo"
             android:focusable="true" />
 
     </LinearLayout>
 
-    <!-- Image Container -->
-    <View
+    <ImageView
         android:id="@+id/BlackShirt"
-        android:layout_width="366dp"
-        android:layout_height="249dp"
+        android:layout_width="313dp"
+        android:layout_height="229dp"
         android:layout_marginTop="16dp"
+        android:adjustViewBounds="false"
         android:background="@drawable/shirt"
         android:clickable="true"
-        android:contentDescription="Black Shirt"
+        android:contentDescription="Item Photo"
+        android:cropToPadding="true"
         android:focusable="true"
+        android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/header_layout_addItem" />
 
-    <!-- Select Category Section -->
+    <!-- Item Name Section -->
 
-    <!-- Category Tabs Container -->
+    <View
+        android:id="@+id/item_name_label"
+        android:layout_width="100dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/item_name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/BlackShirt" />
+
+    <EditText
+        android:id="@+id/item_name_edittext"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/tab_unselected_background"
+        android:hint="Enter item name"
+        android:inputType="text"
+        android:maxLines="1"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textColor="#000000"
+        android:textColorHint="#666666"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/item_name_label" />
+
+    <!-- Select Category Section -->
 
     <View
         android:id="@+id/SelectCategoryHeader"
-        android:layout_width="237dp"
-        android:layout_height="39dp"
-        android:layout_marginTop="8dp"
+        android:layout_width="180dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/ic_select_category"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.132"
+        app:layout_constraintHorizontal_bias="0.103"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/BlackShirt"
-        app:layout_constraintVertical_bias="0.024" />
+        app:layout_constraintTop_toBottomOf="@+id/item_name_edittext" />
 
     <View
         android:id="@+id/AddCategory"
         android:layout_width="37dp"
         android:layout_height="37dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:background="@drawable/add"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.911"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/BlackShirt"
-        app:layout_constraintVertical_bias="0.024" />
+        app:layout_constraintTop_toBottomOf="@+id/item_name_edittext" />
 
+    <!-- Category Tabs Container -->
     <LinearLayout
         android:id="@+id/category_tabs_container"
         android:layout_width="366dp"
@@ -173,31 +206,36 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- Empty space to match layout -->
-        <View
+        <!-- Footwear Tab -->
+        <TextView
+            android:id="@+id/tab_footwear"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_weight="1"
-            android:layout_marginStart="8dp" />
+            android:layout_marginStart="8dp"
+            android:background="@drawable/tab_unselected_background"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:text="Footwear"
+            android:textColor="#000000"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
     </LinearLayout>
 
     <!-- Select Subcategory Section -->
 
-    <!-- Subcategory Tabs Container -->
-
     <View
         android:id="@+id/SelectSubcategoryHeader"
-        android:layout_width="237dp"
-        android:layout_height="38dp"
+        android:layout_width="180dp"
+        android:layout_height="30dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/ic_select_subcategory"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.132"
+        app:layout_constraintHorizontal_bias="0.099"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/category_tabs_container_2"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/category_tabs_container_2" />
 
     <View
         android:id="@+id/AddSubcategory"
@@ -205,13 +243,12 @@
         android:layout_height="37dp"
         android:layout_marginTop="24dp"
         android:background="@drawable/add"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.911"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/category_tabs_container_2"
-        app:layout_constraintVertical_bias="0.006" />
+        app:layout_constraintTop_toBottomOf="@+id/category_tabs_container_2" />
 
+    <!-- Subcategory Tabs Container -->
     <LinearLayout
         android:id="@+id/subcategory_tabs_container"
         android:layout_width="366dp"

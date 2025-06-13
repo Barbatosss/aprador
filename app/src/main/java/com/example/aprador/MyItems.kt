@@ -2,13 +2,16 @@ package com.example.aprador
 
 import android.Manifest
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.Settings
 import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
@@ -22,6 +25,7 @@ import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.core.net.toUri
 
 class MyItems : Fragment(R.layout.fragment_my_items) {
 
@@ -31,7 +35,10 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
 
     // Camera related properties
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
-    private lateinit var permissionLauncher: ActivityResultLauncher<String>
+    private lateinit var galleryLauncher: ActivityResultLauncher<Intent>
+    private lateinit var cameraPermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var storagePermissionLauncher: ActivityResultLauncher<String>
+    private lateinit var mediaPermissionLauncher: ActivityResultLauncher<Array<String>>
     private var currentPhotoPath: String = ""
     private var capturedImageUri: Uri? = null
 
@@ -49,12 +56,46 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
             }
         }
 
-        // Initialize permission launcher
-        permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        // Initialize gallery launcher
+        galleryLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK && result.data != null) {
+                val selectedImageUri = result.data?.data
+                if (selectedImageUri != null) {
+                    capturedImageUri = selectedImageUri
+                    currentPhotoPath = selectedImageUri.toString()
+                    navigateToAddItemWithPhoto()
+                }
+            } else {
+                Toast.makeText(requireContext(), "Image selection cancelled", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Initialize camera permission launcher
+        cameraPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
                 openCamera()
             } else {
                 Toast.makeText(requireContext(), "Camera permission is required to take photos", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Initialize storage permission launcher (for older Android versions)
+        storagePermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                openGallery()
+            } else {
+                Toast.makeText(requireContext(), "Storage permission is required to access photos", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Initialize media permission launcher (for Android 13+)
+        mediaPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            val readImagesGranted = permissions[Manifest.permission.READ_MEDIA_IMAGES] ?: false
+
+            if (readImagesGranted) {
+                openGallery()
+            } else {
+                Toast.makeText(requireContext(), "Media permission is required to access photos", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -86,10 +127,10 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
                 .commit()
         }
 
-        // Modified CreateItem click listener to open camera
+        // Modified CreateItem click listener to show photo selection dialog
         val addItemView: View = view.findViewById(R.id.CreateItem)
         addItemView.setOnClickListener {
-            checkCameraPermissionAndOpen()
+            showPhotoSelectionDialog()
         }
     }
 
@@ -99,6 +140,24 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         (activity as? NavBar)?.showBottomNavigation()
     }
 
+    private fun showPhotoSelectionDialog() {
+        val options = arrayOf("Take Photo", "Upload from Gallery")
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("Add Photo")
+            .setItems(options) { dialog, which ->
+                when (which) {
+                    0 -> checkCameraPermissionAndOpen() // Take Photo
+                    1 -> checkStoragePermissionAndOpen() // Upload from Gallery
+                }
+                dialog.dismiss()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
     private fun checkCameraPermissionAndOpen() {
         when {
             ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> {
@@ -106,15 +165,76 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
                 openCamera()
             }
             shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
-                // Show rationale and request permission
-                Toast.makeText(requireContext(), "Camera permission is needed to take photos of your items", Toast.LENGTH_LONG).show()
-                permissionLauncher.launch(Manifest.permission.CAMERA)
+                // Show rationale dialog for camera permission
+                showPermissionRationaleDialog(
+                    "Camera Permission Required",
+                    "This app needs camera access to take photos of your clothing items. Please grant camera permission to continue.",
+                    { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
+                )
             }
             else -> {
-                // Request permission directly
-                permissionLauncher.launch(Manifest.permission.CAMERA)
+                // First time - show explanation dialog then request permission
+                showPermissionExplanationDialog(
+                    "Camera Access",
+                    "To take photos of your clothing items, we need access to your camera. This will help you catalog your wardrobe.",
+                    { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
+                )
             }
         }
+    }
+
+    private fun checkStoragePermissionAndOpen() {
+        when {
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED -> {
+                openGallery()
+            }
+            shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
+                showPermissionRationaleDialog(
+                    "Media Permission Required",
+                    "This app needs access to your photos to let you select images from your gallery. Please grant media permission to continue.",
+                    { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
+                )
+            }
+            else -> {
+                showPermissionExplanationDialog(
+                    "Gallery Access",
+                    "To select photos from your gallery, we need access to your media files. This will help you add existing photos to your wardrobe.",
+                    { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
+                )
+            }
+        }
+    }
+
+    private fun showPermissionExplanationDialog(title: String, message: String, onPositive: () -> Unit) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Allow") { dialog, _ ->
+                dialog.dismiss()
+                onPositive()
+            }
+            .setNegativeButton("Not Now") { dialog, _ ->
+                dialog.dismiss()
+                Toast.makeText(requireContext(), "Permission needed to use this feature", Toast.LENGTH_SHORT).show()
+            }
+            .setCancelable(false)
+            .show()
+    }
+
+    private fun showPermissionRationaleDialog(title: String, message: String, onPositive: () -> Unit) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("Grant Permission") { dialog, _ ->
+                dialog.dismiss()
+                onPositive()
+            }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+                Toast.makeText(requireContext(), "Permission is required for this feature", Toast.LENGTH_SHORT).show()
+            }
+            .setCancelable(false)
+            .show()
     }
 
     private fun openCamera() {
@@ -147,6 +267,12 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         }
     }
 
+    private fun openGallery() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        intent.type = "image/*"
+        galleryLauncher.launch(intent)
+    }
+
     @Throws(IOException::class)
     private fun createImageFile(): File {
         // Create an image file name
@@ -165,10 +291,21 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     private fun navigateToAddItemWithPhoto() {
         val addItemFragment = AddItem()
 
-        // Pass the photo path to AddItem fragment
+        // Pass the photo data to AddItem fragment
         val bundle = Bundle()
-        bundle.putString("photo_path", currentPhotoPath)
-        bundle.putString("photo_uri", capturedImageUri.toString())
+
+        // For camera captures, currentPhotoPath contains the file path
+        // For gallery selections, capturedImageUri contains the content URI
+        if (capturedImageUri != null) {
+            bundle.putString("photo_uri", capturedImageUri.toString())
+            // Only add photo_path if it's a real file path (camera capture)
+            if (currentPhotoPath.isNotEmpty() && !currentPhotoPath.startsWith("content://")) {
+                bundle.putString("photo_path", currentPhotoPath)
+            }
+        } else if (currentPhotoPath.isNotEmpty()) {
+            bundle.putString("photo_path", currentPhotoPath)
+        }
+
         addItemFragment.arguments = bundle
 
         parentFragmentManager.beginTransaction()

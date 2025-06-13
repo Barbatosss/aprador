@@ -2,7 +2,8 @@ package com.example.aprador
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -12,6 +13,9 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import java.io.File
+import java.io.IOException
+import androidx.core.graphics.scale
+import androidx.core.net.toUri
 
 class AddItem : Fragment(R.layout.fragment_add_item) {
 
@@ -27,7 +31,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     private lateinit var tabJacket: TextView
 
     // Photo display
-    private lateinit var blackShirtView: View
+    private lateinit var photoImageView: ImageView
 
     // Current selections
     private var selectedCategory = "Top"
@@ -37,6 +41,14 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     private var photoPath: String? = null
     private var photoUri: String? = null
 
+    // Dynamic sizing constants - can be adjusted based on needs
+    companion object {
+        private const val DEFAULT_IMAGE_VIEW_WIDTH_DP = 300
+        private const val DEFAULT_IMAGE_VIEW_HEIGHT_DP = 180
+        private const val MAX_BITMAP_DIMENSION = 1024 // Reduced for better memory management
+        private const val THUMBNAIL_SIZE = 400 // For thumbnail processing
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -44,6 +56,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         view.post {
             (activity as? NavBar)?.hideBottomNavigation()
         }
+
         // Get photo data from arguments
         arguments?.let { bundle ->
             photoPath = bundle.getString("photo_path")
@@ -72,8 +85,8 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         tabShirt = view.findViewById(R.id.tab_shirt)
         tabJacket = view.findViewById(R.id.tab_jacket)
 
-        // Initialize photo display view
-        blackShirtView = view.findViewById(R.id.BlackShirt)
+        // Initialize photo display ImageView
+        photoImageView = view.findViewById(R.id.BlackShirt)
     }
 
     private fun setupClickListeners(view: View) {
@@ -105,7 +118,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         }
 
         // Allow clicking on photo to retake
-        blackShirtView.setOnClickListener {
+        photoImageView.setOnClickListener {
             // Navigate back to MyItems to retake photo
             val myItemsFragment = MyItems()
             parentFragmentManager.beginTransaction()
@@ -116,54 +129,220 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     }
 
     private fun loadCapturedPhoto() {
-        photoPath?.let { path ->
-            try {
-                val file = File(path)
-                if (file.exists()) {
-                    // Load the bitmap from file
-                    val bitmap = BitmapFactory.decodeFile(path)
-
-                    if (bitmap != null) {
-                        // Scale the bitmap to fit the view while maintaining aspect ratio
-                        val scaledBitmap = scaleBitmapToFitView(bitmap, 366, 249)
-
-                        // Create a custom drawable that centers the image on white background
-                        val drawable = createCenteredImageDrawable(scaledBitmap)
-
-                        // Set the drawable as background
-                        blackShirtView.background = drawable
-
-                        Toast.makeText(requireContext(), "Photo loaded successfully", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(requireContext(), "Failed to load photo", Toast.LENGTH_SHORT).show()
-                    }
+        when {
+            !photoUri.isNullOrEmpty() && photoUri != "null" -> {
+                // Check if it's a content URI (from gallery) or file URI (from camera)
+                val uri = photoUri!!.toUri()
+                if (uri.scheme == "content") {
+                    // Load from content URI (gallery selection)
+                    loadImageFromUri(uri)
                 } else {
-                    Toast.makeText(requireContext(), "Photo file not found", Toast.LENGTH_SHORT).show()
+                    // Load from file URI or path (camera capture)
+                    loadImageFromPath(photoPath ?: "")
                 }
-            } catch (e: Exception) {
-                Toast.makeText(requireContext(), "Error loading photo: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+            !photoPath.isNullOrEmpty() -> {
+                // Load from file path (camera capture fallback)
+                loadImageFromPath(photoPath!!)
+            }
+            else -> {
+                Toast.makeText(requireContext(), "No photo available", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun scaleBitmapToFitView(bitmap: Bitmap, maxWidth: Int, maxHeight: Int): Bitmap {
+    private fun loadImageFromPath(path: String) {
+        try {
+            val file = File(path)
+            if (file.exists()) {
+                // Get the actual ImageView dimensions after layout
+                photoImageView.post {
+                    val imageViewWidth = if (photoImageView.width > 0) photoImageView.width else dpToPx(DEFAULT_IMAGE_VIEW_WIDTH_DP)
+                    val imageViewHeight = if (photoImageView.height > 0) photoImageView.height else dpToPx(DEFAULT_IMAGE_VIEW_HEIGHT_DP)
+
+                    // Decode the image with proper orientation and sizing
+                    val bitmap = decodeImageWithOrientation(path, imageViewWidth, imageViewHeight)
+
+                    if (bitmap != null) {
+                        // Scale and crop the bitmap to fit the ImageView dimensions
+                        val scaledBitmap = scaleAndCropBitmap(bitmap, imageViewWidth, imageViewHeight)
+
+                        // Set the bitmap to ImageView
+                        photoImageView.setImageBitmap(scaledBitmap)
+                        photoImageView.scaleType = ImageView.ScaleType.CENTER_CROP
+                        // Remove background when photo is loaded
+                        photoImageView.background = null
+
+                        Toast.makeText(requireContext(), "Photo loaded successfully", Toast.LENGTH_SHORT).show()
+                    } else {
+                        setPlaceholderImage()
+                        Toast.makeText(requireContext(), "Failed to load photo", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                setPlaceholderImage()
+                Toast.makeText(requireContext(), "Photo file not found", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            setPlaceholderImage()
+            Toast.makeText(requireContext(), "Error loading photo: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun loadImageFromUri(uri: Uri) {
+        try {
+            photoImageView.post {
+                val imageViewWidth = if (photoImageView.width > 0) photoImageView.width else dpToPx(DEFAULT_IMAGE_VIEW_WIDTH_DP)
+                val imageViewHeight = if (photoImageView.height > 0) photoImageView.height else dpToPx(DEFAULT_IMAGE_VIEW_HEIGHT_DP)
+
+                val inputStream = requireContext().contentResolver.openInputStream(uri)
+                val bitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+
+                if (bitmap != null) {
+                    // Scale and crop the bitmap to fit the ImageView dimensions
+                    val scaledBitmap = scaleAndCropBitmap(bitmap, imageViewWidth, imageViewHeight)
+
+                    photoImageView.setImageBitmap(scaledBitmap)
+                    photoImageView.scaleType = ImageView.ScaleType.CENTER_CROP
+                    // Remove background when photo is loaded
+                    photoImageView.background = null
+
+                    Toast.makeText(requireContext(), "Photo loaded successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    setPlaceholderImage()
+                    Toast.makeText(requireContext(), "Failed to load photo from gallery", Toast.LENGTH_SHORT).show()
+                }
+            }
+        } catch (e: Exception) {
+            setPlaceholderImage()
+            Toast.makeText(requireContext(), "Error loading photo: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun scaleAndCropBitmap(bitmap: Bitmap, targetWidthPx: Int, targetHeightPx: Int): Bitmap {
         val originalWidth = bitmap.width
         val originalHeight = bitmap.height
 
-        val scaleX = maxWidth.toFloat() / originalWidth
-        val scaleY = maxHeight.toFloat() / originalHeight
-        val scale = minOf(scaleX, scaleY)
+        // Calculate scale factors
+        val scaleX = targetWidthPx.toFloat() / originalWidth
+        val scaleY = targetHeightPx.toFloat() / originalHeight
 
+        // Use the larger scale factor to ensure the image fills the entire view
+        val scale = maxOf(scaleX, scaleY)
+
+        // Calculate new dimensions
         val scaledWidth = (originalWidth * scale).toInt()
         val scaledHeight = (originalHeight * scale).toInt()
 
-        return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, true)
+        // Scale the bitmap
+        val scaledBitmap = bitmap.scale(scaledWidth, scaledHeight)
+
+        // Calculate crop coordinates to center the image
+        val cropX = maxOf(0, (scaledWidth - targetWidthPx) / 2)
+        val cropY = maxOf(0, (scaledHeight - targetHeightPx) / 2)
+
+        // Ensure crop dimensions don't exceed bitmap bounds
+        val cropWidth = minOf(targetWidthPx, scaledWidth - cropX)
+        val cropHeight = minOf(targetHeightPx, scaledHeight - cropY)
+
+        // Create the final cropped bitmap
+        return Bitmap.createBitmap(scaledBitmap, cropX, cropY, cropWidth, cropHeight)
     }
 
-    private fun createCenteredImageDrawable(bitmap: Bitmap): BitmapDrawable {
-        val drawable = BitmapDrawable(resources, bitmap)
-        drawable.setTileModeXY(android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP)
-        return drawable
+    private fun decodeImageWithOrientation(imagePath: String, targetWidth: Int, targetHeight: Int): Bitmap? {
+        return try {
+            // First, decode image to get dimensions
+            val options = BitmapFactory.Options()
+            options.inJustDecodeBounds = true
+            BitmapFactory.decodeFile(imagePath, options)
+
+            // Calculate inSampleSize based on target dimensions
+            options.inSampleSize = calculateInSampleSize(options, targetWidth, targetHeight)
+            options.inJustDecodeBounds = false
+
+            // Decode the actual bitmap
+            var bitmap = BitmapFactory.decodeFile(imagePath, options)
+
+            // Check for EXIF orientation and rotate if necessary
+            val exif = ExifInterface(imagePath)
+            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
+
+            bitmap = when (orientation) {
+                ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
+                ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
+                ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
+                else -> bitmap
+            }
+
+            bitmap
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degrees)
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+    }
+
+    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+        val height = options.outHeight
+        val width = options.outWidth
+        var inSampleSize = 1
+
+        if (height > reqHeight || width > reqWidth) {
+            val halfHeight = height / 2
+            val halfWidth = width / 2
+
+            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                inSampleSize *= 2
+            }
+        }
+        return inSampleSize
+    }
+
+    // Utility function to convert dp to pixels
+    private fun dpToPx(dp: Int): Int {
+        val density = resources.displayMetrics.density
+        return (dp * density).toInt()
+    }
+
+    // Alternative methods for different image processing needs
+    private fun createThumbnail(imagePath: String): Bitmap? {
+        return decodeImageWithOrientation(imagePath, THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+    }
+
+    private fun createFullSizeImage(imagePath: String): Bitmap? {
+        return decodeImageWithOrientation(imagePath, MAX_BITMAP_DIMENSION, MAX_BITMAP_DIMENSION)
+    }
+
+    private fun scaleBitmapIfNeeded(bitmap: Bitmap, maxWidth: Int = MAX_BITMAP_DIMENSION, maxHeight: Int = MAX_BITMAP_DIMENSION): Bitmap {
+        val width = bitmap.width
+        val height = bitmap.height
+
+        if (width <= maxWidth && height <= maxHeight) {
+            return bitmap
+        }
+
+        val scaleWidth = maxWidth.toFloat() / width
+        val scaleHeight = maxHeight.toFloat() / height
+        val scale = minOf(scaleWidth, scaleHeight)
+
+        val scaledWidth = (width * scale).toInt()
+        val scaledHeight = (height * scale).toInt()
+
+        return bitmap.scale(scaledWidth, scaledHeight)
+    }
+
+    private fun setPlaceholderImage() {
+        // Set a placeholder or default image
+        photoImageView.setImageResource(R.drawable.shirt)
+        photoImageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+        // Restore background for placeholder
+        photoImageView.setBackgroundResource(R.drawable.shirt)
     }
 
     override fun onDestroyView() {
@@ -275,7 +454,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         // Handle the logic for adding the item with selected category and subcategory
         // You can access selectedCategory, selectedSubcategory, and photoPath variables here
 
-        if (photoPath != null) {
+        if (photoPath != null || photoUri != null) {
             // Example: Log the selections or save to database
             println("Adding item - Category: $selectedCategory, Subcategory: $selectedSubcategory, Photo: $photoPath")
 

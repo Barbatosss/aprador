@@ -37,6 +37,16 @@
             android:ellipsize="end"
             android:gravity="center" />
 
+        <ImageButton
+            android:id="@+id/btn_delete"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="top|end"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_menu_delete"
+            android:contentDescription="Delete item"
+            app:tint="@android:color/holo_red_dark" />
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

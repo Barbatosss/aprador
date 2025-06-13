@@ -1,0 +1,37 @@
+[
+  {
+    "id": "1",
+    "name": "Blue hjgghjyhggjhghjgjT-Shirt",
+    "imagePath": "/path/to/tshirt1.jpg",
+    "category": "Tops",
+    "subcategory": "T-Shirts"
+  },
+  {
+    "id": "2",
+    "name": "Red T-Shirt",
+    "imagePath": "/path/to/tshirt2.jpg",
+    "category": "Tops",
+    "subcategory": "T-Shirts"
+  },
+  {
+    "id": "3",
+    "name": "Wool Sweater",
+    "imagePath": "/path/to/sweater1.jpg",
+    "category": "Tops",
+    "subcategory": "Sweaters"
+  },
+  {
+    "id": "4",
+    "name": "Cotton Sweater",
+    "imagePath": "/path/to/sweater2.jpg",
+    "category": "Tops",
+    "subcategory": "Sweaters"
+  },
+  {
+    "id": "5",
+    "name": "Denim Jeans",
+    "imagePath": "/path/to/jeans1.jpg",
+    "category": "Bottoms",
+    "subcategory": "Jeans"
+  }
+]

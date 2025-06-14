@@ -5,7 +5,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -34,7 +34,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import java.io.IOException
@@ -498,7 +497,7 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
     @RequiresApi(Build.VERSION_CODES.N)
     private fun displayItemData(item: Item) {
         // Set text values
-        itemNameValue.text = if (item.name.isNotBlank()) item.name else "Unnamed Item"
+        itemNameValue.text = item.name.ifBlank { "Unnamed Item" }
         itemCategoryValue.text = item.category
         itemSubcategoryValue.text = item.subcategory
 
@@ -607,8 +606,8 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
         var inSampleSize = 1
         val (width, height) = options.outWidth to options.outHeight
         if (height > reqHeight || width > reqWidth) {
-            var halfHeight = height / 2
-            var halfWidth = width / 2
+            val halfHeight = height / 2
+            val halfWidth = width / 2
             while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
                 inSampleSize *= 2
             }

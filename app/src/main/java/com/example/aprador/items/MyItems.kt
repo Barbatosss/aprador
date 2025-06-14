@@ -20,6 +20,9 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import android.widget.TextView
 import android.widget.LinearLayout
+import android.widget.Spinner
+import android.widget.ArrayAdapter
+import android.widget.AdapterView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.aprador.login.MainPage
@@ -42,11 +45,13 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     private lateinit var mainRecyclerView: RecyclerView
     private lateinit var emptyStateLayout: LinearLayout
     private lateinit var categoryAdapter: CategorySectionAdapter
+    private lateinit var categoryFilterSpinner: Spinner
 
     // Dynamic tabs container
     private lateinit var tabsLayout: LinearLayout
     private val dynamicTabs = mutableListOf<TextView>()
-    private var selectedCategory = "All"
+    private var selectedSubcategory = "All"
+    private var selectedCategoryFilter = "All Categories" // New category filter
 
     // Sample data - replace with your actual data source
     private var allItems = listOf<Item>() // This should come from your database/storage
@@ -131,6 +136,9 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         // Setup RecyclerView
         setupRecyclerView()
 
+        // Setup category filter spinner
+        setupCategoryFilterSpinner()
+
         // Load data and update UI
         loadItemsData()
 
@@ -143,6 +151,7 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         tabsLayout = view.findViewById(R.id.tabs_layout_item)
         mainRecyclerView = view.findViewById(R.id.main_recycler_view)
         emptyStateLayout = view.findViewById(R.id.empty_state_layout)
+        categoryFilterSpinner = view.findViewById(R.id.category_filter_spinner)
     }
 
     private fun setupRecyclerView() {
@@ -156,9 +165,42 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         }
     }
 
+    private fun setupCategoryFilterSpinner() {
+        // Create category filter options
+        val categoryOptions = listOf("All Categories", "Top", "Bottom", "Outerwear", "Footwear")
+
+        // Create adapter for spinner
+        val spinnerAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            categoryOptions
+        )
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        // Set adapter to spinner
+        categoryFilterSpinner.adapter = spinnerAdapter
+
+        // Set selection listener
+        categoryFilterSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedCategory = categoryOptions[position]
+                if (selectedCategoryFilter != selectedCategory) {
+                    selectedCategoryFilter = selectedCategory
+                    updateCategorySections()
+                    updateSubcategoryTabs()
+                    updateEmptyState()
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+        }
+    }
+
     private fun setupClickListeners(view: View) {
         // Tab click listener
-        tabAllItem.setOnClickListener { selectTab("All") }
+        tabAllItem.setOnClickListener { selectSubcategoryTab("All") }
 
         // Back button
         val backButton: View = view.findViewById(R.id.BackItem)
@@ -178,7 +220,6 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     }
 
     private fun loadItemsData() {
-
         allItems = loadItems(requireContext())
 
         Log.d("LOAD_ITEMS", "Loaded ${allItems.size} items")
@@ -187,29 +228,40 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         }
 
         updateCategorySections()
-        updateTabCounts()
+        updateSubcategoryTabs()
         updateEmptyState()
+    }
 
+    private fun getFilteredItemsByCategory(): List<Item> {
+        return if (selectedCategoryFilter == "All Categories") {
+            allItems
+        } else {
+            allItems.filter { it.category.equals(selectedCategoryFilter, ignoreCase = true) }
+        }
     }
 
     private fun updateCategorySections() {
-        val filteredItems = if (selectedCategory == "All") {
-            allItems
+        // First filter by category
+        val categoryFilteredItems = getFilteredItemsByCategory()
+
+        // Then filter by subcategory
+        val finalFilteredItems = if (selectedSubcategory == "All") {
+            categoryFilteredItems
         } else {
-            allItems.filter { it.subcategory.equals(selectedCategory, ignoreCase = true) }
+            categoryFilteredItems.filter { it.subcategory.equals(selectedSubcategory, ignoreCase = true) }
         }
 
-        categorySections = if (selectedCategory == "All") {
+        categorySections = if (selectedSubcategory == "All") {
             // Group by subcategory for "All" tab
-            filteredItems.groupBy { it.subcategory }
+            finalFilteredItems.groupBy { it.subcategory }
                 .map { (subcategory, items) ->
                     CategorySection(subcategory, items)
                 }
                 .sortedBy { it.subcategory }
         } else {
-            // Show single category
-            if (filteredItems.isNotEmpty()) {
-                listOf(CategorySection(selectedCategory, filteredItems))
+            // Show single subcategory
+            if (finalFilteredItems.isNotEmpty()) {
+                listOf(CategorySection(selectedSubcategory, finalFilteredItems))
             } else {
                 emptyList()
             }
@@ -218,34 +270,40 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         categoryAdapter.updateData(categorySections)
     }
 
-    private fun updateTabCounts() {
-        // Update "All" tab count
-        tabAllItem.text = "All (${allItems.size})"
+    private fun updateSubcategoryTabs() {
+        // Get items filtered by category first
+        val categoryFilteredItems = getFilteredItemsByCategory()
 
-        // Update dynamic tabs
-        val categories = allItems.groupBy { it.subcategory }
+        // Update "All" tab count
+        tabAllItem.text = "All (${categoryFilteredItems.size})"
+
+        // Update dynamic tabs based on category-filtered items
+        val subcategories = categoryFilteredItems.groupBy { it.subcategory }
 
         // Clear existing dynamic tabs
         dynamicTabs.forEach { tabsLayout.removeView(it) }
         dynamicTabs.clear()
 
         // Create new dynamic tabs
-        categories.forEach { (category, items) ->
-            val tabView = createDynamicTab(category, items.size)
+        subcategories.forEach { (subcategory, items) ->
+            val tabView = createDynamicTab(subcategory, items.size)
             tabsLayout.addView(tabView)
             dynamicTabs.add(tabView)
         }
+
+        // Update tab appearances
+        updateTabAppearances()
     }
 
-    private fun createDynamicTab(category: String, count: Int): TextView {
+    private fun createDynamicTab(subcategory: String, count: Int): TextView {
         val tabView = layoutInflater.inflate(R.layout.dynamic_tab, tabsLayout, false) as TextView
-        tabView.text = "$category ($count)"
-        tabView.setOnClickListener { selectTab(category) }
+        tabView.text = "$subcategory ($count)"
+        tabView.setOnClickListener { selectSubcategoryTab(subcategory) }
         return tabView
     }
 
-    private fun selectTab(category: String) {
-        selectedCategory = category
+    private fun selectSubcategoryTab(subcategory: String) {
+        selectedSubcategory = subcategory
 
         // Update tab appearances
         updateTabAppearances()
@@ -268,12 +326,12 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         }
 
         // Set selected tab appearance
-        if (selectedCategory == "All") {
+        if (selectedSubcategory == "All") {
             tabAllItem.setBackgroundResource(R.drawable.tab_selected_background)
             tabAllItem.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
         } else {
             dynamicTabs.find {
-                it.text.toString().startsWith(selectedCategory)
+                it.text.toString().startsWith(selectedSubcategory)
             }?.apply {
                 setBackgroundResource(R.drawable.tab_selected_background)
                 setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
@@ -308,7 +366,6 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         //     .addToBackStack(null)
         //     .commit()
     }
-
 
     private fun loadItems(context: Context): List<Item> {
         return try {

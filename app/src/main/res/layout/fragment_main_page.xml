@@ -39,7 +39,7 @@
         android:clipToOutline="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.134"
+        app:layout_constraintHorizontal_bias="0.061"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.148" />
@@ -82,7 +82,7 @@
         android:clipToOutline="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintHorizontal_bias="0.057"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.603" />
@@ -113,67 +113,100 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.603" />
 
-    <!-- Filter Tabs Section -->
-    <HorizontalScrollView
-        android:id="@+id/tabs_scroll_view"
+    <!-- Modified Category and Subcategory Filter Section -->
+    <LinearLayout
+        android:id="@+id/filter_section_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
         android:background="#FEFEFE"
-        android:scrollbars="none"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/MyItem">
 
+        <!-- Category Filter -->
         <LinearLayout
-            android:id="@+id/tabs_layout"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="8dp">
+            android:gravity="center_vertical"
+            android:layout_marginEnd="8dp">
 
             <TextView
-                android:id="@+id/tab_all_items"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:background="@drawable/tab_selected_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:paddingStart="16dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="16dp"
-                android:paddingBottom="8dp"
-                android:text="All (0)"
-                android:textColor="@color/white"
-                android:textSize="14sp"
-                android:textStyle="normal" />
+                android:text="Category: "
+                android:textColor="#333333"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="4dp" />
 
-            <!-- Dynamic tabs will be added here programmatically -->
+            <Spinner
+                android:id="@+id/category_spinner"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:background="@drawable/tab_unselected_background"
+                android:padding="4dp" />
 
         </LinearLayout>
 
-    </HorizontalScrollView>
+        <!-- Subcategory Filter -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Type: "
+                android:textColor="#333333"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="4dp" />
+
+            <Spinner
+                android:id="@+id/subcategory_spinner"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:background="@drawable/tab_unselected_background"
+                android:padding="4dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
     <!-- Horizontal RecyclerView for displaying items in a single line -->
+
+    <!-- Empty state for when no items are available -->
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/items_recycler_view"
         android:layout_width="0dp"
         android:layout_height="180dp"
-        android:layout_marginTop="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:clipToPadding="false"
         android:paddingStart="8dp"
         android:paddingEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tabs_scroll_view" />
+        app:layout_constraintTop_toBottomOf="@+id/filter_section_layout"
+        app:layout_constraintVertical_bias="0.257" />
 
-    <!-- Empty state for when no items are available -->
     <LinearLayout
         android:id="@+id/empty_state_layout"
         android:layout_width="match_parent"
@@ -184,7 +217,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tabs_scroll_view">
+        app:layout_constraintTop_toBottomOf="@+id/filter_section_layout">
 
         <ImageView
             android:layout_width="60dp"

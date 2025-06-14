@@ -7,6 +7,9 @@ import android.view.View
 import android.widget.Toast
 import android.widget.TextView
 import android.widget.LinearLayout
+import android.widget.Spinner
+import android.widget.ArrayAdapter
+import android.widget.AdapterView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.core.content.ContextCompat
@@ -23,20 +26,33 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
 
     private lateinit var itemsRecyclerView: RecyclerView
     private lateinit var itemAdapter: ItemAdapter
-    private lateinit var tabsLayout: LinearLayout
-    private lateinit var tabAllItem: TextView
     private lateinit var emptyStateLayout: LinearLayout
+    private lateinit var categorySpinner: Spinner
+    private lateinit var subcategorySpinner: Spinner
 
     private var allItems = listOf<Item>()
     private var filteredItems = listOf<Item>()
-    private val dynamicTabs = mutableListOf<TextView>()
-    private var selectedCategory = "All"
+    private var selectedCategory = "All Categories"
+    private var selectedSubcategory = "All"
+
+    // Subcategory mappings based on AddItem.kt structure
+    private val subcategoryMap = mapOf(
+        "Top" to listOf("All", "T-Shirts", "Polo", "Dress Shirt", "Tank Top", "Blouse", "Camisole", "Crop Top"),
+        "Bottom" to listOf("All", "Jeans", "Chinos", "Shorts", "Joggers", "Leggings", "Skirt", "Dress"),
+        "Outerwear" to listOf("All", "Jacket", "Hoodie", "Blazer", "Coat", "Cardigan", "Kimono"),
+        "Footwear" to listOf("All", "Sneakers", "Dress Shoes", "Boots", "Sandals", "Heels", "Flats"),
+        "All Categories" to listOf("All")
+    )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // Initialize views
         initializeViews(view)
+
+        // Setup dropdowns
+        setupCategorySpinner()
+        setupSubcategorySpinner()
 
         // Setup RecyclerView
         setupRecyclerView()
@@ -50,9 +66,80 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
 
     private fun initializeViews(view: View) {
         itemsRecyclerView = view.findViewById(R.id.items_recycler_view)
-        tabsLayout = view.findViewById(R.id.tabs_layout)
-        tabAllItem = view.findViewById(R.id.tab_all_items)
         emptyStateLayout = view.findViewById(R.id.empty_state_layout)
+        categorySpinner = view.findViewById(R.id.category_spinner)
+        subcategorySpinner = view.findViewById(R.id.subcategory_spinner)
+    }
+
+    private fun setupCategorySpinner() {
+        val categories = listOf("All Categories", "Top", "Bottom", "Outerwear", "Footwear")
+
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            categories
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        categorySpinner.adapter = adapter
+
+        categorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedCategoryFromSpinner = categories[position]
+                if (selectedCategoryFromSpinner != selectedCategory) {
+                    selectedCategory = selectedCategoryFromSpinner
+                    // Reset subcategory selection when category changes
+                    selectedSubcategory = "All"
+                    updateSubcategorySpinner()
+                    updateFilteredItems()
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+        }
+    }
+
+    private fun setupSubcategorySpinner() {
+        // Initially setup with "All Categories" subcategories
+        updateSubcategorySpinner()
+
+        subcategorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val subcategories = subcategoryMap[selectedCategory] ?: listOf("All")
+                val selectedSubcategoryFromSpinner = subcategories[position]
+                if (selectedSubcategoryFromSpinner != selectedSubcategory) {
+                    selectedSubcategory = selectedSubcategoryFromSpinner
+                    updateFilteredItems()
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Do nothing
+            }
+        }
+    }
+
+    private fun updateSubcategorySpinner() {
+        val subcategories = subcategoryMap[selectedCategory] ?: listOf("All")
+
+        val adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            subcategories
+        ).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        subcategorySpinner.adapter = adapter
+
+        // Reset to "All" when category changes
+        val allIndex = subcategories.indexOf("All")
+        if (allIndex != -1) {
+            subcategorySpinner.setSelection(allIndex)
+        }
     }
 
     private fun setupRecyclerView() {
@@ -71,9 +158,6 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     private fun setupClickListeners(view: View) {
         val itemView: View = view.findViewById(R.id.ItemView)
         val outfitView: View = view.findViewById(R.id.OutfitView)
-
-        // Tab click listener for "All" tab
-        tabAllItem.setOnClickListener { selectTab("All") }
 
         // Move to MyOutfits
         outfitView.setOnClickListener {
@@ -97,14 +181,21 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     private fun loadItemsData() {
         allItems = loadItems(requireContext())
         updateFilteredItems()
-        updateTabCounts()
     }
 
     private fun updateFilteredItems() {
-        filteredItems = if (selectedCategory == "All") {
+        // First filter by category
+        val categoryFilteredItems = if (selectedCategory == "All Categories") {
             allItems
         } else {
-            allItems.filter { it.subcategory.equals(selectedCategory, ignoreCase = true) }
+            allItems.filter { it.category.equals(selectedCategory, ignoreCase = true) }
+        }
+
+        // Then filter by subcategory within the category-filtered items
+        filteredItems = if (selectedSubcategory == "All") {
+            categoryFilteredItems
+        } else {
+            categoryFilteredItems.filter { it.subcategory.equals(selectedSubcategory, ignoreCase = true) }
         }
 
         // Update the adapter with new filtered items
@@ -113,68 +204,13 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         }
         itemsRecyclerView.adapter = itemAdapter
 
-    }
-
-    private fun updateTabCounts() {
-        // Update "All" tab count
-        tabAllItem.text = "All (${allItems.size})"
-
-        // Update dynamic tabs
-        val categories = allItems.groupBy { it.subcategory }
-
-        // Clear existing dynamic tabs
-        dynamicTabs.forEach { tabsLayout.removeView(it) }
-        dynamicTabs.clear()
-
-        // Create new dynamic tabs for each subcategory
-        categories.forEach { (category, items) ->
-            val tabView = createDynamicTab(category, items.size)
-            tabsLayout.addView(tabView)
-            dynamicTabs.add(tabView)
-        }
-
-        // Update tab appearances after creating all tabs
-        updateTabAppearances()
-    }
-
-    private fun createDynamicTab(category: String, count: Int): TextView {
-        val tabView = layoutInflater.inflate(R.layout.dynamic_tab, tabsLayout, false) as TextView
-        tabView.text = "$category ($count)"
-        tabView.setOnClickListener { selectTab(category) }
-        return tabView
-    }
-
-    private fun selectTab(category: String) {
-        selectedCategory = category
-
-        // Update tab appearances
-        updateTabAppearances()
-
-        // Update displayed items
-        updateFilteredItems()
-    }
-
-    private fun updateTabAppearances() {
-        // Reset all tabs to unselected state
-        tabAllItem.setBackgroundResource(R.drawable.tab_unselected_background)
-        tabAllItem.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
-
-        dynamicTabs.forEach { tab ->
-            tab.setBackgroundResource(R.drawable.tab_unselected_background)
-            tab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
-        }
-
-        // Set selected tab appearance
-        if (selectedCategory == "All") {
-            tabAllItem.setBackgroundResource(R.drawable.tab_selected_background)
-            tabAllItem.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
+        // Show/hide empty state
+        if (filteredItems.isEmpty()) {
+            itemsRecyclerView.visibility = View.GONE
+            emptyStateLayout.visibility = View.VISIBLE
         } else {
-            dynamicTabs.find {
-                it.text.toString().startsWith(selectedCategory)
-            }?.apply {
-                setBackgroundResource(R.drawable.tab_selected_background)
-                setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
-            }
+            itemsRecyclerView.visibility = View.VISIBLE
+            emptyStateLayout.visibility = View.GONE
         }
     }
 

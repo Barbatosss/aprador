@@ -59,6 +59,42 @@
 
     </LinearLayout>
 
+    <!-- Category Filter Section -->
+    <LinearLayout
+        android:id="@+id/filter_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FEFEFE"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="8dp"
+        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_layout_item">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter by Category:"
+            android:textColor="#333333"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="12dp" />
+
+        <Spinner
+            android:id="@+id/category_filter_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minHeight="36dp"
+            android:backgroundTint="#666666"
+            android:popupBackground="#FFFFFF" />
+
+    </LinearLayout>
+
     <!-- Tabs Section -->
     <HorizontalScrollView
         android:id="@+id/tabs_scroll_view"
@@ -68,7 +104,7 @@
         android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_layout_item">
+        app:layout_constraintTop_toBottomOf="@id/filter_section">
 
         <LinearLayout
             android:id="@+id/tabs_layout_item"

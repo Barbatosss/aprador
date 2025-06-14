@@ -18,7 +18,7 @@ import androidx.core.content.ContextCompat
 import java.io.File
 import androidx.core.graphics.scale
 import androidx.core.net.toUri
-import com.example.aprador.outfits.MainPage
+import com.example.aprador.login.MainPage
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
 import com.example.aprador.recycler.Item

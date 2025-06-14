@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aprador.R
+import com.example.aprador.login.MainPage
 import com.example.aprador.navigation.NavBar
 
 class MyOutfits : Fragment(R.layout.fragment_my_outfits) {

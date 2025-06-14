@@ -1,10 +1,11 @@
-package com.example.aprador.outfits
+package com.example.aprador.login
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
 import com.example.aprador.R
 import com.example.aprador.items.MyItems
+import com.example.aprador.outfits.MyOutfits
 
 
 class MainPage : Fragment(R.layout.fragment_main_page) {

@@ -22,7 +22,7 @@ import android.widget.TextView
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.aprador.outfits.MainPage
+import com.example.aprador.login.MainPage
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
 import com.example.aprador.recycler.CategorySection

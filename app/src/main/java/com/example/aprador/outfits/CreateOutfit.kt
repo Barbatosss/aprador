@@ -1,6 +1,8 @@
 package com.example.aprador.outfits
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -16,12 +18,18 @@ import androidx.core.content.ContextCompat
 import com.example.aprador.R
 import com.example.aprador.recycler.Item
 import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.example.aprador.recycler.ItemAdapter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import org.tensorflow.lite.Interpreter
 import java.io.File
+import java.io.FileInputStream
+import java.nio.MappedByteBuffer
+import java.nio.channels.FileChannel
 
 class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
 
@@ -35,9 +43,14 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
     private lateinit var genderSpinner: Spinner
     private lateinit var outfitCategorySpinner: Spinner
 
+    private lateinit var categoryPredection : TextView
+
     // Gender toggle tabs
     private lateinit var tabMen: TextView
     private lateinit var tabWomen: TextView
+
+
+    private lateinit var tflite: Interpreter
 
     private var allItems = listOf<Item>()
     private var filteredItems = listOf<Item>()
@@ -79,6 +92,8 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
 
         // Setup click listeners
         setupClickListeners()
+
+        tflite = Interpreter(loadModelFile())
     }
 
     private fun initializeViews(view: View) {
@@ -94,6 +109,8 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         // Gender tabs
         tabMen = view.findViewById(R.id.toggle_men)
         tabWomen = view.findViewById(R.id.toggle_women)
+
+        categoryPredection = view.findViewById(R.id.categoryprediction)
     }
 
     private fun setupGenderFilter() {
@@ -534,6 +551,21 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
                 // Add the new item
                 selectedItems.add(item)
                 Toast.makeText(requireContext(), "Added ${item.name} to outfit", Toast.LENGTH_SHORT).show()
+
+
+                if (selectedItems.size in 3..4) {
+                    val bitmaps = selectedItems.mapNotNull { imagePathToBitmap(requireContext(), it.imagePath) }
+                    if (bitmaps.size == selectedItems.size) {
+                        val prediction = predictCategoryFromBitmaps(bitmaps, requireContext())
+                        categoryPredection.text = prediction
+                    } else {
+                        categoryPredection.text = "Unable to convert image(s)"
+                    }
+                }
+
+                else{
+                    categoryPredection.text = ""
+                }
             }
         }
 
@@ -649,5 +681,83 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         }
         // Ensure correct gender tab appearance
         selectGenderTab(selectedGender)
+    }
+
+    private fun loadModelFile(): MappedByteBuffer {
+        val fileDescriptor = requireContext().assets.openFd("outfit_classifier.tflite")
+        val inputStream = FileInputStream(fileDescriptor.fileDescriptor)
+        val fileChannel = inputStream.channel
+        val startOffset = fileDescriptor.startOffset
+        val declaredLength = fileDescriptor.declaredLength
+        return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
+    }
+
+
+    private fun imagePathToBitmap(context: Context, path: String): Bitmap? {
+        return try {
+
+
+            val uri = Uri.parse(path)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val source = ImageDecoder.createSource(context.contentResolver, uri)
+                ImageDecoder.decodeBitmap(source)
+            } else {
+                MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    private fun predictCategoryFromBitmaps(bitmaps: List<Bitmap>, context: Context): String {
+        val inputSize = 64
+        val maxImages = 4
+        val input = Array(1) { Array(maxImages) { Array(inputSize) { Array(inputSize) { FloatArray(3) } } } }
+
+        for (i in 0 until maxImages) {
+            val bmp = if (i < bitmaps.size) {
+                val scaled = Bitmap.createScaledBitmap(bitmaps[i], inputSize, inputSize, true)
+                scaled.copy(Bitmap.Config.ARGB_8888, false)
+            } else {
+                Bitmap.createBitmap(inputSize, inputSize, Bitmap.Config.ARGB_8888)
+            }
+
+            for (y in 0 until inputSize) {
+                for (x in 0 until inputSize) {
+                    val pixel = bmp.getPixel(x, y)
+                    input[0][i][y][x][0] = (pixel shr 16 and 0xFF) / 255.0f
+                    input[0][i][y][x][1] = (pixel shr 8 and 0xFF) / 255.0f
+                    input[0][i][y][x][2] = (pixel and 0xFF) / 255.0f
+                }
+            }
+        }
+
+        val output = Array(1) { FloatArray(7) } // Or dynamically detect size from model if needed
+        tflite.run(input, output)
+
+        // ✅ Load categories from labels.txt
+        val categories = loadLabelsFromAssets(context)
+
+        val predictedIndex = output[0].indices.maxByOrNull { output[0][it] } ?: -1
+
+        return if (predictedIndex in categories.indices) {
+            "Predicted: ${categories[predictedIndex]}"
+        } else {
+            "Prediction failed"
+        }
+    }
+
+
+    private fun loadLabelsFromAssets(context: Context): List<String> {
+        val labels = mutableListOf<String>()
+        try {
+            context.assets.open("labels.txt").bufferedReader().useLines { lines ->
+                lines.forEach { labels.add(it.trim()) }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return labels
     }
 }

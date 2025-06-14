@@ -21,12 +21,12 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
     private lateinit var outfitAdapter: OutfitAdapter
 
     private val allOutfits = listOf(
-        Outfit(1, "Casual", R.drawable.shirt, listOf("#8B4513", "#D2691E", "#A0522D", "#000000"), "Classic"),
-        Outfit(2, "Casual", R.drawable.shirt, listOf("#90EE90", "#FFFF00", "#FF0000", "#000000"), "Classic"),
-        Outfit(3, "Casual", R.drawable.shirt, listOf("#8B4513", "#D2691E", "#A0522D", "#F5DEB3"), "Classic"),
-        Outfit(4, "Casual", R.drawable.shirt, listOf("#808080", "#D3D3D3", "#000000"), "Classic"),
-        Outfit(5, "Sport", R.drawable.shirt, listOf("#FF0000", "#000000", "#FFFFFF"), "Sport"),
-        Outfit(6, "Sport", R.drawable.shirt, listOf("#0000FF", "#FFFFFF", "#000000"), "Sport"),
+        Outfit(1, "Casual", R.drawable.shirt, "Classic"),
+        Outfit(2, "Casual", R.drawable.shirt,  "Classic"),
+        Outfit(3, "Casual", R.drawable.shirt,  "Classic"),
+        Outfit(4, "Casual", R.drawable.shirt, "Classic"),
+        Outfit(5, "Sport", R.drawable.shirt, "Sport"),
+        Outfit(6, "Sport", R.drawable.shirt, "Sport"),
         // Add more outfits as needed
     )
 

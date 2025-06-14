@@ -19,9 +19,7 @@ class OutfitAdapter(
 
     class OutfitViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val outfitImage: ImageView = itemView.findViewById(R.id.iv_outfit)
-        val outfitTitle: TextView = itemView.findViewById(R.id.tv_outfit_title)
-        val colorDotsContainer: LinearLayout = itemView.findViewById(R.id.ll_color_dots)
-    }
+        val outfitTitle: TextView = itemView.findViewById(R.id.tv_outfit_title) }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OutfitViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -38,25 +36,6 @@ class OutfitAdapter(
         // Set outfit title
         holder.outfitTitle.text = outfit.title
 
-        // Clear existing color dots
-        holder.colorDotsContainer.removeAllViews()
-
-        // Add color dots dynamically
-        outfit.colors.forEach { colorHex ->
-            val colorDot = View(holder.itemView.context)
-            val size = (12 * holder.itemView.context.resources.displayMetrics.density).toInt()
-            val layoutParams = LinearLayout.LayoutParams(size, size)
-            layoutParams.marginEnd = (4 * holder.itemView.context.resources.displayMetrics.density).toInt()
-            colorDot.layoutParams = layoutParams
-
-            // Create circular background
-            val drawable = GradientDrawable()
-            drawable.shape = GradientDrawable.OVAL
-            drawable.setColor(Color.parseColor(colorHex))
-            colorDot.background = drawable
-
-            holder.colorDotsContainer.addView(colorDot)
-        }
 
         // Set click listener
         holder.itemView.setOnClickListener {

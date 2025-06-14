@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- fragment_create_outfit.xml -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateOutfit"
-    android:background="#F0F0F0">
+    android:background="#f5f5f5"
+    tools:context=".outfits.CreateOutfit">
 
+    <!-- Header Layout -->
     <LinearLayout
-        android:id="@+id/header_layout"
+        android:id="@+id/header_layout_create_outfit"
         android:layout_width="match_parent"
         android:layout_height="88dp"
+        android:layout_marginTop="4dp"
         android:background="#FEFEFE"
         android:elevation="4dp"
         android:gravity="center_vertical"
@@ -18,7 +21,12 @@
         android:paddingStart="16dp"
         android:paddingTop="12dp"
         android:paddingEnd="16dp"
-        android:paddingBottom="12dp">
+        android:paddingBottom="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Back Icon -->
         <View
             android:id="@+id/BackCreateOutfit"
             android:layout_width="37dp"
@@ -30,356 +38,345 @@
             android:focusable="true"
             android:scaleX="-1" />
 
-        <View
-            android:id="@+id/CreateOutfitlogo"
-            android:layout_width="270dp"
-            android:layout_height="37dp"
-            android:scaleType="fitCenter"
-            android:background="@drawable/createoutfit_logo"
-            android:contentDescription="Logo" />
+        <!-- Create Outfit Logo/Title -->
+        <TextView
+            android:id="@+id/CreateOutfitTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Create Outfit"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:contentDescription="Create Outfit Title" />
 
+        <!-- Save/Confirm Icon -->
         <View
             android:id="@+id/SaveOutfit"
             android:layout_width="37dp"
             android:layout_height="37dp"
             android:layout_marginStart="16dp"
-            android:background="@drawable/save_createoutfit"
+            android:background="@drawable/ic_confirm_add"
             android:clickable="true"
-            android:contentDescription="Edit Outfit"
+            android:contentDescription="Save Outfit"
             android:focusable="true" />
+
     </LinearLayout>
 
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="88dp"
-        android:paddingBottom="16dp">
+    <!-- Outfit Preview Container -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/outfit_preview_card"
+        android:layout_width="0dp"
+        android:layout_height="200dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header_layout_create_outfit">
 
-        <LinearLayout
+        <!-- Outfit Preview Content -->
+        <RelativeLayout
+            android:id="@+id/outfit_preview_container"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:layout_height="match_parent"
+            android:background="#FFFFFF"
             android:padding="16dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <!-- Placeholder for outfit preview -->
+            <TextView
+                android:id="@+id/outfit_preview_placeholder"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:background="@android:color/white"
-                android:layout_marginBottom="24dp"
-                android:elevation="2dp"
-                android:outlineProvider="background"
-                android:clipToPadding="false">
+                android:layout_centerInParent="true"
+                android:text="Outfit Preview"
+                android:textColor="#666666"
+                android:textSize="16sp"
+                android:visibility="visible" />
 
-                <ImageView
-                    android:id="@+id/outfitPreviewImage"
-                    android:layout_width="0dp"
-                    android:layout_height="200dp"
-                    android:scaleType="centerInside"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:contentDescription="Outfit Preview" />
-
-                <ImageView
-                    android:id="@+id/expandButton"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:src="@drawable/expand_createoutfit"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    android:layout_margin="8dp"
-                    android:contentDescription="Expand"
-                    android:clickable="true"
-                    android:focusable="true"/>
-
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
+            <!-- Dynamic outfit preview will be added here programmatically -->
             <LinearLayout
+                android:id="@+id/outfit_items_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginBottom="24dp">
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:visibility="gone" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="16dp">
+        </RelativeLayout>
 
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Select Items"
-                        android:textColor="@color/my_custom_brown"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
+    </androidx.cardview.widget.CardView>
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/add_createoutfit"
-                        android:contentDescription="Add Item"
-                        android:clickable="true"
-                        android:focusable="true"/>
-                </LinearLayout>
+    <!-- Select Items Section -->
+    <LinearLayout
+        android:id="@+id/select_items_header_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/outfit_preview_card">
 
-                <HorizontalScrollView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scrollbars="none"
-                    android:layout_marginBottom="16dp">
+        <TextView
+            android:id="@+id/select_items_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Items"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+    </LinearLayout>
 
-                        <Button
-                            android:id="@+id/btnAllItems"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="All (0)"
-                            android:background="@drawable/selected_button_background"
-                            android:textColor="@color/my_custom_brown"
-                            android:paddingStart="24dp"
-                            android:paddingEnd="24dp"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp"
-                            android:layout_marginEnd="8dp"
-                            android:textStyle="bold"
-                            android:gravity="center"
-                            android:minWidth="0dp"
-                            android:minHeight="0dp"
-                            android:textAllCaps="false"
-                            app:backgroundTint="@null" />
+    <!-- Items Filter Tabs -->
+    <HorizontalScrollView
+        android:id="@+id/items_tabs_scroll"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="24dp"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/select_items_header_container">
 
-                        <Button
-                            android:id="@+id/btnClassicItems"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Classic (0)"
-                            android:background="@drawable/unselected_button_background"
-                            android:textColor="@color/my_custom_brown"
-                            android:paddingStart="24dp"
-                            android:paddingEnd="24dp"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp"
-                            android:layout_marginEnd="8dp"
-                            android:gravity="center"
-                            android:minWidth="0dp"
-                            android:minHeight="0dp"
-                            android:textAllCaps="false"
-                            app:backgroundTint="@null" />
+        <LinearLayout
+            android:id="@+id/items_tabs_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-                        <Button
-                            android:id="@+id/btnSportItems"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Sport (0)"
-                            android:background="@drawable/unselected_button_background"
-                            android:textColor="@color/my_custom_brown"
-                            android:paddingStart="24dp"
-                            android:paddingEnd="24dp"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp"
-                            android:layout_marginEnd="8dp"
-                            android:gravity="center"
-                            android:minWidth="0dp"
-                            android:minHeight="0dp"
-                            android:textAllCaps="false"
-                            app:backgroundTint="@null" />
-                        <Button
-                            android:id="@+id/btnCasualItems"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Casual (0)"
-                            android:background="@drawable/unselected_button_background"
-                            android:textColor="@color/my_custom_brown"
-                            android:paddingStart="24dp"
-                            android:paddingEnd="24dp"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp"
-                            android:layout_marginEnd="8dp"
-                            android:gravity="center"
-                            android:minWidth="0dp"
-                            android:minHeight="0dp"
-                            android:textAllCaps="false"
-                            app:backgroundTint="@null" />
-                    </LinearLayout>
-                </HorizontalScrollView>
+            <!-- All Items Tab -->
+            <TextView
+                android:id="@+id/tab_all_items"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/tab_selected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="80dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="All (0)"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:baselineAligned="false">
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="150dp"
-                        android:layout_weight="1"
-                        android:background="@android:color/white"
-                        android:layout_marginEnd="8dp"
-                        android:elevation="2dp"
-                        android:outlineProvider="background" />
-
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="150dp"
-                        android:layout_weight="1"
-                        android:background="@android:color/white"
-                        android:layout_marginStart="8dp"
-                        android:elevation="2dp"
-                        android:outlineProvider="background" />
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Select Category"
-                        android:textColor="@color/my_custom_brown"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:src="@drawable/add_createoutfit"
-                        android:contentDescription="Add Category"
-                        android:clickable="true"
-                        android:focusable="true"/>
-                </LinearLayout>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="The category into which the look falls after it has been created"
-                    android:textColor="@color/my_custom_brown"
-                    android:textSize="14sp"
-                    android:layout_marginBottom="16dp"/>
-
-                <GridLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:columnCount="2"
-                    android:rowCount="3"
-                    android:alignmentMode="alignBounds"
-                    android:columnOrderPreserved="false">
-
-                    <Button
-                        android:id="@+id/btnCategoryClassic"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="Classic"
-                        android:background="@drawable/unselected_button_background"
-                        android:textColor="@color/my_custom_brown"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="12dp"
-                        android:layout_margin="8dp"
-                        android:gravity="center"
-                        android:textAllCaps="false"
-                        app:backgroundTint="@null" />
-
-                    <Button
-                        android:id="@+id/btnCategorySport"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="Sport"
-                        android:background="@drawable/unselected_button_background"
-                        android:textColor="@color/my_custom_brown"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="12dp"
-                        android:layout_margin="8dp"
-                        android:gravity="center"
-                        android:textAllCaps="false"
-                        app:backgroundTint="@null" />
-
-                    <Button
-                        android:id="@+id/btnCategoryCasual"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="Casual"
-                        android:background="@drawable/selected_button_background"
-                        android:textColor="@color/my_custom_brown"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="12dp"
-                        android:layout_margin="8dp"
-                        android:gravity="center"
-                        android:textAllCaps="false"
-                        app:backgroundTint="@null"/>
-
-                    <Button
-                        android:id="@+id/btnCategoryFestive"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="Festive"
-                        android:background="@drawable/unselected_button_background"
-                        android:textColor="@color/my_custom_brown"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="12dp"
-                        android:layout_margin="8dp"
-                        android:gravity="center"
-                        android:textAllCaps="false"
-                        app:backgroundTint="@null" />
-
-                    <Button
-                        android:id="@+id/btnCategoryHome"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="Home"
-                        android:background="@drawable/unselected_button_background"
-                        android:textColor="@color/my_custom_brown"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="12dp"
-                        android:layout_margin="8dp"
-                        android:gravity="center"
-                        android:textAllCaps="false"
-                        app:backgroundTint="@null" />
-
-                    <Button
-                        android:id="@+id/btnCategoryOutside"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_columnWeight="1"
-                        android:text="Outside"
-                        android:background="@drawable/unselected_button_background"
-                        android:textColor="@color/my_custom_brown"
-                        android:paddingTop="12dp"
-                        android:paddingBottom="12dp"
-                        android:layout_margin="8dp"
-                        android:gravity="center"
-                        android:textAllCaps="false"
-                        app:backgroundTint="@null" />
-
-                </GridLayout>
-
-            </LinearLayout>
+            <!-- Dynamic tabs will be added here programmatically -->
 
         </LinearLayout>
-    </ScrollView>
 
-</FrameLayout>
+    </HorizontalScrollView>
+
+    <!-- Items RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/items_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="12dp"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/select_category_header_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/items_tabs_scroll" />
+
+    <!-- Empty State for Items -->
+    <LinearLayout
+        android:id="@+id/items_empty_state"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/select_category_header_container"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/items_tabs_scroll">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No items found"
+            android:textColor="#666666"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Add some items to your wardrobe first"
+            android:textColor="#999999"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <!-- Select Category Section -->
+    <LinearLayout
+        android:id="@+id/select_category_header_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="12dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        app:layout_constraintBottom_toTopOf="@+id/category_tabs_scroll"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/select_category_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Category"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <!-- Category Tabs -->
+    <HorizontalScrollView
+        android:id="@+id/category_tabs_scroll"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="16dp"
+        android:scrollbars="none"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/category_tabs_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- Classic Category -->
+            <TextView
+                android:id="@+id/tab_classic"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/tab_unselected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="80dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Classic"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Sport Category -->
+            <TextView
+                android:id="@+id/tab_sport"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/tab_unselected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="80dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Sport"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Casual Category -->
+            <TextView
+                android:id="@+id/tab_casual"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/tab_selected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="80dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Casual"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Festive Category -->
+            <TextView
+                android:id="@+id/tab_festive"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/tab_unselected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="80dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Festive"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Home Category -->
+            <TextView
+                android:id="@+id/tab_home"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/tab_unselected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="80dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Home"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- Outside Category -->
+            <TextView
+                android:id="@+id/tab_outside"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:background="@drawable/tab_unselected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:minWidth="80dp"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:text="Outside"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

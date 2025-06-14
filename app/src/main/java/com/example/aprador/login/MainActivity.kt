@@ -25,8 +25,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
-
         copyJsonToInternalStorageIfNotExists(this)
         val loginButton = findViewById<View>(R.id.Login)
 
@@ -40,7 +38,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
-//fdfds
 
     fun copyJsonToInternalStorageIfNotExists(context: Context) {
         val file = File(context.filesDir, "db.json")

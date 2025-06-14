@@ -110,7 +110,7 @@
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Select Items Section -->
+    <!-- Select Items Section with Gender Filter -->
     <LinearLayout
         android:id="@+id/select_items_header_container"
         android:layout_width="0dp"
@@ -126,57 +126,88 @@
 
         <TextView
             android:id="@+id/select_items_title"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:text="Select Items"
             android:textColor="#000000"
             android:textSize="18sp"
             android:textStyle="bold" />
 
+        <!-- Gender Toggle Buttons -->
+        <LinearLayout
+            android:id="@+id/gender_toggle_container"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:orientation="horizontal"
+            android:background="@drawable/tab_unselected_background"
+            android:padding="2dp">
+
+            <TextView
+                android:id="@+id/toggle_men"
+                android:layout_width="60dp"
+                android:layout_height="36dp"
+                android:background="@drawable/tab_selected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="Men"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/toggle_women"
+                android:layout_width="60dp"
+                android:layout_height="36dp"
+                android:background="@drawable/tab_unselected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:text="Women"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
-    <!-- Items Filter Tabs -->
-    <HorizontalScrollView
-        android:id="@+id/items_tabs_scroll"
+    <!-- Item Filter Dropdowns -->
+    <LinearLayout
+        android:id="@+id/filter_dropdowns_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="12dp"
         android:layout_marginEnd="24dp"
-        android:scrollbars="none"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/select_items_header_container">
 
-        <LinearLayout
-            android:id="@+id/items_tabs_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+        <!-- Category Spinner -->
+        <Spinner
+            android:id="@+id/category_spinner"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/tab_unselected_background"
+            android:padding="12dp" />
 
-            <!-- All Items Tab -->
-            <TextView
-                android:id="@+id/tab_all_items"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/tab_selected_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="80dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="All (0)"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+        <!-- Subcategory Spinner -->
+        <Spinner
+            android:id="@+id/subcategory_spinner"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/tab_unselected_background"
+            android:padding="12dp" />
 
-            <!-- Dynamic tabs will be added here programmatically -->
-
-        </LinearLayout>
-
-    </HorizontalScrollView>
+    </LinearLayout>
 
     <!-- Items RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
@@ -189,10 +220,10 @@
         android:layout_marginBottom="12dp"
         android:clipToPadding="false"
         android:paddingBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/select_category_header_container"
+        app:layout_constraintBottom_toTopOf="@+id/select_outfit_category_header_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/items_tabs_scroll" />
+        app:layout_constraintTop_toBottomOf="@+id/filter_dropdowns_container" />
 
     <!-- Empty State for Items -->
     <LinearLayout
@@ -202,10 +233,10 @@
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/select_category_header_container"
+        app:layout_constraintBottom_toTopOf="@+id/select_outfit_category_header_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/items_tabs_scroll">
+        app:layout_constraintTop_toBottomOf="@+id/filter_dropdowns_container">
 
         <TextView
             android:layout_width="wrap_content"
@@ -224,9 +255,9 @@
 
     </LinearLayout>
 
-    <!-- Select Category Section -->
+    <!-- Select Outfit Category Section -->
     <LinearLayout
-        android:id="@+id/select_category_header_container"
+        android:id="@+id/select_outfit_category_header_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -234,149 +265,52 @@
         android:layout_marginBottom="12dp"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        app:layout_constraintBottom_toTopOf="@+id/category_tabs_scroll"
+        app:layout_constraintBottom_toTopOf="@+id/outfit_category_dropdown_container"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <TextView
-            android:id="@+id/select_category_title"
+            android:id="@+id/select_outfit_category_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Select Category"
+            android:text="Select Outfit Category"
             android:textColor="#000000"
             android:textSize="18sp"
             android:textStyle="bold" />
 
     </LinearLayout>
 
-    <!-- Category Tabs -->
-    <HorizontalScrollView
-        android:id="@+id/category_tabs_scroll"
+    <!-- Outfit Category Dropdown -->
+    <LinearLayout
+        android:id="@+id/outfit_category_dropdown_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="16dp"
-        android:scrollbars="none"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <LinearLayout
-            android:id="@+id/category_tabs_container"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+        <!-- Outfit Category Spinner -->
+        <Spinner
+            android:id="@+id/outfit_category_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:background="@drawable/tab_unselected_background"
+            android:padding="12dp" />
 
-            <!-- Classic Category -->
-            <TextView
-                android:id="@+id/tab_classic"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/tab_unselected_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="80dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="Classic"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+    </LinearLayout>
 
-            <!-- Sport Category -->
-            <TextView
-                android:id="@+id/tab_sport"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/tab_unselected_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="80dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="Sport"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <!-- Casual Category -->
-            <TextView
-                android:id="@+id/tab_casual"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/tab_selected_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="80dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="Casual"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <!-- Festive Category -->
-            <TextView
-                android:id="@+id/tab_festive"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/tab_unselected_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="80dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="Festive"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <!-- Home Category -->
-            <TextView
-                android:id="@+id/tab_home"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:layout_marginEnd="12dp"
-                android:background="@drawable/tab_unselected_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="80dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="Home"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <!-- Outside Category -->
-            <TextView
-                android:id="@+id/tab_outside"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:background="@drawable/tab_unselected_background"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="center"
-                android:minWidth="80dp"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:text="Outside"
-                android:textColor="#000000"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-        </LinearLayout>
-
-    </HorizontalScrollView>
+    <!-- Hidden Gender Spinner for compatibility -->
+    <Spinner
+        android:id="@+id/gender_spinner"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

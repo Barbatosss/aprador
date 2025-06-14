@@ -22,7 +22,7 @@ import android.widget.TextView
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.aprador.outfits.MainPage
+import com.example.aprador.login.MainPage
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
 import com.example.aprador.recycler.CategorySection
@@ -309,16 +309,6 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         //     .commit()
     }
 
-    // TODO: Replace this with your actual data loading method
-    private fun getSampleData(): List<Item> {
-        return listOf(
-            Item("1", "Blue T-Shirt", "/path/to/tshirt1.jpg", "Tops", "T-Shirts"),
-            Item("2", "Red T-Shirt", "/path/to/tshirt2.jpg", "Tops", "T-Shirts"),
-            Item("3", "Wool Sweater", "/path/to/sweater1.jpg", "Tops", "Sweaters"),
-            Item("4", "Cotton Sweater", "/path/to/sweater2.jpg", "Tops", "Sweaters"),
-            Item("5", "Denim Jeans", "/path/to/jeans1.jpg", "Bottoms", "Jeans"),
-        )
-    }
 
     private fun loadItems(context: Context): List<Item> {
         return try {

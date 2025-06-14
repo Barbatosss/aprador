@@ -1,0 +1,15 @@
+<!-- In res/values/styles.xml or themes.xml -->
+<resources>
+    <!-- Base application theme. -->
+    <!-- You might already have a theme here, just add the items below -->
+
+    <style name="CalendarWeekDay">
+        <item name="android:textColor">#888888</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="CalendarDate">
+        <item name="android:textColor">#333333</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+</resources>

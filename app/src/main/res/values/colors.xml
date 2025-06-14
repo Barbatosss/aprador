@@ -6,4 +6,5 @@
     <color name="category_label_color">#FF757575</color>
     <color name="screen_background_color">#F0F0F0</color>
     <color name="count_background_color">#FFE0E0E0</color>
+    <color name="my_custom_brown">#3D1F00</color>
 </resources>

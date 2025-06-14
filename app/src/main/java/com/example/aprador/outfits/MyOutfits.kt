@@ -159,4 +159,6 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
         // For example, you could navigate to an outfit detail fragment
         // or show a dialog with outfit options
     }
+
+
 }

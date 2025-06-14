@@ -1,0 +1,7 @@
+Casual
+Ethnic
+Formal
+Party
+Smart Casual
+Sports
+Travel

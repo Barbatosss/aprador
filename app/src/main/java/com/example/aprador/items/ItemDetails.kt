@@ -2,43 +2,31 @@ package com.example.aprador.items
 
 import android.app.AlertDialog
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import androidx.exifinterface.media.ExifInterface
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.provider.MediaStore
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ArrayAdapter
-import android.widget.Spinner
+import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.core.graphics.scale
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.fragment.app.Fragment
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
 import com.example.aprador.recycler.Item
+import com.example.aprador.utils.ImageUtil
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
-
-// Add these imports for camera/gallery functionality
-import android.Manifest
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.provider.MediaStore
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import android.Manifest
 
 class ItemDetails : Fragment(R.layout.fragment_item_details) {
 
@@ -66,18 +54,17 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
     private var newPhotoUri: String? = null
     private var currentPhotoFile: File? = null
 
-    // Image processing constants
+    // Image processing constants - Updated for better display
     companion object {
-        private const val MAX_BITMAP_DIMENSION = 1024
-        private const val DEFAULT_IMAGE_VIEW_WIDTH_DP = 313
-        private const val DEFAULT_IMAGE_VIEW_HEIGHT_DP = 229
+        private const val DETAIL_IMAGE_MAX_WIDTH = 800
+        private const val DETAIL_IMAGE_MAX_HEIGHT = 600
         private const val CAMERA_PERMISSION_REQUEST_CODE = 100
     }
 
     // Category and subcategory data (from AddItem.kt)
     private val categoryOptions = arrayOf("Top", "Bottom", "Outerwear", "Footwear")
 
-    private val topSubcategories = arrayOf("T-Shirts", "Polo", "Dress Shirt", "Tank Top", "Blouse", "Camisole", "Crop Top")
+    private val topSubcategories = arrayOf("T-Shirt", "Polo", "Dress Shirt", "Tank Top", "Blouse", "Camisole", "Crop Top")
     private val bottomSubcategories = arrayOf("Jeans", "Chinos", "Shorts", "Joggers", "Leggings", "Skirt", "Dress")
     private val outerwearSubcategories = arrayOf("Jacket", "Hoodie", "Blazer", "Coat", "Cardigan", "Kimono")
     private val footwearSubcategories = arrayOf("Sneakers", "Dress Shoes", "Boots", "Sandals", "Heels", "Flats")
@@ -170,11 +157,11 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
         itemCategorySpinner.adapter = categoryAdapter
 
         // Set listener for category changes to update subcategory options
-        itemCategorySpinner.onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: View?, position: Int, id: Long) {
+        itemCategorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 updateSubcategorySpinner(categoryOptions[position])
             }
-            override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
@@ -315,41 +302,25 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun loadNewPhoto() {
-        when {
-            !newPhotoUri.isNullOrEmpty() && newPhotoUri != "null" -> {
-                val uri = newPhotoUri!!.toUri()
-                if (uri.scheme == "content") {
-                    loadImage(uri = uri)
-                } else {
-                    loadImage(path = newPhotoPath)
-                }
-            }
-            !newPhotoPath.isNullOrEmpty() -> loadImage(path = newPhotoPath)
-            else -> showToast("Failed to load new photo")
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun loadImage(path: String? = null, uri: Uri? = null) {
         itemPhoto.post {
-            val width = itemPhoto.width.takeIf { it > 0 } ?: dpToPx(DEFAULT_IMAGE_VIEW_WIDTH_DP)
-            val height = itemPhoto.height.takeIf { it > 0 } ?: dpToPx(DEFAULT_IMAGE_VIEW_HEIGHT_DP)
-
+            // Use max dimensions instead of exact dimensions
             val bitmap = when {
-                path != null && File(path).exists() -> decodeImageWithOrientation(path, width, height)
-                uri != null -> decodeBitmapFromUri(uri)?.let { correctOrientation(it, uri) }
+                !newPhotoUri.isNullOrEmpty() && newPhotoUri != "null" -> {
+                    val uri = newPhotoUri!!.toUri()
+                    ImageUtil.loadImageFromUriPreserveAspect(requireContext(), uri, DETAIL_IMAGE_MAX_WIDTH, DETAIL_IMAGE_MAX_HEIGHT)
+                }
+                !newPhotoPath.isNullOrEmpty() -> {
+                    ImageUtil.loadImageFromPathPreserveAspect(newPhotoPath!!, DETAIL_IMAGE_MAX_WIDTH, DETAIL_IMAGE_MAX_HEIGHT)
+                }
                 else -> null
             }
 
+            ImageUtil.setImageToView(itemPhoto, bitmap, ImageView.ScaleType.FIT_CENTER)
+
             if (bitmap != null) {
-                itemPhoto.apply {
-                    setImageBitmap(scaleAndCropBitmap(bitmap, width, height))
-                    scaleType = ImageView.ScaleType.CENTER_CROP
-                    background = null
-                }
                 showToast("Photo updated")
             } else {
-                showToast("Failed to load photo")
+                showToast("Failed to load new photo")
             }
         }
     }
@@ -501,7 +472,7 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
         itemCategoryValue.text = item.category
         itemSubcategoryValue.text = item.subcategory
 
-        // Load and display image
+        // Load and display image using ImageUtil with preserved aspect ratio
         loadItemImage(item.imagePath)
     }
 
@@ -513,114 +484,36 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
         }
 
         itemPhoto.post {
-            val width = itemPhoto.width.takeIf { it > 0 } ?: dpToPx(DEFAULT_IMAGE_VIEW_WIDTH_DP)
-            val height = itemPhoto.height.takeIf { it > 0 } ?: dpToPx(DEFAULT_IMAGE_VIEW_HEIGHT_DP)
-
             val bitmap = when {
                 imagePath.startsWith("content://") -> {
                     val uri = imagePath.toUri()
-                    decodeBitmapFromUri(uri)?.let { correctOrientation(it, uri) }
+                    ImageUtil.loadImageFromUriPreserveAspect(requireContext(), uri, DETAIL_IMAGE_MAX_WIDTH, DETAIL_IMAGE_MAX_HEIGHT)
                 }
                 File(imagePath).exists() -> {
-                    decodeImageWithOrientation(imagePath, width, height)
+                    ImageUtil.loadImageFromPathPreserveAspect(imagePath, DETAIL_IMAGE_MAX_WIDTH, DETAIL_IMAGE_MAX_HEIGHT)
                 }
                 else -> null
             }
 
             if (bitmap != null) {
-                itemPhoto.apply {
-                    setImageBitmap(scaleAndCropBitmap(bitmap, width, height))
-                    scaleType = ImageView.ScaleType.CENTER_CROP
-                    background = null
-                }
+                // Clear any background and set the image with FIT_CENTER to preserve aspect ratio
+                itemPhoto.background = null
+                ImageUtil.setImageToView(itemPhoto, bitmap, ImageView.ScaleType.FIT_CENTER)
             } else {
                 setPlaceholderImage()
             }
         }
     }
 
-    private fun decodeBitmapFromUri(uri: Uri): Bitmap? = try {
-        requireContext().contentResolver.openInputStream(uri).use {
-            BitmapFactory.decodeStream(it)
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun correctOrientation(bitmap: Bitmap, uri: Uri): Bitmap {
-        return try {
-            val inputStream = requireContext().contentResolver.openInputStream(uri)
-            val exif = inputStream?.let { ExifInterface(it) }
-            val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL) ?: 0
-            when (orientation) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
-                ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
-                ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
-                else -> bitmap
-            }
-        } catch (e: Exception) {
-            bitmap
-        }
-    }
-
-    private fun decodeImageWithOrientation(path: String, width: Int, height: Int): Bitmap? = try {
-        val options = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
-        BitmapFactory.decodeFile(path, options)
-
-        options.inSampleSize = calculateInSampleSize(options, width, height)
-        options.inJustDecodeBounds = false
-
-        val bitmap = BitmapFactory.decodeFile(path, options)
-        val exif = ExifInterface(path)
-        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-
-        when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
-            else -> bitmap
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-
-    private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
-        val matrix = Matrix().apply { postRotate(degrees) }
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-    }
-
-    private fun scaleAndCropBitmap(bitmap: Bitmap, targetWidth: Int, targetHeight: Int): Bitmap {
-        val scale = maxOf(targetWidth.toFloat() / bitmap.width, targetHeight.toFloat() / bitmap.height)
-        val scaled = bitmap.scale((bitmap.width * scale).toInt(), (bitmap.height * scale).toInt())
-        val cropX = maxOf(0, (scaled.width - targetWidth) / 2)
-        val cropY = maxOf(0, (scaled.height - targetHeight) / 2)
-        return Bitmap.createBitmap(scaled, cropX, cropY, targetWidth, targetHeight)
-    }
-
-    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-        var inSampleSize = 1
-        val (width, height) = options.outWidth to options.outHeight
-        if (height > reqHeight || width > reqWidth) {
-            val halfHeight = height / 2
-            val halfWidth = width / 2
-            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
-                inSampleSize *= 2
-            }
-        }
-        return inSampleSize
-    }
-
     private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
 
     private fun setPlaceholderImage() {
+        // Remove background to avoid conflicts
+        itemPhoto.background = null
+        // Set the placeholder image as src instead of background
         itemPhoto.setImageResource(R.drawable.shirt)
-        itemPhoto.scaleType = ImageView.ScaleType.CENTER_INSIDE
-        itemPhoto.setBackgroundResource(R.drawable.shirt)
+        // Use FIT_CENTER to show the complete image without cropping
+        itemPhoto.scaleType = ImageView.ScaleType.FIT_CENTER
     }
 
     private fun showDeleteConfirmationDialog() {

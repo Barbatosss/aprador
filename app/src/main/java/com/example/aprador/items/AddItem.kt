@@ -2,9 +2,6 @@ package com.example.aprador.items
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -15,25 +12,26 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
-import java.io.File
-import androidx.core.graphics.scale
 import androidx.core.net.toUri
 import com.example.aprador.login.MainPage
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
 import com.example.aprador.recycler.Item
+import com.example.aprador.utils.ImageUtil
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.io.File
 
 class AddItem : Fragment(R.layout.fragment_add_item) {
     private lateinit var nameView: TextView
+
     // Category tabs
     private lateinit var tabBottom: TextView
     private lateinit var tabTop: TextView
     private lateinit var tabOuterwear: TextView
     private lateinit var tabFootwear: TextView
 
-    // Gender toggle tabs (you'll need to add these to your layout)
+    // Gender toggle tabs
     private lateinit var tabMen: TextView
     private lateinit var tabWomen: TextView
 
@@ -49,19 +47,14 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     // Current selections
     private var selectedCategory = "Top"
     private var selectedSubcategory = "T-Shirt"
-    private var selectedGender = "Men" // Default to Men
+    private var selectedGender = "Men"
 
     // Photo data
     private var photoPath: String? = null
     private var photoUri: String? = null
 
-    // Dynamic sizing constants - can be adjusted based on needs
-    companion object {
-        private const val DEFAULT_IMAGE_VIEW_WIDTH_DP = 300
-        private const val DEFAULT_IMAGE_VIEW_HEIGHT_DP = 180
-        private const val MAX_BITMAP_DIMENSION = 1024 // Reduced for better memory management
-        private const val THUMBNAIL_SIZE = 400 // For thumbnail processing
-    }
+    // Loaded bitmap reference for cleanup
+    private var loadedBitmap: Bitmap? = null
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -93,12 +86,12 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     }
 
     private fun initializeViews(view: View) {
-        // Initialize gender tabs (add these IDs to your layout XML)
+        // Initialize gender tabs
         tabMen = view.findViewById(R.id.toggle_men)
         tabWomen = view.findViewById(R.id.toggle_women)
 
-
         nameView = view.findViewById(R.id.item_name_edittext)
+
         // Initialize category tabs
         tabBottom = view.findViewById(R.id.tab_bottom)
         tabTop = view.findViewById(R.id.tab_top)
@@ -171,6 +164,98 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun loadCapturedPhoto() {
+        try {
+            // Clean up previous bitmap
+            ImageUtil.recycleBitmap(loadedBitmap)
+            loadedBitmap = null
+
+            val bitmap = when {
+                !photoUri.isNullOrEmpty() && photoUri != "null" -> {
+                    val uri = photoUri!!.toUri()
+                    if (uri.scheme == "content") {
+                        // Use the aspect-preserving method for URI loading
+                        ImageUtil.loadImageFromUriPreserveAspect(
+                            requireContext(),
+                            uri,
+                            getImageViewWidth(),
+                            getImageViewHeight()
+                        )
+                    } else {
+                        // For non-content URIs, convert to path and use path loading
+                        ImageUtil.loadImageFromPath(
+                            photoPath ?: "",
+                            getImageViewWidth(),
+                            getImageViewHeight()
+                        )
+                    }
+                }
+                !photoPath.isNullOrEmpty() -> {
+                    // For file paths, continue using the existing path loading method
+                    ImageUtil.loadImageFromPath(
+                        photoPath!!,
+                        getImageViewWidth(),
+                        getImageViewHeight()
+                    )
+                }
+                else -> null
+            }
+
+            if (bitmap != null) {
+                loadedBitmap = bitmap
+                // Change ScaleType to FIT_CENTER to preserve aspect ratio
+                ImageUtil.setImageToView(photoImageView, bitmap, ImageView.ScaleType.FIT_CENTER)
+                showToast("Photo loaded successfully")
+            } else {
+                setPlaceholderImage()
+                showToast("Failed to load photo")
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            setPlaceholderImage()
+            showToast("Error loading photo: ${e.message}")
+        }
+    }
+
+    private fun getImageViewWidth(): Int {
+        return if (photoImageView.width > 0) {
+            photoImageView.width
+        } else {
+            (300 * resources.displayMetrics.density).toInt()
+        }
+    }
+
+    private fun getImageViewHeight(): Int {
+        return if (photoImageView.height > 0) {
+            photoImageView.height
+        } else {
+            (200 * resources.displayMetrics.density).toInt()
+        }
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun setPlaceholderImage() {
+        photoImageView.setImageResource(R.drawable.shirt)
+        photoImageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+        photoImageView.setBackgroundResource(R.drawable.shirt)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        // Clean up bitmap to prevent memory leaks
+        ImageUtil.recycleBitmap(loadedBitmap)
+        loadedBitmap = null
+
+        // Show bottom navigation when leaving this fragment
+        (activity as? NavBar)?.showBottomNavigation()
+    }
+
     private fun selectGenderTab(gender: String) {
         selectedGender = gender
 
@@ -198,172 +283,6 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
             tab.setBackgroundResource(R.drawable.tab_unselected_background)
             tab.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.black))
         }
-    }
-
-    // ... (keep all the existing image loading methods unchanged) ...
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun loadCapturedPhoto() {
-        when {
-            !photoUri.isNullOrEmpty() && photoUri != "null" -> {
-                val uri = photoUri!!.toUri()
-                if (uri.scheme == "content") {
-                    loadImage(uri = uri)
-                } else {
-                    loadImage(path = photoPath)
-                }
-            }
-            !photoPath.isNullOrEmpty() -> loadImage(path = photoPath)
-            else -> showToast("No photo available")
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun loadImage(path: String? = null, uri: Uri? = null) {
-        photoImageView.post {
-            val width = photoImageView.width.takeIf { it > 0 } ?: dpToPx(DEFAULT_IMAGE_VIEW_WIDTH_DP)
-            val height = photoImageView.height.takeIf { it > 0 } ?: dpToPx(DEFAULT_IMAGE_VIEW_HEIGHT_DP)
-
-            val bitmap = when {
-                path != null && File(path).exists() -> decodeImageWithOrientation(path, width, height)
-                uri != null -> decodeBitmapFromUri(uri)?.let { correctOrientation(it, uri) }
-                else -> null
-            }
-
-            if (bitmap != null) {
-                photoImageView.apply {
-                    setImageBitmap(scaleAndCropBitmap(bitmap, width, height))
-                    scaleType = ImageView.ScaleType.CENTER_CROP
-                    background = null
-                }
-                showToast("Photo loaded successfully")
-            } else {
-                setPlaceholderImage()
-                showToast("Failed to load photo")
-            }
-        }
-    }
-
-    private fun decodeBitmapFromUri(uri: Uri): Bitmap? = try {
-        requireContext().contentResolver.openInputStream(uri).use {
-            BitmapFactory.decodeStream(it)
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun correctOrientation(bitmap: Bitmap, uri: Uri): Bitmap {
-        return try {
-            val inputStream = requireContext().contentResolver.openInputStream(uri)
-            val exif = inputStream?.let { ExifInterface(it) }
-            val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL) ?: 0
-            when (orientation) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
-                ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
-                ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
-                else -> bitmap
-            }
-        } catch (e: Exception) {
-            bitmap
-        }
-    }
-
-    private fun decodeImageWithOrientation(path: String, width: Int, height: Int): Bitmap? = try {
-        val options = BitmapFactory.Options().apply {
-            inJustDecodeBounds = true
-        }
-        BitmapFactory.decodeFile(path, options)
-
-        options.inSampleSize = calculateInSampleSize(options, width, height)
-        options.inJustDecodeBounds = false
-
-        val bitmap = BitmapFactory.decodeFile(path, options)
-        val exif = ExifInterface(path)
-        val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-
-        when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
-            ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
-            else -> bitmap
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-
-    private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
-        val matrix = Matrix().apply { postRotate(degrees) }
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-    }
-
-    private fun scaleAndCropBitmap(bitmap: Bitmap, targetWidth: Int, targetHeight: Int): Bitmap {
-        val scale = maxOf(targetWidth.toFloat() / bitmap.width, targetHeight.toFloat() / bitmap.height)
-        val scaled = Bitmap.createScaledBitmap(bitmap, (bitmap.width * scale).toInt(), (bitmap.height * scale).toInt(), true)
-        val cropX = maxOf(0, (scaled.width - targetWidth) / 2)
-        val cropY = maxOf(0, (scaled.height - targetHeight) / 2)
-        return Bitmap.createBitmap(scaled, cropX, cropY, targetWidth, targetHeight)
-    }
-
-    private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-        var inSampleSize = 1
-        val (width, height) = options.outWidth to options.outHeight
-        if (height > reqHeight || width > reqWidth) {
-            var halfHeight = height / 2
-            var halfWidth = width / 2
-            while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
-                inSampleSize *= 2
-            }
-        }
-        return inSampleSize
-    }
-
-    private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
-
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
-    }
-    // Alternative methods for different image processing needs
-    private fun createThumbnail(imagePath: String): Bitmap? {
-        return decodeImageWithOrientation(imagePath, THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-    }
-
-    private fun createFullSizeImage(imagePath: String): Bitmap? {
-        return decodeImageWithOrientation(imagePath, MAX_BITMAP_DIMENSION, MAX_BITMAP_DIMENSION)
-    }
-
-    private fun scaleBitmapIfNeeded(bitmap: Bitmap, maxWidth: Int = MAX_BITMAP_DIMENSION, maxHeight: Int = MAX_BITMAP_DIMENSION): Bitmap {
-        val width = bitmap.width
-        val height = bitmap.height
-
-        if (width <= maxWidth && height <= maxHeight) {
-            return bitmap
-        }
-
-        val scaleWidth = maxWidth.toFloat() / width
-        val scaleHeight = maxHeight.toFloat() / height
-        val scale = minOf(scaleWidth, scaleHeight)
-
-        val scaledWidth = (width * scale).toInt()
-        val scaledHeight = (height * scale).toInt()
-
-        return bitmap.scale(scaledWidth, scaledHeight)
-    }
-
-    private fun setPlaceholderImage() {
-        // Set a placeholder or default image
-        photoImageView.setImageResource(R.drawable.shirt)
-        photoImageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
-        // Restore background for placeholder
-        photoImageView.setBackgroundResource(R.drawable.shirt)
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        // Show bottom navigation when leaving this fragment (safety net)
-        (activity as? NavBar)?.showBottomNavigation()
     }
 
     private fun selectCategoryTab(category: String) {
@@ -557,6 +476,7 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
             }
         }
     }
+
     private fun saveNewItemToJson(context: Context, newItem: Item) {
         val file = File(context.filesDir, "db.json")
 
@@ -578,30 +498,22 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     }
 
     private fun addItem() {
-        // Handle the logic for adding the item with selected category, subcategory, gender, and photo
-        // You can access selectedCategory, selectedSubcategory, selectedGender, and photoPath variables here
-
         if (photoPath != null || photoUri != null) {
-            // Example: Log the selections or save to database
-            println("Adding item - Gender: $selectedGender, Category: $selectedCategory, Subcategory: $selectedSubcategory, Photo: $photoPath")
-            if (photoPath != null || photoUri != null) {
-                val imagePathToUse = photoPath ?: photoUri.toString()
+            val imagePathToUse = photoPath ?: photoUri.toString()
 
-                val newItem = Item(
-                    id = System.currentTimeMillis().toString(), // or use UUID.randomUUID().toString()
-                    name = nameView.text.toString(), // You can replace this with actual user input
-                    imagePath = imagePathToUse,
-                    category = selectedCategory,
-                    subcategory = selectedSubcategory
-                )
+            val newItem = Item(
+                id = System.currentTimeMillis().toString(),
+                name = nameView.text.toString(),
+                imagePath = imagePathToUse,
+                category = selectedCategory,
+                subcategory = selectedSubcategory
+            )
 
+            saveNewItemToJson(requireContext(), newItem)
 
-                saveNewItemToJson(requireContext(), newItem)
+            Toast.makeText(requireContext(), "Item added successfully!", Toast.LENGTH_SHORT).show()
 
-                Toast.makeText(requireContext(), "Item added successfully!", Toast.LENGTH_SHORT).show()
-
-
-                // Navigate back to MyItems
+            // Navigate back to MyItems
             val myItemsFragment = MyItems()
             parentFragmentManager.beginTransaction()
                 .replace(R.id.flFragment, myItemsFragment)
@@ -610,6 +522,5 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         } else {
             Toast.makeText(requireContext(), "No photo available", Toast.LENGTH_SHORT).show()
         }
-    }
     }
 }

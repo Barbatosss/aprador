@@ -1,16 +1,15 @@
 package com.example.aprador.recycler
 // ItemAdapter.kt
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.aprador.R
 import java.io.File
+import androidx.core.net.toUri
 
 class ItemAdapter(
 
@@ -40,8 +39,8 @@ class ItemAdapter(
         val context = holder.itemView.context
 
         val imageSource = when {
-            item.imagePath.startsWith("content://") -> Uri.parse(item.imagePath)
-            item.imagePath.startsWith("file://") -> Uri.parse(item.imagePath)
+            item.imagePath.startsWith("content://") -> item.imagePath.toUri()
+            item.imagePath.startsWith("file://") -> item.imagePath.toUri()
             File(item.imagePath).exists() -> File(item.imagePath)
             else -> null
         }

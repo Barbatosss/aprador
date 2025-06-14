@@ -8,7 +8,7 @@ import androidx.core.content.ContextCompat
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
 
-class MyOuftits : Fragment(R.layout.fragment_my_ouftits) {
+class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
 
     private lateinit var tabAll: TextView
     private lateinit var tabClassic: TextView

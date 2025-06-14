@@ -19,7 +19,7 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         // Move to MyOutfits
         outfitView.setOnClickListener {
 
-            val outfitFragment = MyOuftits()
+            val outfitFragment = MyOutfits()
             parentFragmentManager.beginTransaction()
                 .replace(R.id.flFragment, outfitFragment)
                 .addToBackStack(null)

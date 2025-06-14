@@ -352,19 +352,17 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     }
 
     private fun onItemClicked(item: Item) {
-        // Handle item click - navigate to item details, etc.
-        Toast.makeText(requireContext(), "Clicked: ${item.name}", Toast.LENGTH_SHORT).show()
+        // Navigate to item details fragment
+        val itemDetailsFragment = ItemDetails()
+        val bundle = Bundle().apply {
+            putString("item_id", item.id)
+        }
+        itemDetailsFragment.arguments = bundle
 
-        // TODO: Navigate to item details fragment
-        // val itemDetailsFragment = ItemDetailsFragment()
-        // val bundle = Bundle().apply {
-        //     putString("item_id", item.id)
-        // }
-        // itemDetailsFragment.arguments = bundle
-        // parentFragmentManager.beginTransaction()
-        //     .replace(R.id.flFragment, itemDetailsFragment)
-        //     .addToBackStack(null)
-        //     .commit()
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.flFragment, itemDetailsFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun loadItems(context: Context): List<Item> {

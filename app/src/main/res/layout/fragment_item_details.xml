@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- fragment_item_details.xml -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#d9d9d9"
+    tools:context=".items.ItemDetails">
+
+    <!-- Header Layout -->
+    <LinearLayout
+        android:id="@+id/header_layout_itemDetails"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        android:layout_marginTop="4dp"
+        android:background="#FEFEFE"
+        android:elevation="4dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <!-- Back Icon -->
+        <View
+            android:id="@+id/BackItemDetails"
+            android:layout_width="37dp"
+            android:layout_height="37dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/ic_view"
+            android:clickable="true"
+            android:contentDescription="Back"
+            android:focusable="true"
+            android:scaleX="-1" />
+
+        <!-- Item Details Logo in the center -->
+        <View
+            android:id="@+id/ItemDetailsLogo"
+            android:layout_width="225dp"
+            android:layout_height="39dp"
+            android:layout_weight="1"
+            android:background="@drawable/ic_view_item"
+            android:contentDescription="Item Details Logo" />
+
+        <!-- Edit/Save Icon -->
+        <View
+            android:id="@+id/EditItem"
+            android:layout_width="37dp"
+            android:layout_height="37dp"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/ic_edit"
+            android:clickable="true"
+            android:contentDescription="Edit Item"
+            android:focusable="true" />
+
+    </LinearLayout>
+
+    <!-- Edit Photo Hint Text (Hidden by default) -->
+    <TextView
+        android:id="@+id/edit_photo_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Tap photo to change"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header_layout_itemDetails" />
+
+    <!-- Item Photo -->
+    <ImageView
+        android:id="@+id/ItemPhoto"
+        android:layout_width="313dp"
+        android:layout_height="229dp"
+        android:layout_marginTop="8dp"
+        android:adjustViewBounds="false"
+        android:background="@drawable/shirt"
+        android:clickable="true"
+        android:contentDescription="Item Photo"
+        android:cropToPadding="true"
+        android:focusable="true"
+        android:scaleType="centerCrop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edit_photo_hint" />
+
+    <!-- Delete Button -->
+    <Button
+        android:id="@+id/DeleteItemButton"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/tab_unselected_background"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:text="Delete Item"
+        android:textColor="#FEFEFE"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ItemPhoto" />
+
+    <!-- Item Details Container -->
+    <LinearLayout
+        android:id="@+id/item_details_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="32dp"
+        android:orientation="vertical"
+        android:background="@drawable/tab_unselected_background"
+        android:padding="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/DeleteItemButton">
+
+        <!-- Item Name Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Name:"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="12dp" />
+
+            <!-- View Mode Name -->
+            <TextView
+                android:id="@+id/item_name_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Black T-Shirt"
+                android:textColor="#333333"
+                android:textSize="18sp" />
+
+            <!-- Edit Mode Name -->
+            <EditText
+                android:id="@+id/item_name_edit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:drawable/edit_text"
+                android:hint="Enter item name"
+                android:inputType="textCapWords"
+                android:padding="8dp"
+                android:textColor="#333333"
+                android:textSize="18sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <!-- Item Category Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Category:"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="12dp" />
+
+            <!-- View Mode Category -->
+            <TextView
+                android:id="@+id/item_category_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Top"
+                android:textColor="#333333"
+                android:textSize="18sp" />
+
+            <!-- Edit Mode Category -->
+            <Spinner
+                android:id="@+id/item_category_spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:drawable/btn_dropdown"
+                android:padding="8dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <!-- Item Subcategory Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Subcategory:"
+                android:textColor="#000000"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginEnd="12dp" />
+
+            <!-- View Mode Subcategory -->
+            <TextView
+                android:id="@+id/item_subcategory_value"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="T-Shirt"
+                android:textColor="#333333"
+                android:textSize="18sp" />
+
+            <!-- Edit Mode Subcategory -->
+            <Spinner
+                android:id="@+id/item_subcategory_spinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:drawable/btn_dropdown"
+                android:padding="8dp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

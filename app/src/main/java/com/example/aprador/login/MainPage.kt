@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.core.content.ContextCompat
 import com.example.aprador.R
+import com.example.aprador.items.ItemDetails
 import com.example.aprador.items.MyItems
 import com.example.aprador.outfits.MyOutfits
 import com.example.aprador.recycler.Item
@@ -231,13 +232,15 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     }
 
     private fun onItemClicked(item: Item) {
-        // Handle item click - show toast and navigate to MyItems
-        Toast.makeText(requireContext(), "Clicked: ${item.name}", Toast.LENGTH_SHORT).show()
+        // Navigate to item details fragment
+        val itemDetailsFragment = ItemDetails()
+        val bundle = Bundle().apply {
+            putString("item_id", item.id)
+        }
+        itemDetailsFragment.arguments = bundle
 
-        // Navigate to MyItems fragment when an item is clicked
-        val itemFragment = MyItems()
         parentFragmentManager.beginTransaction()
-            .replace(R.id.flFragment, itemFragment)
+            .replace(R.id.flFragment, itemDetailsFragment)
             .addToBackStack(null)
             .commit()
     }

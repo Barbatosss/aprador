@@ -25,7 +25,6 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
         Outfit(4, "Casual", R.drawable.shirt, "Casual"),
         Outfit(5, "Sport", R.drawable.shirt, "Sports"),
         Outfit(6, "Sport", R.drawable.shirt, "Sports"),
-        // Add more outfits as needed
     )
 
     private var filteredOutfits = allOutfits

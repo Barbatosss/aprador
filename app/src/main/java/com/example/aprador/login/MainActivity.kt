@@ -4,10 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -26,8 +27,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var googleSignInClient: GoogleSignInClient
     private lateinit var userPreferences: UserPreferences
+    private lateinit var googleSignInLauncher: ActivityResultLauncher<Intent>
+
     private companion object {
-        private const val RC_SIGN_IN = 9001
         private const val TAG = "GoogleSignIn"
     }
 
@@ -44,6 +46,19 @@ class MainActivity : AppCompatActivity() {
 
         // Initialize UserPreferences
         userPreferences = UserPreferences(this)
+
+        // Initialize Activity Result Launcher for Google Sign-in
+        googleSignInLauncher = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+                handleSignInResult(task)
+            } else {
+                Log.w(TAG, "Google Sign-in was cancelled or failed")
+                Toast.makeText(this, "Sign in cancelled", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         // Check if user is already logged in
         if (userPreferences.isUserLoggedIn()) {
@@ -75,16 +90,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun signInWithGoogle() {
-        val signInIntent = googleSignInClient.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            handleSignInResult(task)
+        // Sign out first to ensure account picker is shown
+        googleSignInClient.signOut().addOnCompleteListener {
+            val signInIntent = googleSignInClient.signInIntent
+            googleSignInLauncher.launch(signInIntent)
         }
     }
 
@@ -109,7 +118,20 @@ class MainActivity : AppCompatActivity() {
 
         } catch (e: ApiException) {
             Log.w(TAG, "signInResult:failed code=" + e.statusCode)
-            Toast.makeText(this, "Sign in failed. Please try again.", Toast.LENGTH_SHORT).show()
+            when (e.statusCode) {
+                12501 -> {
+                    Toast.makeText(this, "Sign in cancelled", Toast.LENGTH_SHORT).show()
+                }
+                7 -> {
+                    Toast.makeText(this, "Network error. Please check your connection.", Toast.LENGTH_SHORT).show()
+                }
+                10 -> {
+                    Toast.makeText(this, "Developer error. Please check your configuration.", Toast.LENGTH_LONG).show()
+                }
+                else -> {
+                    Toast.makeText(this, "Sign in failed. Please try again.", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 

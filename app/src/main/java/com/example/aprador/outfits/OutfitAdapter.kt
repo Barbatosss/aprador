@@ -45,6 +45,7 @@ class OutfitAdapter(
         }
     }
 
+
     private fun loadOutfitPreview(holder: OutfitViewHolder, outfit: Outfit) {
         // If outfit has a preview image, use it
         if (!outfit.previewImagePath.isNullOrEmpty()) {

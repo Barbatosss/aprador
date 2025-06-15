@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.TextView
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aprador.R
 import com.example.aprador.login.MainPage
@@ -21,10 +21,10 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
 
     private lateinit var tabsLayout: LinearLayout
     private lateinit var recyclerView: RecyclerView
-    private lateinit var outfitAdapter: OutfitAdapter
+    private lateinit var outfitSectionAdapter: OutfitSectionAdapter
 
     private var allOutfits = listOf<Outfit>()
-    private var filteredOutfits = listOf<Outfit>()
+    private var outfitSections = listOf<OutfitSection>()
     private var selectedCategory = "All"
     private val dynamicTabs = mutableListOf<TextView>()
 
@@ -53,7 +53,25 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
 
     private fun loadOutfitsData() {
         allOutfits = loadOutfits(requireContext())
-        filteredOutfits = allOutfits
+        updateOutfitSections()
+    }
+
+    private fun updateOutfitSections() {
+        if (selectedCategory == "All") {
+            // Group all outfits by category
+            val groupedOutfits = allOutfits.groupBy { it.category }
+            outfitSections = groupedOutfits.map { (category, outfits) ->
+                OutfitSection(category, outfits)
+            }.sortedBy { it.category }
+        } else {
+            // Show only selected category
+            val filteredOutfits = allOutfits.filter { it.category == selectedCategory }
+            outfitSections = if (filteredOutfits.isNotEmpty()) {
+                listOf(OutfitSection(selectedCategory, filteredOutfits))
+            } else {
+                emptyList()
+            }
+        }
     }
 
     private fun loadOutfits(context: Context): List<Outfit> {
@@ -74,14 +92,14 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
 
     private fun setupRecyclerView(view: View) {
         recyclerView = view.findViewById(R.id.recyclerView_outfits)
-        outfitAdapter = OutfitAdapter(filteredOutfits, requireContext()) { outfit ->
+        outfitSectionAdapter = OutfitSectionAdapter(outfitSections, requireContext()) { outfit ->
             // Handle outfit click
             onOutfitClicked(outfit)
         }
 
-        // Set GridLayoutManager with 2 columns
-        recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-        recyclerView.adapter = outfitAdapter
+        // Set LinearLayoutManager with 1 column (vertical)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        recyclerView.adapter = outfitSectionAdapter
     }
 
     private fun setupClickListeners(view: View) {
@@ -185,15 +203,11 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
             updateTabAppearance(tabView, isSelected)
         }
 
-        // Filter outfits based on selected category
-        filteredOutfits = if (category == "All") {
-            allOutfits
-        } else {
-            allOutfits.filter { it.category == category }
-        }
+        // Update outfit sections based on selected category
+        updateOutfitSections()
 
-        // Update adapter with filtered outfits
-        outfitAdapter.updateOutfits(filteredOutfits)
+        // Update adapter with new sections
+        outfitSectionAdapter.updateSections(outfitSections)
     }
 
     private fun dpToPx(dp: Int): Int {
@@ -205,7 +219,7 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
         super.onResume()
         // Refresh outfits data when returning to this fragment
         loadOutfitsData()
-        outfitAdapter.updateOutfits(filteredOutfits)
+        outfitSectionAdapter.updateSections(outfitSections)
         setupDynamicTabs()
     }
 

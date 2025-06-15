@@ -41,44 +41,7 @@
             android:textSize="16sp"
             android:textStyle="normal" />
 
-        <!-- Color Dots Container -->
-        <LinearLayout
-            android:id="@+id/ll_color_dots"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:orientation="horizontal">
 
-            <!-- Color dots will be added programmatically -->
-            <View
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginEnd="4dp"
-                android:background="@drawable/color_dot"
-                android:backgroundTint="#8B4513" />
-
-            <View
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginEnd="4dp"
-                android:background="@drawable/color_dot"
-                android:backgroundTint="#D2691E" />
-
-            <View
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginEnd="4dp"
-                android:background="@drawable/color_dot"
-                android:backgroundTint="#A0522D" />
-
-            <View
-                android:layout_width="12dp"
-                android:layout_height="12dp"
-                android:layout_marginEnd="4dp"
-                android:background="@drawable/color_dot"
-                android:backgroundTint="#000000" />
-
-        </LinearLayout>
 
     </LinearLayout>
 

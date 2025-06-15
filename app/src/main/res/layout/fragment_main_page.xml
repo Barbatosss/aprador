@@ -74,6 +74,62 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.148" />
 
+    <!-- Horizontal RecyclerView for displaying outfits below MyOutfit -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/outfits_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="220dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:clipToPadding="false"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/MyOutfit" />
+
+    <!-- Empty state for when no outfits are available -->
+    <LinearLayout
+        android:id="@+id/empty_outfits_state_layout"
+        android:layout_width="0dp"
+        android:layout_height="220dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/MyOutfit">
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:alpha="0.5"
+            android:contentDescription="Empty outfits"
+            android:src="@drawable/shirt" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="No outfits available"
+            android:textColor="#666666"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Create outfits to see them here"
+            android:textColor="#999999"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
     <View
         android:id="@+id/MyItem"
         android:layout_width="133dp"
@@ -84,8 +140,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.057"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.603" />
+        app:layout_constraintTop_toBottomOf="@+id/outfits_recycler_view"
+        app:layout_constraintVertical_bias="0.1" />
 
     <View
         android:id="@+id/ItemIcons"
@@ -97,8 +153,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.778"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.603" />
+        app:layout_constraintTop_toBottomOf="@+id/outfits_recycler_view"
+        app:layout_constraintVertical_bias="0.1" />
 
     <View
         android:id="@+id/ItemView"
@@ -110,8 +166,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.914"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.603" />
+        app:layout_constraintTop_toBottomOf="@+id/outfits_recycler_view"
+        app:layout_constraintVertical_bias="0.1" />
 
     <!-- Modified Category and Subcategory Filter Section -->
     <LinearLayout
@@ -188,9 +244,6 @@
     </LinearLayout>
 
     <!-- Horizontal RecyclerView for displaying items in a single line -->
-
-    <!-- Empty state for when no items are available -->
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/items_recycler_view"
         android:layout_width="0dp"
@@ -207,6 +260,7 @@
         app:layout_constraintTop_toBottomOf="@+id/filter_section_layout"
         app:layout_constraintVertical_bias="0.257" />
 
+    <!-- Empty state for when no items are available -->
     <LinearLayout
         android:id="@+id/empty_state_layout"
         android:layout_width="match_parent"

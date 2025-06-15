@@ -31,6 +31,8 @@ import com.example.aprador.items.AddItem
 import com.example.aprador.items.ItemDetails
 import com.example.aprador.items.MyItems
 import com.example.aprador.outfits.MyOutfits
+import com.example.aprador.outfits.Outfit
+import com.example.aprador.outfits.OutfitAdapter
 import com.example.aprador.recycler.Item
 import com.example.aprador.recycler.ItemAdapter
 import com.google.gson.Gson
@@ -44,7 +46,10 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
 
     private lateinit var itemsRecyclerView: RecyclerView
     private lateinit var itemAdapter: ItemAdapter
+    private lateinit var outfitsRecyclerView: RecyclerView
+    private lateinit var outfitAdapter: OutfitAdapter
     private lateinit var emptyStateLayout: LinearLayout
+    private lateinit var emptyOutfitsStateLayout: LinearLayout
     private lateinit var categorySpinner: Spinner
     private lateinit var subcategorySpinner: Spinner
     private lateinit var userPreferences: UserPreferences
@@ -53,6 +58,16 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     private var filteredItems = listOf<Item>()
     private var selectedCategory = "All Categories"
     private var selectedSubcategory = "All"
+
+    // Outfits data
+    private val allOutfits = listOf(
+        Outfit(1, "Casual", R.drawable.shirt, "Casual"),
+        Outfit(2, "Casual", R.drawable.shirt, "Casual"),
+        Outfit(3, "Casual", R.drawable.shirt, "Casual"),
+        Outfit(4, "Casual", R.drawable.shirt, "Casual"),
+        Outfit(5, "Sport", R.drawable.shirt, "Sports"),
+        Outfit(6, "Sport", R.drawable.shirt, "Sports"),
+    )
 
     // Camera related properties
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
@@ -141,10 +156,11 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         setupCategorySpinner()
         setupSubcategorySpinner()
 
-        // Setup RecyclerView
+        // Setup RecyclerViews
         setupRecyclerView()
+        setupOutfitsRecyclerView()
 
-        // Load and display items
+        // Load and display data
         loadItemsData()
 
         // Setup existing click listeners
@@ -153,7 +169,9 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
 
     private fun initializeViews(view: View) {
         itemsRecyclerView = view.findViewById(R.id.items_recycler_view)
+        outfitsRecyclerView = view.findViewById(R.id.outfits_recycler_view)
         emptyStateLayout = view.findViewById(R.id.empty_state_layout)
+        emptyOutfitsStateLayout = view.findViewById(R.id.empty_outfits_state_layout)
         categorySpinner = view.findViewById(R.id.category_spinner)
         subcategorySpinner = view.findViewById(R.id.subcategory_spinner)
     }
@@ -239,6 +257,28 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             // Prevent nested scrolling conflicts
             isNestedScrollingEnabled = false
+        }
+    }
+
+    private fun setupOutfitsRecyclerView() {
+        outfitAdapter = OutfitAdapter(allOutfits) { outfit ->
+            onOutfitClicked(outfit)
+        }
+
+        outfitsRecyclerView.apply {
+            adapter = outfitAdapter
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            // Prevent nested scrolling conflicts
+            isNestedScrollingEnabled = false
+        }
+
+        // Show/hide empty state for outfits
+        if (allOutfits.isEmpty()) {
+            outfitsRecyclerView.visibility = View.GONE
+            emptyOutfitsStateLayout.visibility = View.VISIBLE
+        } else {
+            outfitsRecyclerView.visibility = View.VISIBLE
+            emptyOutfitsStateLayout.visibility = View.GONE
         }
     }
 
@@ -380,6 +420,12 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
             .replace(R.id.flFragment, itemDetailsFragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun onOutfitClicked(outfit: Outfit) {
+        // Navigate to outfit details or perform action
+        // You can add navigation logic here similar to onItemClicked
+        Toast.makeText(requireContext(), "Clicked on ${outfit.title}", Toast.LENGTH_SHORT).show()
     }
 
     // Camera and Gallery functionality methods

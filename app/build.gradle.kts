@@ -34,26 +34,46 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    // Add this to handle potential conflicts
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+    }
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
-    implementation ("com.github.bumptech.glide:glide:4.16.0")
-    implementation ("org.tensorflow:tensorflow-lite:2.12.0")// or latest stable version
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.exifinterface)
-    implementation ("com.google.code.gson:gson:2.10.1")
-    implementation(libs.firebase.auth)
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
-    implementation("com.google.android.gms:play-services-auth:20.7.0")
 
+    // Updated Material Design
+    implementation("com.google.android.material:material:1.12.0")
+
+    // Updated Google Identity and Auth libraries
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
+
+    // Firebase Auth - Updated version
+    implementation(platform("com.google.firebase:firebase-bom:33.1.2"))
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+    // Credentials API - Updated
+    implementation("androidx.credentials:credentials:1.2.2")
+    implementation("androidx.credentials:credentials-play-services-auth:1.2.2")
+
+    // Image loading
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+
+    // TensorFlow Lite - Updated
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+
+    // JSON parsing
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

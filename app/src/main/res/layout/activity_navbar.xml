@@ -5,7 +5,7 @@
     android:id="@+id/navbar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".NavBar">
+    tools:context=".navigation.NavBar">
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigationView"

@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- fragments_my_items.xml -->
+<!-- fragment_my_items.xml -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#d9d9d9"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MyItems">
+    tools:context=".items.MyItems">
 
     <LinearLayout
         android:id="@+id/header_layout_item"
@@ -20,12 +20,10 @@
         android:paddingTop="12dp"
         android:paddingEnd="16dp"
         android:paddingBottom="12dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toTopOf="parent">
 
         <!-- Back Icon -->
         <View
@@ -61,77 +59,137 @@
 
     </LinearLayout>
 
-    <!-- Tabs Section -->
+    <!-- Category Filter Section -->
     <LinearLayout
-        android:id="@+id/tabs_layout_item"
+        android:id="@+id/filter_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="592dp"
         android:background="#FEFEFE"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingTop="8dp"
         android:paddingEnd="16dp"
         android:paddingBottom="8dp"
+        android:gravity="center_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/header_layout_item">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter by Category:"
+            android:textColor="#333333"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginEnd="12dp" />
+
+        <Spinner
+            android:id="@+id/category_filter_spinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:minHeight="36dp"
+            android:backgroundTint="#666666"
+            android:popupBackground="#FFFFFF" />
+
+    </LinearLayout>
+
+    <!-- Tabs Section -->
+    <HorizontalScrollView
+        android:id="@+id/tabs_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#FEFEFE"
+        android:scrollbars="none"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/filter_section">
+
+        <LinearLayout
+            android:id="@+id/tabs_layout_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="16dp"
+            android:paddingTop="8dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/tab_all_item"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/tab_selected_background"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingStart="16dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="8dp"
+                android:text="All (0)"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:textStyle="normal" />
+
+            <!-- Dynamic tabs will be added here programmatically -->
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <!-- Main RecyclerView for category sections -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/main_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="#d9d9d9"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/header_layout_item"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toBottomOf="@id/tabs_scroll_view" />
+
+    <!-- Empty State View -->
+    <LinearLayout
+        android:id="@+id/empty_state_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tabs_scroll_view">
+
+        <ImageView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:alpha="0.5"
+            android:contentDescription="Empty wardrobe"
+            android:src="@drawable/shirt" />
 
         <TextView
-            android:id="@+id/tab_all_item"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/tab_selected_background"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="8dp"
-            android:text="All"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="normal" />
+            android:layout_marginTop="16dp"
+            android:text="No items yet"
+            android:textColor="#666666"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tab_Tshirt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/tab_unselected_background"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="8dp"
-            android:text="T-Shirts"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            android:textStyle="normal" />
-
-        <TextView
-            android:id="@+id/tab_sweater"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/tab_unselected_background"
-            android:clickable="true"
-            android:focusable="true"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="8dp"
-            android:text="Sweater"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            android:textStyle="normal" />
-
-
+            android:layout_marginTop="8dp"
+            android:text="Add your first clothing item to get started"
+            android:textColor="#999999"
+            android:textSize="14sp" />
 
     </LinearLayout>
 

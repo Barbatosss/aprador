@@ -14,7 +14,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class NavBar : AppCompatActivity() {
 
-    private lateinit var firstFragment: Fragment
+    private lateinit var mainFragment: Fragment
     private lateinit var profileFragment: Fragment
     private lateinit var bottomNavigationView: BottomNavigationView
 
@@ -23,14 +23,21 @@ class NavBar : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_navbar)
 
-        firstFragment = MainPage()
+        mainFragment = MainPage()
         profileFragment = Profile()
 
-        setFragment(firstFragment)
+        setFragment(mainFragment)
 
         // Initialize the class property, not a local variable
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
 
+        bottomNavigationView.setOnItemSelectedListener {
+            when (it.itemId) {
+                R.id.navHome -> setFragment(mainFragment)
+                R.id.navProfile -> setFragment(profileFragment)
+            }
+            true
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.bottomNavigationView)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

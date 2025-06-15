@@ -26,6 +26,7 @@ import android.widget.AdapterView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.aprador.login.MainPage
+import com.example.aprador.login.UserPreferences
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
 import com.example.aprador.recycler.CategorySection
@@ -46,6 +47,7 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     private lateinit var emptyStateLayout: LinearLayout
     private lateinit var categoryAdapter: CategorySectionAdapter
     private lateinit var categoryFilterSpinner: Spinner
+    private lateinit var userPreferences: UserPreferences
 
     // Dynamic tabs container
     private lateinit var tabsLayout: LinearLayout
@@ -68,6 +70,9 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize UserPreferences
+        userPreferences = UserPreferences(requireContext())
 
         // Initialize camera launcher
         cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -240,28 +245,78 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         }
     }
 
+    // Enhanced gender preference mapping with complete subcategory lists
+    private fun getGenderPreferredSubcategories(userGender: String): Map<String, List<String>> {
+        return when (userGender.lowercase()) {
+            "male", "men" -> mapOf(
+                "top" to listOf("T-Shirt", "Polo", "Dress Shirt", "Tank Top"),
+                "bottom" to listOf("Jeans", "Chinos", "Shorts", "Joggers"),
+                "outerwear" to listOf("Jacket", "Hoodie", "Blazer", "Coat"),
+                "footwear" to listOf("Sneakers", "Dress Shoes", "Boots", "Sandals")
+            )
+            "female", "women" -> mapOf(
+                "top" to listOf("T-Shirt", "Blouse", "Camisole", "Crop Top"),
+                "bottom" to listOf("Jeans", "Leggings", "Skirt", "Dress"),
+                "outerwear" to listOf("Cardigan", "Blazer", "Coat", "Kimono"),
+                "footwear" to listOf("Sneakers", "Heels", "Flats", "Boots")
+            )
+            else -> emptyMap()
+        }
+    }
+
+    // Enhanced sorting function that PRIORITIZES user's gender items completely
+    private fun sortItemsByGenderPreference(items: List<Item>): List<Item> {
+        val userGender = userPreferences.getUserGender()
+        val genderPreferences = getGenderPreferredSubcategories(userGender)
+
+        // Separate items into user's gender and other gender
+        val (userGenderItems, otherGenderItems) = items.partition { item ->
+            val category = item.category.lowercase()
+            val subcategory = item.subcategory
+            val preferredSubcategories = genderPreferences[category] ?: emptyList()
+            preferredSubcategories.contains(subcategory)
+        }
+
+        // Sort user's gender items alphabetically by subcategory
+        val sortedUserGenderItems = userGenderItems.sortedBy { it.subcategory }
+
+        // Sort other gender items alphabetically by subcategory
+        val sortedOtherGenderItems = otherGenderItems.sortedBy { it.subcategory }
+
+        // Return user's gender items first, then other gender items
+        return sortedUserGenderItems + sortedOtherGenderItems
+    }
+
+    // Updated updateCategorySections method with enhanced gender prioritization
     private fun updateCategorySections() {
         // First filter by category
         val categoryFilteredItems = getFilteredItemsByCategory()
 
         // Then filter by subcategory
-        val finalFilteredItems = if (selectedSubcategory == "All") {
+        val subcategoryFilteredItems = if (selectedSubcategory == "All") {
             categoryFilteredItems
         } else {
             categoryFilteredItems.filter { it.subcategory.equals(selectedSubcategory, ignoreCase = true) }
         }
 
+        // Sort items with STRICT gender preference (user's gender first)
+        val sortedItems = sortItemsByGenderPreference(subcategoryFilteredItems)
+
         categorySections = if (selectedSubcategory == "All") {
-            // Group by subcategory for "All" tab
-            finalFilteredItems.groupBy { it.subcategory }
-                .map { (subcategory, items) ->
-                    CategorySection(subcategory, items)
-                }
-                .sortedBy { it.subcategory }
+            // Group by subcategory, maintaining gender-priority order
+            val groupedItems = sortedItems.groupBy { it.subcategory }
+
+            // Create sections maintaining the order from sorted items
+            val orderedSubcategories = sortedItems.map { it.subcategory }.distinct()
+
+            orderedSubcategories.map { subcategory ->
+                val subcategoryItems = groupedItems[subcategory] ?: emptyList()
+                CategorySection(subcategory, subcategoryItems)
+            }
         } else {
-            // Show single subcategory
-            if (finalFilteredItems.isNotEmpty()) {
-                listOf(CategorySection(selectedSubcategory, finalFilteredItems))
+            // Show single subcategory with gender-based sorting
+            if (sortedItems.isNotEmpty()) {
+                listOf(CategorySection(selectedSubcategory, sortedItems))
             } else {
                 emptyList()
             }
@@ -270,6 +325,7 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         categoryAdapter.updateData(categorySections)
     }
 
+    // Enhanced updateSubcategoryTabs with gender prioritization
     private fun updateSubcategoryTabs() {
         // Get items filtered by category first
         val categoryFilteredItems = getFilteredItemsByCategory()
@@ -277,15 +333,33 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         // Update "All" tab count
         tabAllItem.text = "All (${categoryFilteredItems.size})"
 
-        // Update dynamic tabs based on category-filtered items
+        // Group items by subcategory
         val subcategories = categoryFilteredItems.groupBy { it.subcategory }
 
         // Clear existing dynamic tabs
         dynamicTabs.forEach { tabsLayout.removeView(it) }
         dynamicTabs.clear()
 
-        // Create new dynamic tabs
-        subcategories.forEach { (subcategory, items) ->
+        // Sort subcategories by gender preference - user's gender first
+        val userGender = userPreferences.getUserGender()
+        val genderPreferences = getGenderPreferredSubcategories(userGender)
+
+        // Separate subcategories into user's gender and other gender
+        val (userGenderSubcategories, otherGenderSubcategories) = subcategories.toList().partition { (subcategory, items) ->
+            val category = items.firstOrNull()?.category?.lowercase() ?: ""
+            val preferredSubcategories = genderPreferences[category] ?: emptyList()
+            preferredSubcategories.contains(subcategory)
+        }
+
+        // Sort each group alphabetically
+        val sortedUserGenderSubcategories = userGenderSubcategories.sortedBy { it.first }
+        val sortedOtherGenderSubcategories = otherGenderSubcategories.sortedBy { it.first }
+
+        // Combine: user's gender first, then other gender
+        val finalSortedSubcategories = sortedUserGenderSubcategories + sortedOtherGenderSubcategories
+
+        // Create tabs in the gender-prioritized order
+        finalSortedSubcategories.forEach { (subcategory, items) ->
             val tabView = createDynamicTab(subcategory, items.size)
             tabsLayout.addView(tabView)
             dynamicTabs.add(tabView)
@@ -293,6 +367,15 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
 
         // Update tab appearances
         updateTabAppearances()
+    }
+
+    // Helper function to check if an item belongs to user's gender preferences
+    private fun isUserGenderPreferred(item: Item): Boolean {
+        val userGender = userPreferences.getUserGender()
+        val genderPreferences = getGenderPreferredSubcategories(userGender)
+        val category = item.category.lowercase()
+        val preferredSubcategories = genderPreferences[category] ?: emptyList()
+        return preferredSubcategories.contains(item.subcategory)
     }
 
     private fun createDynamicTab(subcategory: String, count: Int): TextView {

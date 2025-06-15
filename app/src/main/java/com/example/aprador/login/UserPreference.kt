@@ -33,7 +33,7 @@ class UserPreferences(private val context: Context) {
     }
 
     fun setUserLoggedIn(isLoggedIn: Boolean) {
-        sharedPreferences.edit() { putBoolean(KEY_IS_LOGGED_IN, isLoggedIn) }
+        sharedPreferences.edit { putBoolean(KEY_IS_LOGGED_IN, isLoggedIn) }
     }
 
     fun isUserLoggedIn(): Boolean {
@@ -79,7 +79,7 @@ class UserPreferences(private val context: Context) {
         return sharedPreferences.getString(KEY_USER_NAME, "User") ?: "User"
     }
 
-    fun getUserEmail(): String {
+    private fun getUserEmail(): String {
         return sharedPreferences.getString(KEY_USER_EMAIL, "") ?: ""
     }
 
@@ -98,19 +98,19 @@ class UserPreferences(private val context: Context) {
     }
 
     fun saveLocalPhotoPath(photoPath: String) {
-        sharedPreferences.edit() {
+        sharedPreferences.edit {
             putString(KEY_LOCAL_PHOTO_PATH, photoPath)
         }
         // Update JSON database
         updateUserProfileInJson()
     }
 
-    fun getLocalPhotoPath(): String? {
+    private fun getLocalPhotoPath(): String? {
         return sharedPreferences.getString(KEY_LOCAL_PHOTO_PATH, null)
     }
 
     fun saveUserGender(gender: String) {
-        sharedPreferences.edit() {
+        sharedPreferences.edit {
             putString(KEY_USER_GENDER, gender)
         }
         // Update JSON database
@@ -126,7 +126,7 @@ class UserPreferences(private val context: Context) {
         updateUserProfileInJson()
 
         // Only clear SharedPreferences, keep JSON data for future logins
-        sharedPreferences.edit() {
+        sharedPreferences.edit {
             // Clear login session data but keep the profile data in JSON
             putBoolean(KEY_IS_LOGGED_IN, false)
             remove(KEY_USER_NAME)
@@ -187,7 +187,7 @@ class UserPreferences(private val context: Context) {
     }
 
     // Updated to accept userId parameter for loading specific user profile
-    fun loadUserProfileFromJson(userId: String = getUserId()): UserProfile? {
+    private fun loadUserProfileFromJson(userId: String = getUserId()): UserProfile? {
         val file = File(context.filesDir, "user_profiles.json")
 
         if (file.exists() && file.readText().isNotBlank()) {

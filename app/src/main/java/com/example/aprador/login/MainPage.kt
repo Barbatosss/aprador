@@ -49,25 +49,15 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     private lateinit var outfitsRecyclerView: RecyclerView
     private lateinit var outfitAdapter: OutfitAdapter
     private lateinit var emptyStateLayout: LinearLayout
-    private lateinit var emptyOutfitsStateLayout: LinearLayout
     private lateinit var categorySpinner: Spinner
     private lateinit var subcategorySpinner: Spinner
     private lateinit var userPreferences: UserPreferences
 
     private var allItems = listOf<Item>()
     private var filteredItems = listOf<Item>()
+    private var allOutfits = listOf<Outfit>()
     private var selectedCategory = "All Categories"
     private var selectedSubcategory = "All"
-
-    // Outfits data
-    private val allOutfits = listOf(
-        Outfit(1, "Casual", R.drawable.shirt, "Casual"),
-        Outfit(2, "Casual", R.drawable.shirt, "Casual"),
-        Outfit(3, "Casual", R.drawable.shirt, "Casual"),
-        Outfit(4, "Casual", R.drawable.shirt, "Casual"),
-        Outfit(5, "Sport", R.drawable.shirt, "Sports"),
-        Outfit(6, "Sport", R.drawable.shirt, "Sports"),
-    )
 
     // Camera related properties
     private lateinit var cameraLauncher: ActivityResultLauncher<Intent>
@@ -162,6 +152,7 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
 
         // Load and display data
         loadItemsData()
+        loadOutfitsData()
 
         // Setup existing click listeners
         setupClickListeners(view)
@@ -171,7 +162,6 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         itemsRecyclerView = view.findViewById(R.id.items_recycler_view)
         outfitsRecyclerView = view.findViewById(R.id.outfits_recycler_view)
         emptyStateLayout = view.findViewById(R.id.empty_state_layout)
-        emptyOutfitsStateLayout = view.findViewById(R.id.empty_outfits_state_layout)
         categorySpinner = view.findViewById(R.id.category_spinner)
         subcategorySpinner = view.findViewById(R.id.subcategory_spinner)
     }
@@ -261,7 +251,7 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     }
 
     private fun setupOutfitsRecyclerView() {
-        outfitAdapter = OutfitAdapter(allOutfits) { outfit ->
+        outfitAdapter = OutfitAdapter(allOutfits, requireContext()) { outfit ->
             onOutfitClicked(outfit)
         }
 
@@ -270,15 +260,8 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             // Prevent nested scrolling conflicts
             isNestedScrollingEnabled = false
-        }
-
-        // Show/hide empty state for outfits
-        if (allOutfits.isEmpty()) {
-            outfitsRecyclerView.visibility = View.GONE
-            emptyOutfitsStateLayout.visibility = View.VISIBLE
-        } else {
-            outfitsRecyclerView.visibility = View.VISIBLE
-            emptyOutfitsStateLayout.visibility = View.GONE
+            // Always keep the RecyclerView visible
+            visibility = View.VISIBLE
         }
     }
 
@@ -314,6 +297,38 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     private fun loadItemsData() {
         allItems = loadItems(requireContext())
         updateFilteredItems()
+    }
+
+    private fun loadOutfitsData() {
+        // Load outfits using the exact same method as MyOutfits.kt
+        allOutfits = loadOutfitsFromFile(requireContext())
+
+        // Update adapter with the loaded outfits (no validation or filtering)
+        if (::outfitAdapter.isInitialized) {
+            outfitAdapter = OutfitAdapter(allOutfits, requireContext()) { outfit ->
+                onOutfitClicked(outfit)
+            }
+            outfitsRecyclerView.adapter = outfitAdapter
+        }
+    }
+
+    private fun loadOutfitsFromFile(context: Context): List<Outfit> {
+        return try {
+            val file = File(context.filesDir, "outfits.json")
+            if (file.exists() && file.readText().isNotBlank()) {
+                val json = file.readText()
+                val type = object : TypeToken<List<Outfit>>() {}.type
+                val outfits: List<Outfit>? = Gson().fromJson(json, type)
+                outfits ?: emptyList()
+            } else {
+                // No outfits file exists yet
+                emptyList()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Return empty list if there's any error reading the file
+            emptyList()
+        }
     }
 
     // Enhanced gender preference mapping with complete subcategory lists (copied from MyItems.kt)
@@ -621,6 +636,9 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         // Refresh data when returning to this fragment
         if (::itemAdapter.isInitialized) {
             loadItemsData()
+        }
+        if (::outfitAdapter.isInitialized) {
+            loadOutfitsData()
         }
     }
 }

@@ -21,6 +21,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import com.bumptech.glide.Glide
 import com.example.aprador.recycler.ItemAdapter
 import com.google.gson.Gson
@@ -30,6 +31,13 @@ import java.io.File
 import java.io.FileInputStream
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+import android.graphics.Canvas
+import android.graphics.Color
+import java.io.FileOutputStream
+import java.io.IOException
+import androidx.core.graphics.createBitmap
+import androidx.core.view.isVisible
+
 
 class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
 
@@ -488,6 +496,32 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         }
     }
 
+    private fun saveNewOutfitToJson(context: Context, newOutfit: Outfit) {
+        val file = File(context.filesDir, "outfits.json")
+
+        // Read existing outfits
+        val outfits: MutableList<Outfit> = if (file.exists() && file.readText().isNotBlank()) {
+            val json = file.readText()
+            val type = object : TypeToken<List<Outfit>>() {}.type
+            try {
+                Gson().fromJson(json, type)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                mutableListOf()
+            }
+        } else {
+            mutableListOf()
+        }
+
+        // Add new outfit
+        outfits.add(newOutfit)
+
+        // Write updated list back to file
+        val updatedJson = Gson().toJson(outfits)
+        file.writeText(updatedJson)
+    }
+
+
     private fun updateEmptyState() {
         if (filteredItems.isEmpty()) {
             itemsRecyclerView.visibility = View.GONE
@@ -591,56 +625,195 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
             // Clear existing preview items
             outfitItemsContainer?.removeAllViews()
 
-            // Sort items by category order for consistent display
-            val categoryOrder = listOf("Top", "Bottom", "Outerwear", "Footwear")
-            val sortedItems = selectedItems.sortedBy { item ->
-                categoryOrder.indexOf(item.category).takeIf { it >= 0 } ?: Int.MAX_VALUE
+            // Create a simple 2x2 grid using nested LinearLayouts
+            val mainLayout = LinearLayout(requireContext())
+            mainLayout.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+            )
+            mainLayout.orientation = LinearLayout.VERTICAL
+            mainLayout.background = ContextCompat.getDrawable(requireContext(), R.drawable.tab_unselected_background)
+
+            // Create top row (OUTERWEAR | TOP)
+            val topRow = LinearLayout(requireContext())
+            topRow.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f // Takes 50% height
+            )
+            topRow.orientation = LinearLayout.HORIZONTAL
+
+            // Create bottom row (FOOTWEAR | BOTTOM)
+            val bottomRow = LinearLayout(requireContext())
+            bottomRow.layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f // Takes 50% height
+            )
+            bottomRow.orientation = LinearLayout.HORIZONTAL
+
+            // Create quadrant containers
+            val outerwearContainer = createQuadrantContainer()
+            val topContainer = createQuadrantContainer()
+            val footwearContainer = createQuadrantContainer()
+            val bottomContainer = createQuadrantContainer()
+
+            // Add containers to rows
+            topRow.addView(outerwearContainer)
+            topRow.addView(topContainer)
+            bottomRow.addView(footwearContainer)
+            bottomRow.addView(bottomContainer)
+
+            // Add rows to main layout
+            mainLayout.addView(topRow)
+            mainLayout.addView(bottomRow)
+
+            // Add items to their respective quadrants
+            selectedItems.forEach { item ->
+                val quadrantContainer = when (item.category.uppercase()) {
+                    "TOP" -> topContainer
+                    "BOTTOM" -> bottomContainer
+                    "OUTERWEAR" -> outerwearContainer
+                    "FOOTWEAR" -> footwearContainer
+                    else -> topContainer // fallback
+                }
+
+                val itemView = createItemView(item)
+                quadrantContainer.addView(itemView)
             }
 
-            // Add selected items to preview
-            sortedItems.forEach { item ->
-                val itemView = layoutInflater.inflate(R.layout.item_card, outfitItemsContainer, false)
-
-                // Set up the preview item
-                val itemImage = itemView.findViewById<ImageView>(R.id.item_image)
-                val itemName = itemView.findViewById<TextView>(R.id.item_name)
-
-                // Show category name instead of item name for clarity
-                itemName.text = item.category
-                itemName.visibility = View.VISIBLE
-                itemName.textSize = 12f
-
-                // Load the item image
-                val context = requireContext()
-                val imageSource = when {
-                    item.imagePath.startsWith("content://") -> Uri.parse(item.imagePath)
-                    item.imagePath.startsWith("file://") -> Uri.parse(item.imagePath)
-                    File(item.imagePath).exists() -> File(item.imagePath)
-                    else -> null
-                }
-
-                if (imageSource != null) {
-                    Glide.with(context)
-                        .load(imageSource)
-                        .centerCrop()
-                        .placeholder(R.drawable.shirt)
-                        .error(R.drawable.shirt)
-                        .into(itemImage)
-                } else {
-                    itemImage.setImageResource(R.drawable.shirt)
-                }
-
-                // Add click listener to remove item from outfit when clicked in preview
-                itemView.setOnClickListener {
-                    selectedItems.remove(item)
-                    Toast.makeText(requireContext(), "Removed ${item.name} from outfit", Toast.LENGTH_SHORT).show()
-                    updateOutfitPreview()
-                }
-
-                outfitItemsContainer?.addView(itemView)
-            }
+            // Add the main layout to the container
+            outfitItemsContainer?.addView(mainLayout)
         }
     }
+
+    private fun createQuadrantContainer(): LinearLayout {
+        val container = LinearLayout(requireContext())
+        container.layoutParams = LinearLayout.LayoutParams(
+            0,
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            1f // Takes 50% width
+        )
+        container.orientation = LinearLayout.VERTICAL
+        container.gravity = android.view.Gravity.CENTER
+        // Add subtle border
+        container.setPadding(2, 2, 2, 2)
+        container.background = ContextCompat.getDrawable(requireContext(), android.R.color.white)
+        return container
+    }
+
+    private fun createItemView(item: Item): View {
+        val itemView = layoutInflater.inflate(R.layout.item_card, null, false)
+
+        // Set up the preview item
+        val itemImage = itemView.findViewById<ImageView>(R.id.item_image)
+        val itemName = itemView.findViewById<TextView>(R.id.item_name)
+
+        // Hide the item name to show only the image
+        itemName.visibility = View.GONE
+
+        // Make the item view fill the quadrant
+        itemView.layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.MATCH_PARENT
+        )
+
+        // Load the item image
+        val context = requireContext()
+        val imageSource = when {
+            item.imagePath.startsWith("content://") -> Uri.parse(item.imagePath)
+            item.imagePath.startsWith("file://") -> Uri.parse(item.imagePath)
+            File(item.imagePath).exists() -> File(item.imagePath)
+            else -> null
+        }
+
+        if (imageSource != null) {
+            Glide.with(context)
+                .load(imageSource)
+                .fitCenter() // Changed from centerCrop() to fitCenter()
+                .placeholder(R.drawable.shirt)
+                .error(R.drawable.shirt)
+                .into(itemImage)
+        } else {
+            itemImage.setImageResource(R.drawable.shirt)
+        }
+
+        // Make the image view fill the entire quadrant
+        itemImage.layoutParams = itemImage.layoutParams.apply {
+            width = LinearLayout.LayoutParams.MATCH_PARENT
+            height = LinearLayout.LayoutParams.MATCH_PARENT
+        }
+        // Changed from CENTER_CROP to FIT_CENTER to show full image without cropping
+        itemImage.scaleType = ImageView.ScaleType.FIT_CENTER
+
+        // Add click listener to remove item from outfit when clicked in preview
+        itemView.setOnClickListener {
+            selectedItems.remove(item)
+            Toast.makeText(requireContext(), "Removed ${item.name} from outfit", Toast.LENGTH_SHORT).show()
+            updateOutfitPreview()
+
+            // Update category prediction when items are removed
+            if (selectedItems.size in 3..4) {
+                val bitmaps = selectedItems.mapNotNull { imagePathToBitmap(requireContext(), it.imagePath) }
+                if (bitmaps.size == selectedItems.size) {
+                    val prediction = predictCategoryFromBitmaps(bitmaps, requireContext())
+                    categoryPredection.text = prediction
+                } else {
+                    categoryPredection.text = "Unable to convert image(s)"
+                }
+            } else {
+                categoryPredection.text = ""
+            }
+        }
+
+        // Add subtle elevation
+        itemView.elevation = 2f
+
+        return itemView
+    }
+
+    private fun captureOutfitPreview(): Bitmap? {
+        return try {
+            val outfitItemsContainer = view?.findViewById<LinearLayout>(R.id.outfit_items_container)
+
+            if (outfitItemsContainer != null && outfitItemsContainer.isVisible) {
+                // Create a bitmap with the same dimensions as the container
+                val bitmap = createBitmap(outfitItemsContainer.width, outfitItemsContainer.height)
+
+                // Create a canvas to draw the view onto the bitmap
+                val canvas = Canvas(bitmap)
+                canvas.drawColor(Color.WHITE) // Set background color
+
+                // Draw the container view onto the canvas
+                outfitItemsContainer.draw(canvas)
+
+                bitmap
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    // Add this function to save the preview bitmap to internal storage
+    private fun savePreviewImage(bitmap: Bitmap, outfitId: String): String? {
+        return try {
+            val filename = "outfit_preview_$outfitId.png"
+            val file = File(requireContext().filesDir, filename)
+
+            FileOutputStream(file).use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 90, outputStream)
+            }
+
+            file.absolutePath
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
+    }
+
 
     private fun saveOutfit() {
         if (selectedItems.isEmpty()) {
@@ -648,16 +821,60 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
             return
         }
 
-        // Here you would implement the logic to save the outfit
-        // For now, just show a success message
-        Toast.makeText(
-            requireContext(),
-            "Outfit saved with ${selectedItems.size} items in $selectedOutfitCategory category for $selectedGender",
-            Toast.LENGTH_LONG
-        ).show()
+        // Show a dialog to get outfit name
+        showOutfitNameDialog { outfitName ->
+            val outfitId = System.currentTimeMillis().toString()
 
-        // Navigate back to MyOutfits after saving
-        navigateToMyOutfits()
+            // Capture the outfit preview
+            val previewBitmap = captureOutfitPreview()
+            val previewImagePath = previewBitmap?.let { bitmap ->
+                savePreviewImage(bitmap, outfitId)
+            }
+
+            val newOutfit = Outfit(
+                id = outfitId,
+                title = outfitName,
+                category = selectedOutfitCategory,
+                gender = selectedGender,
+                items = selectedItems.map { it.id }, // Store item IDs
+                createdAt = System.currentTimeMillis(),
+                previewImagePath = previewImagePath // Now saves the actual preview image path
+            )
+
+            saveNewOutfitToJson(requireContext(), newOutfit)
+
+            val message = if (previewImagePath != null) {
+                "Outfit '$outfitName' saved with ${selectedItems.size} items and preview image"
+            } else {
+                "Outfit '$outfitName' saved with ${selectedItems.size} items (preview not captured)"
+            }
+
+            Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+
+            // Navigate back to MyOutfits after saving
+            navigateToMyOutfits()
+        }
+    }
+
+    private fun showOutfitNameDialog(onNameConfirmed: (String) -> Unit) {
+        val builder = android.app.AlertDialog.Builder(requireContext())
+        val input = android.widget.EditText(requireContext())
+
+        input.hint = "Enter outfit name"
+        input.setText("${selectedOutfitCategory} Outfit") // Default name
+
+        builder.setTitle("Name Your Outfit")
+            .setView(input)
+            .setPositiveButton("Save") { _, _ ->
+                val outfitName = input.text.toString().trim()
+                if (outfitName.isNotEmpty()) {
+                    onNameConfirmed(outfitName)
+                } else {
+                    Toast.makeText(requireContext(), "Please enter a name for your outfit", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun navigateToMyOutfits() {

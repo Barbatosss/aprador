@@ -1,5 +1,6 @@
 package com.example.aprador.outfits
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -11,6 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.aprador.R
 import com.example.aprador.login.MainPage
 import com.example.aprador.navigation.NavBar
+import com.example.aprador.recycler.Item
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.io.File
 
 class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
 
@@ -18,16 +23,8 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
     private lateinit var recyclerView: RecyclerView
     private lateinit var outfitAdapter: OutfitAdapter
 
-    private val allOutfits = listOf(
-        Outfit(1, "Casual", R.drawable.shirt, "Casual"),
-        Outfit(2, "Casual", R.drawable.shirt, "Casual"),
-        Outfit(3, "Casual", R.drawable.shirt, "Casual"),
-        Outfit(4, "Casual", R.drawable.shirt, "Casual"),
-        Outfit(5, "Sport", R.drawable.shirt, "Sports"),
-        Outfit(6, "Sport", R.drawable.shirt, "Sports"),
-    )
-
-    private var filteredOutfits = allOutfits
+    private var allOutfits = listOf<Outfit>()
+    private var filteredOutfits = listOf<Outfit>()
     private var selectedCategory = "All"
     private val dynamicTabs = mutableListOf<TextView>()
 
@@ -40,6 +37,7 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
         }
 
         setupViews(view)
+        loadOutfitsData()
         setupRecyclerView(view)
         setupClickListeners(view)
         setupDynamicTabs()
@@ -53,9 +51,30 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
         }
     }
 
+    private fun loadOutfitsData() {
+        allOutfits = loadOutfits(requireContext())
+        filteredOutfits = allOutfits
+    }
+
+    private fun loadOutfits(context: Context): List<Outfit> {
+        return try {
+            val file = File(context.filesDir, "outfits.json")
+            if (file.exists() && file.readText().isNotBlank()) {
+                val json = file.readText()
+                val type = object : TypeToken<List<Outfit>>() {}.type
+                Gson().fromJson(json, type) ?: emptyList()
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
+    }
+
     private fun setupRecyclerView(view: View) {
         recyclerView = view.findViewById(R.id.recyclerView_outfits)
-        outfitAdapter = OutfitAdapter(filteredOutfits) { outfit ->
+        outfitAdapter = OutfitAdapter(filteredOutfits, requireContext()) { outfit ->
             // Handle outfit click
             onOutfitClicked(outfit)
         }
@@ -182,6 +201,14 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
         return (dp * density).toInt()
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Refresh outfits data when returning to this fragment
+        loadOutfitsData()
+        outfitAdapter.updateOutfits(filteredOutfits)
+        setupDynamicTabs()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         // Show bottom navigation when leaving this fragment (safety net)
@@ -189,8 +216,42 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
     }
 
     private fun onOutfitClicked(outfit: Outfit) {
-        // Handle outfit item click - navigate to outfit detail or perform action
-        // For example, you could navigate to an outfit detail fragment
-        // or show a dialog with outfit options
+        // Handle outfit item click - you could navigate to outfit detail fragment
+        // or show outfit details/edit options
+        showOutfitDetails(outfit)
+    }
+
+    private fun showOutfitDetails(outfit: Outfit) {
+        // Load items that belong to this outfit
+        val allItems = loadItems(requireContext())
+        val outfitItems = allItems.filter { item -> outfit.items.contains(item.id) }
+
+        val itemNames = outfitItems.joinToString(", ") { it.name }
+        val message = "Outfit: ${outfit.title}\n" +
+                "Category: ${outfit.category}\n" +
+                "Gender: ${outfit.gender}\n" +
+                "Items: $itemNames"
+
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Outfit Details")
+            .setMessage(message)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    private fun loadItems(context: Context): List<Item> {
+        return try {
+            val file = File(context.filesDir, "db.json")
+            if (file.exists() && file.readText().isNotBlank()) {
+                val json = file.readText()
+                val type = object : TypeToken<List<Item>>() {}.type
+                Gson().fromJson(json, type)
+            } else {
+                emptyList()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
     }
 }

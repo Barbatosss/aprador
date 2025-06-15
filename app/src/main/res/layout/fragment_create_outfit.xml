@@ -68,7 +68,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/outfit_preview_card"
         android:layout_width="0dp"
-        android:layout_height="200dp"
+        android:layout_height="240dp"
         android:layout_marginStart="24dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="24dp"
@@ -84,7 +84,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#FFFFFF"
-            android:padding="16dp">
+            android:padding="8dp">
 
             <!-- Placeholder for outfit preview -->
             <TextView
@@ -92,18 +92,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:text="Outfit Preview"
+                android:text="Select items from different categories:\nTop, Bottom, Outerwear, Footwear"
                 android:textColor="#666666"
                 android:textSize="16sp"
+                android:textAlignment="center"
+                android:gravity="center"
                 android:visibility="visible" />
 
-            <!-- Dynamic outfit preview will be added here programmatically -->
+            <!-- Grid layout for positioned outfit preview -->
             <LinearLayout
                 android:id="@+id/outfit_items_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal"
-                android:gravity="center"
+                android:orientation="vertical"
                 android:visibility="gone" />
 
         </RelativeLayout>

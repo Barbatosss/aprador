@@ -72,7 +72,6 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         "All Categories" to listOf("All")
     )
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -132,7 +131,6 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -244,7 +242,6 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun setupClickListeners(view: View) {
         val itemView: View = view.findViewById(R.id.ItemView)
         val outfitView: View = view.findViewById(R.id.OutfitView)
@@ -386,7 +383,6 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     }
 
     // Camera and Gallery functionality methods
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun showPhotoSelectionDialog() {
         val options = arrayOf("Take Photo", "Upload from Gallery")
 
@@ -425,23 +421,52 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun checkStoragePermissionAndOpen() {
         when {
-            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED -> {
+            // For Android 13+ (API 33+)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
+                when {
+                    ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED -> {
+                        openGallery()
+                    }
+                    shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
+                        showPermissionRationaleDialog(
+                            "Media Permission Required",
+                            "This app needs access to your photos to let you select images from your gallery. Please grant media permission to continue."
+                        ) { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
+                    }
+                    else -> {
+                        showPermissionExplanationDialog(
+                            "Gallery Access",
+                            "To select photos from your gallery, we need access to your media files. This will help you add existing photos to your wardrobe."
+                        ) { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
+                    }
+                }
+            }
+            // For Android 10-12 (API 29-32)
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q -> {
+                // No permission needed for gallery access on Android 10+
                 openGallery()
             }
-            shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
-                showPermissionRationaleDialog(
-                    "Media Permission Required",
-                    "This app needs access to your photos to let you select images from your gallery. Please grant media permission to continue."
-                ) { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
-            }
+            // For older Android versions (API < 29)
             else -> {
-                showPermissionExplanationDialog(
-                    "Gallery Access",
-                    "To select photos from your gallery, we need access to your media files. This will help you add existing photos to your wardrobe."
-                ) { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
+                when {
+                    ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED -> {
+                        openGallery()
+                    }
+                    shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE) -> {
+                        showPermissionRationaleDialog(
+                            "Storage Permission Required",
+                            "This app needs storage access to let you select images from your gallery. Please grant storage permission to continue."
+                        ) { storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE) }
+                    }
+                    else -> {
+                        showPermissionExplanationDialog(
+                            "Gallery Access",
+                            "To select photos from your gallery, we need access to your storage. This will help you add existing photos to your wardrobe."
+                        ) { storagePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE) }
+                    }
+                }
             }
         }
     }

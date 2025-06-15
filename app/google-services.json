@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "616505252587",
+    "project_id": "aprador-c0632",
+    "storage_bucket": "aprador-c0632.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:616505252587:android:4f535d68b37117aa37fcae",
+        "android_client_info": {
+          "package_name": "com.example.aprador"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "616505252587-nh9adknpnrjqgis5togabf8qo9rdmtuh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.aprador",
+            "certificate_hash": "fa8fe84669a57f7b47d6d9bfacb0423f0b76c3d8"
+          }
+        },
+        {
+          "client_id": "616505252587-d50baqc5jeb61e490vr89kd2mkqa3t35.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAfkzAp-e-vUIVTWHXYNdEKxHAAnLz3aqM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "616505252587-d50baqc5jeb61e490vr89kd2mkqa3t35.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

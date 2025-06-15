@@ -3,50 +3,133 @@ package com.example.aprador.login
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.aprador.navigation.NavBar
 import com.example.aprador.R
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.tasks.Task
 import java.io.File
 import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var googleSignInClient: GoogleSignInClient
+    private lateinit var userPreferences: UserPreferences
+    private companion object {
+        private const val RC_SIGN_IN = 9001
+        private const val TAG = "GoogleSignIn"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
+        // Initialize UserPreferences
+        userPreferences = UserPreferences(this)
 
+        // Check if user is already logged in
+        if (userPreferences.isUserLoggedIn()) {
+            navigateToNavBar()
+            return
+        }
+
+        // Initialize Google Sign-in
+        setupGoogleSignIn()
         copyJsonToInternalStorageIfNotExists(this)
+
         val loginButton = findViewById<View>(R.id.Login)
 
-        // Regular login button click
+        // Google Sign-in button click
         loginButton.setOnClickListener {
-
-            val intent = Intent(this, NavBar::class.java)
-            startActivity(intent)
-
+            signInWithGoogle()
         }
     }
 
-}
+    private fun setupGoogleSignIn() {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestEmail()
+            .requestId()
+            .requestProfile()
+            .requestIdToken(getString(R.string.client_id))
+            .build()
 
-    fun copyJsonToInternalStorageIfNotExists(context: Context) {
+        googleSignInClient = GoogleSignIn.getClient(this, gso)
+    }
+
+    private fun signInWithGoogle() {
+        val signInIntent = googleSignInClient.signInIntent
+        startActivityForResult(signInIntent, RC_SIGN_IN)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            handleSignInResult(task)
+        }
+    }
+
+    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
+        try {
+            val account = completedTask.getResult(ApiException::class.java)
+            Log.d(TAG, "signInResult:success")
+
+            // Save user data locally
+            account?.let {
+                userPreferences.saveUserData(
+                    name = it.displayName ?: "User",
+                    email = it.email ?: "",
+                    photoUrl = it.photoUrl?.toString(),
+                    userId = it.id ?: ""
+                )
+                userPreferences.setUserLoggedIn(true)
+
+                Toast.makeText(this, "Welcome ${it.displayName}!", Toast.LENGTH_SHORT).show()
+                navigateToNavBar()
+            }
+
+        } catch (e: ApiException) {
+            Log.w(TAG, "signInResult:failed code=" + e.statusCode)
+            Toast.makeText(this, "Sign in failed. Please try again.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun navigateToNavBar() {
+        val intent = Intent(this, NavBar::class.java)
+        startActivity(intent)
+        finish()
+    }
+
+    private fun copyJsonToInternalStorageIfNotExists(context: Context) {
         val file = File(context.filesDir, "db.json")
         if (!file.exists()) {
-            context.assets.open("db.json").use { inputStream ->
-                FileOutputStream(file).use { outputStream ->
-                    inputStream.copyTo(outputStream)
+            try {
+                context.assets.open("db.json").use { inputStream ->
+                    FileOutputStream(file).use { outputStream ->
+                        inputStream.copyTo(outputStream)
+                    }
                 }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error copying JSON file", e)
             }
         }
     }
-
+}

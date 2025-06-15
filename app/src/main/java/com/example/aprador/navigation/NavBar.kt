@@ -9,11 +9,13 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import com.example.aprador.login.MainPage
 import com.example.aprador.R
+import com.example.aprador.login.Profile
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class NavBar : AppCompatActivity() {
 
     private lateinit var firstFragment: Fragment
+    private lateinit var profileFragment: Fragment
     private lateinit var bottomNavigationView: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,6 +24,7 @@ class NavBar : AppCompatActivity() {
         setContentView(R.layout.activity_navbar)
 
         firstFragment = MainPage()
+        profileFragment = Profile()
 
         setFragment(firstFragment)
 
@@ -31,6 +34,7 @@ class NavBar : AppCompatActivity() {
         bottomNavigationView.setOnItemSelectedListener {
             when (it.itemId) {
                 R.id.navHome -> setFragment(firstFragment)
+                R.id.navProfile -> setFragment(profileFragment)
             }
             true
         }

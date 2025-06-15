@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -9,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.aprador"
-        minSdk = 21
+        minSdk = 23
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
@@ -48,6 +49,10 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.exifinterface)
     implementation ("com.google.code.gson:gson:2.10.1")
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

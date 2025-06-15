@@ -12,7 +12,6 @@
 
     <!-- drawable/aparador_2.xml -->
 
-
     <View
         android:id="@+id/hanger"
         android:layout_width="257dp"
@@ -54,20 +53,40 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.061" />
 
-
     <View
-        android:id="@+id/Login"
+        android:id="@+id/google"
+        android:layout_width="37dp"
+        android:layout_height="37dp"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:background="@drawable/ic_google_logo"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/logo"
+        app:layout_constraintHorizontal_bias="0.829"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.727" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/googleSignInButton"
         android:layout_width="263dp"
         android:layout_height="79dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:background="@drawable/ic_button"
+        app:backgroundTint="#5d2f00"
+        app:rippleColor="#4d2600"
+        app:cornerRadius="12dp"
         android:elevation="4dp"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:text="        Continue with Google"
+        android:textColor="#FEFEFE"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.739" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

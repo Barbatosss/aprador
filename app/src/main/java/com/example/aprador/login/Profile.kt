@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -21,10 +22,13 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.example.aprador.R
 import com.example.aprador.utils.ImageUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import java.io.File
+import java.io.FileOutputStream
 
 class Profile : Fragment(R.layout.fragment_profile) {
 
@@ -61,19 +65,52 @@ class Profile : Fragment(R.layout.fragment_profile) {
     }
 
     private fun loadUserData() {
-        // Load user data from preferences
+        // First, try to restore profile data from JSON for current user
+        val userId = userPreferences.getUserId()
+        if (userId.isNotEmpty()) {
+            userPreferences.restoreUserProfileFromJson(userId)
+        }
+
+        // Load user data from preferences (now restored from JSON if available)
         val userName = userPreferences.getUserName()
         val userPhotoUrl = userPreferences.getUserPhotoUrl()
+        selectedGender = userPreferences.getUserGender()
 
         tvUsername.text = userName
 
         // Load profile picture if available
-        userPhotoUrl?.let { photoUrl ->
+        loadProfilePicture(userPhotoUrl)
+
+        // Update gender toggle UI
+        updateGenderToggleUI()
+    }
+
+    private fun loadProfilePicture(photoUrl: String?) {
+        val requestOptions = RequestOptions()
+            .placeholder(R.drawable.ic_default_profile)
+            .error(R.drawable.ic_default_profile)
+            .circleCrop() // This makes the image round by default
+
+        if (!photoUrl.isNullOrEmpty()) {
+            // Check if it's a local file path
+            if (photoUrl.startsWith("/") && File(photoUrl).exists()) {
+                // Load from local file
+                Glide.with(this)
+                    .load(File(photoUrl))
+                    .apply(requestOptions)
+                    .into(ivProfilePicture)
+            } else {
+                // Load from URL
+                Glide.with(this)
+                    .load(photoUrl)
+                    .apply(requestOptions)
+                    .into(ivProfilePicture)
+            }
+        } else {
+            // Load default image
             Glide.with(this)
-                .load(photoUrl)
-                .placeholder(R.drawable.ic_default_profile) // Add a placeholder image
-                .error(R.drawable.ic_default_profile)
-                .circleCrop()
+                .load(R.drawable.ic_default_profile)
+                .apply(requestOptions)
                 .into(ivProfilePicture)
         }
     }
@@ -130,7 +167,7 @@ class Profile : Fragment(R.layout.fragment_profile) {
     }
 
     private fun performLogout() {
-        // Clear local user data
+        // Clear local user session data (but preserve profile data in JSON)
         userPreferences.clearUserData()
 
         // Sign out from Google
@@ -155,14 +192,18 @@ class Profile : Fragment(R.layout.fragment_profile) {
         tvMale.setOnClickListener {
             if (selectedGender != "Male") {
                 selectedGender = "Male"
+                userPreferences.saveUserGender(selectedGender)
                 updateGenderToggleUI()
+                Toast.makeText(requireContext(), "Gender updated to Male", Toast.LENGTH_SHORT).show()
             }
         }
 
         tvFemale.setOnClickListener {
             if (selectedGender != "Female") {
                 selectedGender = "Female"
+                userPreferences.saveUserGender(selectedGender)
                 updateGenderToggleUI()
+                Toast.makeText(requireContext(), "Gender updated to Female", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -173,13 +214,23 @@ class Profile : Fragment(R.layout.fragment_profile) {
             tvMale.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
 
             tvFemale.setBackgroundResource(R.drawable.tab_unselected_background)
-            tvFemale.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
+            tvFemale.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    android.R.color.darker_gray
+                )
+            )
         } else {
             tvFemale.setBackgroundResource(R.drawable.tab_selected_background)
             tvFemale.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.white))
 
             tvMale.setBackgroundResource(R.drawable.tab_unselected_background)
-            tvMale.setTextColor(ContextCompat.getColor(requireContext(), android.R.color.darker_gray))
+            tvMale.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    android.R.color.darker_gray
+                )
+            )
         }
     }
 
@@ -198,8 +249,30 @@ class Profile : Fragment(R.layout.fragment_profile) {
     }
 
     private fun viewFullPicture() {
-        // TODO: Implement full picture view
-        Toast.makeText(requireContext(), "View full picture functionality not implemented yet", Toast.LENGTH_SHORT).show()
+        // Create a dialog to show full picture
+        val photoUrl = userPreferences.getUserPhotoUrl()
+        if (!photoUrl.isNullOrEmpty()) {
+            val dialog = AlertDialog.Builder(requireContext())
+                .create()
+
+            val imageView = ImageView(requireContext())
+            imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+
+            if (photoUrl.startsWith("/") && File(photoUrl).exists()) {
+                Glide.with(this)
+                    .load(File(photoUrl))
+                    .into(imageView)
+            } else {
+                Glide.with(this)
+                    .load(photoUrl)
+                    .into(imageView)
+            }
+
+            dialog.setView(imageView)
+            dialog.show()
+        } else {
+            Toast.makeText(requireContext(), "No profile picture available", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun changeProfilePicture() {
@@ -254,22 +327,44 @@ class Profile : Fragment(R.layout.fragment_profile) {
                 )
             }
 
-            bitmap?.let {
-                // Set the processed image to the ImageView
-                ImageUtil.setImageToView(
-                    ivProfilePicture,
-                    it,
-                    ImageView.ScaleType.CENTER_CROP
-                )
+            bitmap?.let { processedBitmap ->
+                // Save the processed image to internal storage
+                val savedImagePath = saveImageToInternalStorage(processedBitmap)
 
-                // TODO: Save the image URI or bitmap to preferences/database
-                Toast.makeText(requireContext(), "Profile picture updated", Toast.LENGTH_SHORT).show()
+                if (savedImagePath != null) {
+                    // Save the local path to preferences
+                    userPreferences.saveLocalPhotoPath(savedImagePath)
+
+                    // Load the image with round cropping
+                    loadProfilePicture(savedImagePath)
+
+                    Toast.makeText(requireContext(), "Profile picture updated", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(requireContext(), "Failed to save image", Toast.LENGTH_SHORT).show()
+                }
             } ?: run {
                 Toast.makeText(requireContext(), "Failed to load image", Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             e.printStackTrace()
             Toast.makeText(requireContext(), "Error processing image", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun saveImageToInternalStorage(bitmap: Bitmap): String? {
+        return try {
+            val userId = userPreferences.getUserId()
+            val filename = "profile_${userId}_${System.currentTimeMillis()}.jpg"
+            val file = File(requireContext().filesDir, filename)
+
+            FileOutputStream(file).use { out ->
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+            }
+
+            file.absolutePath
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }

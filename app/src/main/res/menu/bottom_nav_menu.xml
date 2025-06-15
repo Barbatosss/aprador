@@ -8,10 +8,6 @@
         android:icon="@drawable/ic_closet"/>
 
     <item
-        android:id="@+id/navGenerate"
-        android:icon="@drawable/ic_star"/>
-
-    <item
         android:id="@+id/navProfile"
         android:icon="@drawable/ic_profile"/>
 

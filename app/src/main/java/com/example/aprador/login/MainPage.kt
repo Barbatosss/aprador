@@ -33,6 +33,7 @@ import com.example.aprador.items.MyItems
 import com.example.aprador.outfits.MyOutfits
 import com.example.aprador.outfits.Outfit
 import com.example.aprador.outfits.OutfitAdapter
+import com.example.aprador.outfits.OutfitDetails
 import com.example.aprador.recycler.Item
 import com.example.aprador.recycler.ItemAdapter
 import com.google.gson.Gson
@@ -438,10 +439,14 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     }
 
     private fun onOutfitClicked(outfit: Outfit) {
-        // Navigate to outfit details or perform action
-        // You can add navigation logic here similar to onItemClicked
-        Toast.makeText(requireContext(), "Clicked on ${outfit.title}", Toast.LENGTH_SHORT).show()
+        // Navigate to OutfitDetails fragment with the outfit ID
+        val outfitDetailsFragment = OutfitDetails.newInstance(outfit.id)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.flFragment, outfitDetailsFragment)
+            .addToBackStack(null)
+            .commit()
     }
+
 
     // Camera and Gallery functionality methods
     private fun showPhotoSelectionDialog() {

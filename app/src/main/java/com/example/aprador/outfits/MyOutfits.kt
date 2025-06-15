@@ -230,9 +230,12 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
     }
 
     private fun onOutfitClicked(outfit: Outfit) {
-        // Handle outfit item click - you could navigate to outfit detail fragment
-        // or show outfit details/edit options
-        showOutfitDetails(outfit)
+        // Navigate to OutfitDetails fragment with the outfit ID
+        val outfitDetailsFragment = OutfitDetails.newInstance(outfit.id)
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.flFragment, outfitDetailsFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun showOutfitDetails(outfit: Outfit) {

@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--fragment_item_details.xml-->
+<!--fragment_outfit_details.xml-->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#d9d9d9"
-    tools:context=".items.ItemDetails">
+    tools:context=".outfits.OutfitDetails">
 
     <!-- Header Layout -->
     <LinearLayout
-        android:id="@+id/header_layout_itemDetails"
+        android:id="@+id/header_layout_outfitDetails"
         android:layout_width="match_parent"
         android:layout_height="88dp"
         android:layout_marginTop="4dp"
@@ -23,13 +23,12 @@
         android:paddingEnd="16dp"
         android:paddingBottom="12dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- Back Icon -->
         <View
-            android:id="@+id/BackItemDetails"
+            android:id="@+id/BackOutfitDetails"
             android:layout_width="37dp"
             android:layout_height="37dp"
             android:layout_marginEnd="16dp"
@@ -39,46 +38,34 @@
             android:focusable="true"
             android:scaleX="-1" />
 
-        <!-- Item Details Logo in the center -->
-        <View
-            android:id="@+id/ItemDetailsLogo"
-            android:layout_width="225dp"
-            android:layout_height="39dp"
+        <!-- Outfit Title in the center -->
+        <TextView
+            android:id="@+id/OutfitTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@drawable/ic_view_item"
-            android:contentDescription="Item Details Logo" />
+            android:gravity="center"
+            android:text="Outfit"
+            android:textColor="#000000"
+            android:textSize="24sp"
+            android:textStyle="bold" />
 
         <!-- Edit/Save Icon -->
         <View
-            android:id="@+id/EditItem"
+            android:id="@+id/EditOutfit"
             android:layout_width="37dp"
             android:layout_height="37dp"
             android:layout_marginStart="16dp"
             android:background="@drawable/ic_edit"
             android:clickable="true"
-            android:contentDescription="Edit Item"
+            android:contentDescription="Edit Outfit"
             android:focusable="true" />
 
     </LinearLayout>
 
-    <!-- Edit Photo Hint Text (Hidden by default) -->
-    <TextView
-        android:id="@+id/edit_photo_hint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Tap photo to change"
-        android:textColor="#666666"
-        android:textSize="14sp"
-        android:textStyle="italic"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_layout_itemDetails" />
-
-    <!-- Item Photo Container with CardView for consistency -->
+    <!-- Outfit Photo Container with CardView - Reduced size -->
     <androidx.cardview.widget.CardView
-        android:id="@+id/photo_card_container"
+        android:id="@+id/outfit_photo_card_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="24dp"
@@ -87,41 +74,55 @@
         android:elevation="4dp"
         app:cardCornerRadius="12dp"
         app:cardBackgroundColor="#FFFFFF"
-        app:layout_constraintDimensionRatio="4:3"
+        app:layout_constraintDimensionRatio="5:3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edit_photo_hint"
-        app:layout_constraintWidth_max="320dp">
+        app:layout_constraintTop_toBottomOf="@+id/header_layout_outfitDetails"
+        app:layout_constraintWidth_max="280dp">
 
         <ImageView
-            android:id="@+id/ItemPhoto"
+            android:id="@+id/OutfitPhoto"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:adjustViewBounds="true"
             android:clickable="true"
-            android:contentDescription="Item Photo"
+            android:contentDescription="Outfit Photo"
             android:focusable="true"
             android:scaleType="centerCrop"
             android:src="@drawable/shirt" />
 
     </androidx.cardview.widget.CardView>
 
-    <!-- Item Details Container -->
+    <!-- Information Section Header -->
+    <TextView
+        android:id="@+id/information_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="8dp"
+        android:text="Information"
+        android:textColor="#000000"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/outfit_photo_card_container" />
+
+    <!-- Information Container - Fixed height for better edit mode support -->
     <LinearLayout
-        android:id="@+id/item_details_container"
+        android:id="@+id/information_container"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="24dp"
         android:background="@drawable/tab_unselected_background"
         android:orientation="vertical"
-        android:padding="20dp"
+        android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/photo_card_container">
+        app:layout_constraintTop_toBottomOf="@+id/information_header">
 
-        <!-- Item Name Row -->
+        <!-- Outfit Name Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -140,35 +141,35 @@
 
             <!-- View Mode Name -->
             <TextView
-                android:id="@+id/item_name_value"
+                android:id="@+id/outfit_name_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Black T-Shirt"
+                android:text="Casual Outfit"
                 android:textColor="#333333"
                 android:textSize="18sp" />
 
-            <!-- Edit Mode Name -->
+            <!-- Edit Mode Name - Fixed width to prevent expansion -->
             <EditText
-                android:id="@+id/item_name_edit"
+                android:id="@+id/outfit_name_edit"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:background="@android:drawable/edit_text"
-                android:hint="Enter item name"
+                android:hint="Enter outfit name"
                 android:inputType="textCapWords"
                 android:padding="8dp"
+                android:singleLine="true"
                 android:textColor="#333333"
                 android:textSize="18sp"
                 android:visibility="gone" />
 
         </LinearLayout>
 
-        <!-- Item Category Row -->
+        <!-- Category Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
@@ -183,57 +184,19 @@
 
             <!-- View Mode Category -->
             <TextView
-                android:id="@+id/item_category_value"
+                android:id="@+id/outfit_category_value"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Top"
+                android:text="Casual"
                 android:textColor="#333333"
                 android:textSize="18sp" />
 
-            <!-- Edit Mode Category -->
+            <!-- Edit Mode Category - Fixed height to prevent layout issues -->
             <Spinner
-                android:id="@+id/item_category_spinner"
+                android:id="@+id/outfit_category_spinner"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@android:drawable/btn_dropdown"
-                android:padding="8dp"
-                android:visibility="gone" />
-
-        </LinearLayout>
-
-        <!-- Item Subcategory Row -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="12dp"
-                android:text="Subcategory:"
-                android:textColor="#000000"
-                android:textSize="18sp"
-                android:textStyle="bold" />
-
-            <!-- View Mode Subcategory -->
-            <TextView
-                android:id="@+id/item_subcategory_value"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="T-Shirt"
-                android:textColor="#333333"
-                android:textSize="18sp" />
-
-            <!-- Edit Mode Subcategory -->
-            <Spinner
-                android:id="@+id/item_subcategory_spinner"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="48dp"
                 android:layout_weight="1"
                 android:background="@android:drawable/btn_dropdown"
                 android:padding="8dp"
@@ -243,21 +206,85 @@
 
     </LinearLayout>
 
-    <!-- Delete Button -->
-    <Button
-        android:id="@+id/DeleteItemButton"
-        android:layout_width="wrap_content"
-        android:layout_height="48dp"
+    <!-- Used Items Section Header -->
+    <LinearLayout
+        android:id="@+id/used_items_header_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/information_container">
+
+        <TextView
+            android:id="@+id/used_items_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Used Items"
+            android:textColor="#000000"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/used_items_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/tab_unselected_background"
+            android:paddingStart="8dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="4dp"
+            android:text="2"
+            android:textColor="#666666"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <!-- Items RecyclerView - Increased height -->
+
+    <!-- Delete Button - Initially hidden, only shown in edit mode -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/items_recycler_view"
+        android:layout_width="359dp"
+        android:layout_height="135dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="12dp"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/delete_outfit_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/used_items_header_container"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/delete_outfit_button"
+        android:layout_width="145dp"
+        android:layout_height="37dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/tab_unselected_background"
         android:paddingStart="24dp"
         android:paddingEnd="24dp"
-        android:text="Delete Item"
+        android:text="Delete"
         android:textColor="#FEFEFE"
         android:textSize="16sp"
         android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/item_details_container" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

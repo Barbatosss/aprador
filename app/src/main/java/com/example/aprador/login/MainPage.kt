@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -22,6 +23,7 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.ArrayAdapter
 import android.widget.AdapterView
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.aprador.R
@@ -45,6 +47,7 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     private lateinit var emptyStateLayout: LinearLayout
     private lateinit var categorySpinner: Spinner
     private lateinit var subcategorySpinner: Spinner
+    private lateinit var userPreferences: UserPreferences
 
     private var allItems = listOf<Item>()
     private var filteredItems = listOf<Item>()
@@ -69,8 +72,12 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         "All Categories" to listOf("All")
     )
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize UserPreferences
+        userPreferences = UserPreferences(requireContext())
 
         // Initialize camera launcher
         cameraLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -125,6 +132,7 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -236,6 +244,7 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun setupClickListeners(view: View) {
         val itemView: View = view.findViewById(R.id.ItemView)
         val outfitView: View = view.findViewById(R.id.OutfitView)
@@ -270,6 +279,48 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         updateFilteredItems()
     }
 
+    // Enhanced gender preference mapping with complete subcategory lists (copied from MyItems.kt)
+    private fun getGenderPreferredSubcategories(userGender: String): Map<String, List<String>> {
+        return when (userGender.lowercase()) {
+            "male", "men" -> mapOf(
+                "top" to listOf("T-Shirt", "Polo", "Dress Shirt", "Tank Top"),
+                "bottom" to listOf("Jeans", "Chinos", "Shorts", "Joggers"),
+                "outerwear" to listOf("Jacket", "Hoodie", "Blazer", "Coat"),
+                "footwear" to listOf("Sneakers", "Dress Shoes", "Boots", "Sandals")
+            )
+            "female", "women" -> mapOf(
+                "top" to listOf("T-Shirt", "Blouse", "Camisole", "Crop Top"),
+                "bottom" to listOf("Jeans", "Leggings", "Skirt", "Dress"),
+                "outerwear" to listOf("Cardigan", "Blazer", "Coat", "Kimono"),
+                "footwear" to listOf("Sneakers", "Heels", "Flats", "Boots")
+            )
+            else -> emptyMap()
+        }
+    }
+
+    // Enhanced sorting function that PRIORITIZES user's gender items completely (copied from MyItems.kt)
+    private fun sortItemsByGenderPreference(items: List<Item>): List<Item> {
+        val userGender = userPreferences.getUserGender()
+        val genderPreferences = getGenderPreferredSubcategories(userGender)
+
+        // Separate items into user's gender and other gender
+        val (userGenderItems, otherGenderItems) = items.partition { item ->
+            val category = item.category.lowercase()
+            val subcategory = item.subcategory
+            val preferredSubcategories = genderPreferences[category] ?: emptyList()
+            preferredSubcategories.contains(subcategory)
+        }
+
+        // Sort user's gender items alphabetically by subcategory
+        val sortedUserGenderItems = userGenderItems.sortedBy { it.subcategory }
+
+        // Sort other gender items alphabetically by subcategory
+        val sortedOtherGenderItems = otherGenderItems.sortedBy { it.subcategory }
+
+        // Return user's gender items first, then other gender items
+        return sortedUserGenderItems + sortedOtherGenderItems
+    }
+
     private fun updateFilteredItems() {
         // First filter by category
         val categoryFilteredItems = if (selectedCategory == "All Categories") {
@@ -279,13 +330,16 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         }
 
         // Then filter by subcategory within the category-filtered items
-        filteredItems = if (selectedSubcategory == "All") {
+        val subcategoryFilteredItems = if (selectedSubcategory == "All") {
             categoryFilteredItems
         } else {
             categoryFilteredItems.filter { it.subcategory.equals(selectedSubcategory, ignoreCase = true) }
         }
 
-        // Update the adapter with new filtered items
+        // Apply gender-based sorting to the filtered items
+        filteredItems = sortItemsByGenderPreference(subcategoryFilteredItems)
+
+        // Update the adapter with new filtered and sorted items
         itemAdapter = ItemAdapter(filteredItems) { item ->
             onItemClicked(item)
         }
@@ -332,6 +386,7 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     }
 
     // Camera and Gallery functionality methods
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun showPhotoSelectionDialog() {
         val options = arrayOf("Take Photo", "Upload from Gallery")
 
@@ -358,20 +413,19 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
             shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
                 showPermissionRationaleDialog(
                     "Camera Permission Required",
-                    "This app needs camera access to take photos of your clothing items. Please grant camera permission to continue.",
-                    { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
-                )
+                    "This app needs camera access to take photos of your clothing items. Please grant camera permission to continue."
+                ) { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
             }
             else -> {
                 showPermissionExplanationDialog(
                     "Camera Access",
-                    "To take photos of your clothing items, we need access to your camera. This will help you catalog your wardrobe.",
-                    { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
-                )
+                    "To take photos of your clothing items, we need access to your camera. This will help you catalog your wardrobe."
+                ) { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
             }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun checkStoragePermissionAndOpen() {
         when {
             ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED -> {
@@ -380,16 +434,14 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
             shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
                 showPermissionRationaleDialog(
                     "Media Permission Required",
-                    "This app needs access to your photos to let you select images from your gallery. Please grant media permission to continue.",
-                    { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
-                )
+                    "This app needs access to your photos to let you select images from your gallery. Please grant media permission to continue."
+                ) { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
             }
             else -> {
                 showPermissionExplanationDialog(
                     "Gallery Access",
-                    "To select photos from your gallery, we need access to your media files. This will help you add existing photos to your wardrobe.",
-                    { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
-                )
+                    "To select photos from your gallery, we need access to your media files. This will help you add existing photos to your wardrobe."
+                ) { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
             }
         }
     }

@@ -31,13 +31,6 @@ class NavBar : AppCompatActivity() {
         // Initialize the class property, not a local variable
         bottomNavigationView = findViewById(R.id.bottomNavigationView)
 
-        bottomNavigationView.setOnItemSelectedListener {
-            when (it.itemId) {
-                R.id.navHome -> setFragment(firstFragment)
-                R.id.navProfile -> setFragment(profileFragment)
-            }
-            true
-        }
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.bottomNavigationView)) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())

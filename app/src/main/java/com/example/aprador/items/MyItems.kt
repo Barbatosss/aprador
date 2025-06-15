@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
@@ -23,6 +24,7 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.ArrayAdapter
 import android.widget.AdapterView
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.aprador.login.MainPage
@@ -127,6 +129,7 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -203,6 +206,7 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun setupClickListeners(view: View) {
         // Tab click listener
         tabAllItem.setOnClickListener { selectSubcategoryTab("All") }
@@ -483,6 +487,7 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     }
 
     // All your existing camera/gallery methods remain the same...
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun showPhotoSelectionDialog() {
         val options = arrayOf("Take Photo", "Upload from Gallery")
 
@@ -509,20 +514,19 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
             shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) -> {
                 showPermissionRationaleDialog(
                     "Camera Permission Required",
-                    "This app needs camera access to take photos of your clothing items. Please grant camera permission to continue.",
-                    { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
-                )
+                    "This app needs camera access to take photos of your clothing items. Please grant camera permission to continue."
+                ) { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
             }
             else -> {
                 showPermissionExplanationDialog(
                     "Camera Access",
-                    "To take photos of your clothing items, we need access to your camera. This will help you catalog your wardrobe.",
-                    { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
-                )
+                    "To take photos of your clothing items, we need access to your camera. This will help you catalog your wardrobe."
+                ) { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
             }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun checkStoragePermissionAndOpen() {
         when {
             ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED -> {
@@ -531,16 +535,14 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
             shouldShowRequestPermissionRationale(Manifest.permission.READ_MEDIA_IMAGES) -> {
                 showPermissionRationaleDialog(
                     "Media Permission Required",
-                    "This app needs access to your photos to let you select images from your gallery. Please grant media permission to continue.",
-                    { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
-                )
+                    "This app needs access to your photos to let you select images from your gallery. Please grant media permission to continue."
+                ) { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
             }
             else -> {
                 showPermissionExplanationDialog(
                     "Gallery Access",
-                    "To select photos from your gallery, we need access to your media files. This will help you add existing photos to your wardrobe.",
-                    { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
-                )
+                    "To select photos from your gallery, we need access to your media files. This will help you add existing photos to your wardrobe."
+                ) { mediaPermissionLauncher.launch(arrayOf(Manifest.permission.READ_MEDIA_IMAGES)) }
             }
         }
     }

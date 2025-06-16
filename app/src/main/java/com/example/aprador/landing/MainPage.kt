@@ -314,7 +314,10 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
 
     private fun loadOutfitsData() {
         // Load outfits using the exact same method as MyOutfits.kt
-        allOutfits = loadOutfitsFromFile(requireContext())
+        val loadedOutfits = loadOutfitsFromFile(requireContext())
+
+        // Sort outfits by createdAt timestamp in descending order (latest first)
+        allOutfits = loadedOutfits.sortedByDescending { it.createdAt }
 
         // Update adapter with the loaded outfits (no validation or filtering)
         if (::outfitAdapter.isInitialized) {
@@ -402,7 +405,18 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         }
 
         // Apply gender-based sorting to the filtered items
-        filteredItems = sortItemsByGenderPreference(subcategoryFilteredItems)
+        val genderSortedItems = sortItemsByGenderPreference(subcategoryFilteredItems)
+
+        // Items with higher ID values (more recent timestamps) will appear first
+        filteredItems = genderSortedItems.sortedByDescending { item ->
+            // Convert string ID back to long for proper sorting
+            try {
+                item.id.toLong()
+            } catch (e: NumberFormatException) {
+                // Fallback for non-timestamp IDs (shouldn't happen with your current setup)
+                0L
+            }
+        }
 
         // Update the adapter with new filtered and sorted items
         itemAdapter = ItemAdapter(filteredItems) { item ->

@@ -56,14 +56,16 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
 
     private fun updateOutfitSections() {
         if (selectedCategory == "All") {
-            // Group all outfits by category
+            // Group all outfits by category, maintaining the latest first order within each category
             val groupedOutfits = allOutfits.groupBy { it.category }
             outfitSections = groupedOutfits.map { (category, outfits) ->
-                OutfitSection(category, outfits)
+                // Sort outfits within each category by createdAt descending (latest first)
+                OutfitSection(category, outfits.sortedByDescending { it.createdAt })
             }.sortedBy { it.category }
         } else {
-            // Show only selected category
+            // Show only selected category, sorted by createdAt descending (latest first)
             val filteredOutfits = allOutfits.filter { it.category == selectedCategory }
+                .sortedByDescending { it.createdAt }
             outfitSections = if (filteredOutfits.isNotEmpty()) {
                 listOf(OutfitSection(selectedCategory, filteredOutfits))
             } else {
@@ -78,7 +80,9 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
             if (file.exists() && file.readText().isNotBlank()) {
                 val json = file.readText()
                 val type = object : TypeToken<List<Outfit>>() {}.type
-                Gson().fromJson(json, type) ?: emptyList()
+                val outfits: List<Outfit> = Gson().fromJson(json, type) ?: emptyList()
+                // Sort by createdAt timestamp in descending order (latest first)
+                outfits.sortedByDescending { it.createdAt }
             } else {
                 emptyList()
             }

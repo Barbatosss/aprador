@@ -17,6 +17,7 @@ import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
 import com.example.aprador.item_recycler.Item
 import com.example.aprador.item_recycler.ImageUtil
+import com.example.aprador.login.UserPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -43,10 +44,13 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     // Photo display
     private lateinit var photoImageView: ImageView
 
+    // User preferences
+    private lateinit var userPreferences: UserPreferences
+
     // Current selections
     private var selectedCategory = "Top"
     private var selectedSubcategory = "T-Shirt"
-    private var selectedGender = "Men"
+    private var selectedGender = "Men" // Will be updated from user preferences
 
     // Photo data
     private var photoPath: String? = null
@@ -58,6 +62,9 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Initialize user preferences
+        userPreferences = UserPreferences(requireContext())
 
         // Hide bottom navigation when this fragment loads
         view.post {
@@ -79,9 +86,23 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         // Set up click listeners
         setupClickListeners(view)
 
-        // Initialize with default selections
-        selectGenderTab("Men")
+        // Load user's default gender and initialize with it
+        loadUserDefaultGender()
+
+        // Initialize with default selections (now using user's gender)
+        selectGenderTab(selectedGender)
         selectCategoryTab("Top")
+    }
+
+    private fun loadUserDefaultGender() {
+        val userGender = userPreferences.getUserGender()
+
+        // Map the gender from Profile format to AddItem format
+        selectedGender = when (userGender) {
+            "Male" -> "Men"
+            "Female" -> "Women"
+            else -> "Men" // Default fallback
+        }
     }
 
     private fun initializeViews(view: View) {

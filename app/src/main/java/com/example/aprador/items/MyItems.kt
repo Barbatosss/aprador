@@ -288,17 +288,33 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
             preferredSubcategories.contains(subcategory)
         }
 
-        // Sort user's gender items alphabetically by subcategory
-        val sortedUserGenderItems = userGenderItems.sortedBy { it.subcategory }
+        // Sort user's gender items by timestamp (latest first), then by subcategory
+        val sortedUserGenderItems = userGenderItems
+            .sortedByDescending { item ->
+                try {
+                    item.id.toLong()
+                } catch (e: NumberFormatException) {
+                    0L
+                }
+            }
+            .sortedBy { it.subcategory } // Secondary sort by subcategory for organization
 
-        // Sort other gender items alphabetically by subcategory
-        val sortedOtherGenderItems = otherGenderItems.sortedBy { it.subcategory }
+        // Sort other gender items by timestamp (latest first), then by subcategory
+        val sortedOtherGenderItems = otherGenderItems
+            .sortedByDescending { item ->
+                try {
+                    item.id.toLong()
+                } catch (e: NumberFormatException) {
+                    0L
+                }
+            }
+            .sortedBy { it.subcategory } // Secondary sort by subcategory for organization
 
         // Return user's gender items first, then other gender items
         return sortedUserGenderItems + sortedOtherGenderItems
     }
 
-    // Updated updateCategorySections method with enhanced gender prioritization
+
     private fun updateCategorySections() {
         // First filter by category
         val categoryFilteredItems = getFilteredItemsByCategory()
@@ -310,11 +326,11 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
             categoryFilteredItems.filter { it.subcategory.equals(selectedSubcategory, ignoreCase = true) }
         }
 
-        // Sort items with STRICT gender preference (user's gender first)
+        // Sort items with STRICT gender preference (user's gender first) AND timestamp (latest first)
         val sortedItems = sortItemsByGenderPreference(subcategoryFilteredItems)
 
         categorySections = if (selectedSubcategory == "All") {
-            // Group by subcategory, maintaining gender-priority order
+            // Group by subcategory, maintaining gender-priority order and timestamp sorting
             val groupedItems = sortedItems.groupBy { it.subcategory }
 
             // Create sections maintaining the order from sorted items
@@ -322,12 +338,28 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
 
             orderedSubcategories.map { subcategory ->
                 val subcategoryItems = groupedItems[subcategory] ?: emptyList()
-                CategorySection(subcategory, subcategoryItems)
+                // Apply timestamp sorting within each subcategory section
+                val timestampSortedItems = subcategoryItems.sortedByDescending { item ->
+                    try {
+                        item.id.toLong()
+                    } catch (e: NumberFormatException) {
+                        0L
+                    }
+                }
+                CategorySection(subcategory, timestampSortedItems)
             }
         } else {
-            // Show single subcategory with gender-based sorting
+            // Show single subcategory with gender-based sorting and timestamp sorting
             if (sortedItems.isNotEmpty()) {
-                listOf(CategorySection(selectedSubcategory, sortedItems))
+                // Apply final timestamp sorting for single subcategory view
+                val timestampSortedItems = sortedItems.sortedByDescending { item ->
+                    try {
+                        item.id.toLong()
+                    } catch (e: NumberFormatException) {
+                        0L
+                    }
+                }
+                listOf(CategorySection(selectedSubcategory, timestampSortedItems))
             } else {
                 emptyList()
             }

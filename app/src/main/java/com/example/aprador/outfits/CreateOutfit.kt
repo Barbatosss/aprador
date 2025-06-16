@@ -33,6 +33,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import java.io.FileOutputStream
 import java.io.IOException
+import com.example.aprador.login.UserPreferences
 import androidx.core.graphics.createBitmap
 import androidx.core.view.isVisible
 import com.example.aprador.outfit_recycler.Outfit
@@ -59,6 +60,7 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
     private lateinit var tabMen: TextView
     private lateinit var tabWomen: TextView
 
+    private lateinit var userPreferences: UserPreferences
 
     private lateinit var tflite: Interpreter
 
@@ -66,21 +68,18 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
     private var filteredItems = listOf<Item>()
     private var selectedItemCategory = "All Categories"
     private var selectedItemSubcategory = "All"
-    private var selectedGender = "Men" // Default gender
+    private var selectedGender = "Men" // This will be updated from user preferences
     private var selectedOutfitCategory = "Casual" // Default category
     private val selectedItems = mutableListOf<Item>() // Track selected items for outfit
 
-    // Subcategory mappings based on AddItem.kt structure
-    private val subcategoryMap = mapOf(
-        "Top" to listOf("All", "T-Shirts", "Polo", "Dress Shirt", "Tank Top", "Blouse", "Camisole", "Crop Top"),
-        "Bottom" to listOf("All", "Jeans", "Chinos", "Shorts", "Joggers", "Leggings", "Skirt", "Dress"),
-        "Outerwear" to listOf("All", "Jacket", "Hoodie", "Blazer", "Coat", "Cardigan", "Kimono"),
-        "Footwear" to listOf("All", "Sneakers", "Dress Shoes", "Boots", "Sandals", "Heels", "Flats"),
-        "All Categories" to listOf("All")
-    )
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        userPreferences = UserPreferences(requireContext())
+
+        loadUserGenderPreference()
 
         // Initialize views
         initializeViews(view)
@@ -106,6 +105,18 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         tflite = Interpreter(loadModelFile())
     }
 
+    private fun loadUserGenderPreference() {
+        // Get the user's gender preference from UserPreferences
+        val userGender = userPreferences.getUserGender()
+
+        // Map the gender to match our toggle options
+        selectedGender = when (userGender.lowercase()) {
+            "male" -> "Men"
+            "female" -> "Women"
+            else -> "Men" // Default fallback
+        }
+    }
+
     private fun initializeViews(view: View) {
         itemsRecyclerView = view.findViewById(R.id.items_recycler_view)
         itemsEmptyState = view.findViewById(R.id.items_empty_state)
@@ -125,7 +136,7 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
 
     private fun setupGenderFilter() {
         // Initialize with default gender selection
-        selectGenderTab("Men")
+        selectGenderTab(selectedGender)
 
         // Set up gender tab click listeners
         tabMen.setOnClickListener { selectGenderTab("Men") }
@@ -229,7 +240,7 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
 
         genderSpinner.adapter = adapter
 
-        // Set default selection
+        // Set selection to user's preferred gender
         genderSpinner.setSelection(genders.indexOf(selectedGender))
 
         genderSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -480,10 +491,7 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
             "Heels", "Flats"
         )
 
-        val neutralSubcategories = setOf(
-            // Shared items
-            "T-Shirts", "Jeans", "Shorts", "Blazer", "Coat", "Sneakers", "Boots", "Sandals"
-        )
+
 
         return when (selectedGender) {
             "Men" -> {
@@ -572,7 +580,6 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
                 ).show()
             } else {
                 // Check if we've reached the maximum of 4 items (one per main category)
-                val mainCategories = setOf("Top", "Bottom", "Outerwear", "Footwear")
                 val selectedMainCategories = selectedItems.map { it.category }.toSet()
 
                 if (selectedMainCategories.size >= 4) {

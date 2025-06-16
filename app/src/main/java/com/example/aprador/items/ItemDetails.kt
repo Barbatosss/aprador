@@ -4,7 +4,6 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
@@ -18,8 +17,8 @@ import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
-import com.example.aprador.recycler.Item
-import com.example.aprador.utils.ImageUtil
+import com.example.aprador.item_recycler.Item
+import com.example.aprador.item_recycler.ImageUtil
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File

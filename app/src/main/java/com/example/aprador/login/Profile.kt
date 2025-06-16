@@ -24,7 +24,7 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.example.aprador.R
-import com.example.aprador.utils.ImageUtil
+import com.example.aprador.item_recycler.ImageUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import java.io.File

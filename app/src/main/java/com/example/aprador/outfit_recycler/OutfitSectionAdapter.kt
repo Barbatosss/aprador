@@ -1,4 +1,4 @@
-package com.example.aprador.outfits
+package com.example.aprador.outfit_recycler
 
 import android.content.Context
 import android.view.LayoutInflater

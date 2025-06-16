@@ -16,14 +16,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.core.content.ContextCompat
 import com.example.aprador.R
-import com.example.aprador.recycler.Item
-import android.net.Uri
+import com.example.aprador.item_recycler.Item
 import android.os.Build
 import android.provider.MediaStore
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import com.bumptech.glide.Glide
-import com.example.aprador.recycler.ItemAdapter
+import com.example.aprador.item_recycler.ItemAdapter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.tensorflow.lite.Interpreter
@@ -37,6 +35,10 @@ import java.io.FileOutputStream
 import java.io.IOException
 import androidx.core.graphics.createBitmap
 import androidx.core.view.isVisible
+import com.example.aprador.outfit_recycler.Outfit
+import androidx.core.net.toUri
+import androidx.core.graphics.scale
+import androidx.core.graphics.get
 
 
 class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
@@ -721,8 +723,8 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         // Load the item image
         val context = requireContext()
         val imageSource = when {
-            item.imagePath.startsWith("content://") -> Uri.parse(item.imagePath)
-            item.imagePath.startsWith("file://") -> Uri.parse(item.imagePath)
+            item.imagePath.startsWith("content://") -> item.imagePath.toUri()
+            item.imagePath.startsWith("file://") -> item.imagePath.toUri()
             File(item.imagePath).exists() -> File(item.imagePath)
             else -> null
         }
@@ -861,7 +863,7 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         val input = android.widget.EditText(requireContext())
 
         input.hint = "Enter outfit name"
-        input.setText("${selectedOutfitCategory} Outfit") // Default name
+        input.setText("$selectedOutfitCategory Outfit") // Default name
 
         builder.setTitle("Name Your Outfit")
             .setView(input)
@@ -914,7 +916,7 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         return try {
 
 
-            val uri = Uri.parse(path)
+            val uri = path.toUri()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 val source = ImageDecoder.createSource(context.contentResolver, uri)
                 ImageDecoder.decodeBitmap(source)
@@ -934,15 +936,15 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
 
         for (i in 0 until maxImages) {
             val bmp = if (i < bitmaps.size) {
-                val scaled = Bitmap.createScaledBitmap(bitmaps[i], inputSize, inputSize, true)
+                val scaled = bitmaps[i].scale(inputSize, inputSize)
                 scaled.copy(Bitmap.Config.ARGB_8888, false)
             } else {
-                Bitmap.createBitmap(inputSize, inputSize, Bitmap.Config.ARGB_8888)
+                createBitmap(inputSize, inputSize)
             }
 
             for (y in 0 until inputSize) {
                 for (x in 0 until inputSize) {
-                    val pixel = bmp.getPixel(x, y)
+                    val pixel = bmp[x, y]
                     input[0][i][y][x][0] = (pixel shr 16 and 0xFF) / 255.0f
                     input[0][i][y][x][1] = (pixel shr 8 and 0xFF) / 255.0f
                     input[0][i][y][x][2] = (pixel and 0xFF) / 255.0f
@@ -953,7 +955,7 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         val output = Array(1) { FloatArray(7) } // Or dynamically detect size from model if needed
         tflite.run(input, output)
 
-        // ✅ Load categories from labels.txt
+        // Load categories from labels.txt
         val categories = loadLabelsFromAssets(context)
 
         val predictedIndex = output[0].indices.maxByOrNull { output[0][it] } ?: -1

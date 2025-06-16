@@ -1,4 +1,4 @@
-package com.example.aprador.recycler
+package com.example.aprador.item_recycler
 
 // CategorySectionAdapter.kt
 import android.view.LayoutInflater
@@ -63,19 +63,10 @@ class CategorySectionAdapter(
         // Use DiffUtil for better performance with large datasets
         if (categorySections != newCategorySections) {
             categorySections = newCategorySections
-            notifyDataSetChanged() // Consider using DiffUtil.calculateDiff() for better performance
+            notifyDataSetChanged()
         }
     }
 
-    // Method to update specific category
-    fun updateCategory(position: Int, newCategorySection: CategorySection) {
-        if (position in 0 until categorySections.size) {
-            val mutableList = categorySections.toMutableList()
-            mutableList[position] = newCategorySection
-            categorySections = mutableList
-            notifyItemChanged(position)
-        }
-    }
 }
 
 class HorizontalSpaceItemDecoration(private val horizontalSpaceWidth: Int) : RecyclerView.ItemDecoration() {

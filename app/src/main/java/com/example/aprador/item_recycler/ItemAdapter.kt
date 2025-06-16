@@ -1,4 +1,4 @@
-package com.example.aprador.recycler
+package com.example.aprador.item_recycler
 // ItemAdapter.kt
 import android.view.LayoutInflater
 import android.view.View

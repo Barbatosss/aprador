@@ -1,12 +1,8 @@
-package com.example.aprador.outfits
+package com.example.aprador.outfit_recycler
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.View
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -14,8 +10,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.aprador.R
-import com.example.aprador.recycler.Item
-import com.example.aprador.recycler.ItemAdapter
+import com.example.aprador.item_recycler.Item
+import com.example.aprador.item_recycler.ItemAdapter
+import com.example.aprador.outfits.MyOutfits
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File

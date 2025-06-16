@@ -1,4 +1,4 @@
-package com.example.aprador.recycler
+package com.example.aprador.item_recycler
 
 data class Item(
     val id: String,

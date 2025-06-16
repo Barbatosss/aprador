@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
-import com.example.aprador.login.MainPage
+import com.example.aprador.landing.MainPage
 import com.example.aprador.R
 import com.example.aprador.login.Profile
 import com.google.android.material.bottomnavigation.BottomNavigationView

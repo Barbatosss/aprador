@@ -1,4 +1,4 @@
-package com.example.aprador.login
+package com.example.aprador.landing
 
 import android.Manifest
 import android.app.Activity
@@ -18,24 +18,23 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import android.view.View
-import android.widget.TextView
 import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.ArrayAdapter
 import android.widget.AdapterView
-import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.aprador.R
 import com.example.aprador.items.AddItem
 import com.example.aprador.items.ItemDetails
 import com.example.aprador.items.MyItems
+import com.example.aprador.login.UserPreferences
 import com.example.aprador.outfits.MyOutfits
-import com.example.aprador.outfits.Outfit
-import com.example.aprador.outfits.OutfitAdapter
-import com.example.aprador.outfits.OutfitDetails
-import com.example.aprador.recycler.Item
-import com.example.aprador.recycler.ItemAdapter
+import com.example.aprador.outfit_recycler.Outfit
+import com.example.aprador.outfit_recycler.OutfitAdapter
+import com.example.aprador.outfit_recycler.OutfitDetails
+import com.example.aprador.item_recycler.Item
+import com.example.aprador.item_recycler.ItemAdapter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File

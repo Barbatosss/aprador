@@ -27,17 +27,17 @@ import android.widget.AdapterView
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.aprador.login.MainPage
+import com.example.aprador.landing.MainPage
 import com.example.aprador.login.UserPreferences
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
-import com.example.aprador.recycler.CategorySection
+import com.example.aprador.item_recycler.CategorySection
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
-import com.example.aprador.recycler.CategorySectionAdapter
-import com.example.aprador.recycler.Item
+import com.example.aprador.item_recycler.CategorySectionAdapter
+import com.example.aprador.item_recycler.Item
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 

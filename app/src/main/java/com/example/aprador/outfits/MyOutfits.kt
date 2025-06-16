@@ -10,9 +10,13 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.aprador.R
-import com.example.aprador.login.MainPage
+import com.example.aprador.landing.MainPage
 import com.example.aprador.navigation.NavBar
-import com.example.aprador.recycler.Item
+import com.example.aprador.item_recycler.Item
+import com.example.aprador.outfit_recycler.Outfit
+import com.example.aprador.outfit_recycler.OutfitDetails
+import com.example.aprador.outfit_recycler.OutfitSection
+import com.example.aprador.outfit_recycler.OutfitSectionAdapter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File

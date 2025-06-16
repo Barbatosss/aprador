@@ -1,16 +1,15 @@
-package com.example.aprador.utils
+package com.example.aprador.item_recycler
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import android.media.ExifInterface
+import androidx.exifinterface.media.ExifInterface
 import android.net.Uri
 import android.os.Build
 import android.widget.ImageView
 import androidx.annotation.RequiresApi
 import java.io.File
-import java.io.InputStream
 import androidx.core.graphics.scale
 import androidx.core.net.toUri
 
@@ -21,7 +20,6 @@ object ImageUtil {
     private const val RECYCLER_IMAGE_SIZE = 300
     private const val DETAIL_IMAGE_WIDTH = 400
     private const val DETAIL_IMAGE_HEIGHT = 300
-    private const val JPEG_QUALITY = 85
 
     /**
      * Load image from URI with proper error handling and memory management (CENTER CROP)
@@ -111,28 +109,7 @@ object ImageUtil {
         }
     }
 
-    /**
-     * Load image for recycler view with consistent sizing
-     */
-    fun loadImageForRecyclerView(context: Context, imagePath: String): Bitmap? {
-        return try {
-            // Check if it's a URI or file path
-            when {
-                imagePath.startsWith("content://") -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        loadImageFromUri(context,
-                            imagePath.toUri(), RECYCLER_IMAGE_SIZE, RECYCLER_IMAGE_SIZE)
-                    } else {
-                        loadImageFromPath(imagePath, RECYCLER_IMAGE_SIZE, RECYCLER_IMAGE_SIZE)
-                    }
-                }
-                else -> loadImageFromPath(imagePath, RECYCLER_IMAGE_SIZE, RECYCLER_IMAGE_SIZE)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
+
 
     /**
      * Set image to ImageView with proper scaling
@@ -177,7 +154,7 @@ object ImageUtil {
                         // Use ARGB_8888 instead of RGB_565 for better quality
                         inPreferredConfig = Bitmap.Config.ARGB_8888
                         inDither = false
-                        // Removed deprecated inPurgeable and inInputShareable
+                        // Removed deprecated inPurge able and inInputShareable
                     }
                     BitmapFactory.decodeStream(actualStream, null, decodeOptions)
                 }

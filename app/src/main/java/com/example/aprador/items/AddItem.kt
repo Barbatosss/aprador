@@ -2,7 +2,6 @@ package com.example.aprador.items
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -13,11 +12,11 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import com.example.aprador.login.MainPage
+import com.example.aprador.landing.MainPage
 import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
-import com.example.aprador.recycler.Item
-import com.example.aprador.utils.ImageUtil
+import com.example.aprador.item_recycler.Item
+import com.example.aprador.item_recycler.ImageUtil
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -314,11 +313,11 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         resetSubcategoryTabs()
 
         // Find which tab contains this subcategory text and select it
-        val selectedTab = when {
-            subTab1.text.toString() == subcategory -> subTab1
-            subTab2.text.toString() == subcategory -> subTab2
-            subTab3.text.toString() == subcategory -> subTab3
-            subTab4.text.toString() == subcategory -> subTab4
+        val selectedTab = when (subcategory) {
+            subTab1.text.toString() -> subTab1
+            subTab2.text.toString() -> subTab2
+            subTab3.text.toString() -> subTab3
+            subTab4.text.toString() -> subTab4
             else -> subTab1
         }
 

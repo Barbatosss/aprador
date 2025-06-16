@@ -1,4 +1,4 @@
-package com.example.aprador.outfits
+package com.example.aprador.outfit_recycler
 
 import android.content.Context
 import android.net.Uri
@@ -10,10 +10,11 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.aprador.R
-import com.example.aprador.recycler.Item
+import com.example.aprador.item_recycler.Item
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
+import androidx.core.net.toUri
 
 class OutfitAdapter(
     private var outfits: List<Outfit>,
@@ -50,8 +51,8 @@ class OutfitAdapter(
         // If outfit has a preview image, use it
         if (!outfit.previewImagePath.isNullOrEmpty()) {
             val imageSource = when {
-                outfit.previewImagePath.startsWith("content://") -> Uri.parse(outfit.previewImagePath)
-                outfit.previewImagePath.startsWith("file://") -> Uri.parse(outfit.previewImagePath)
+                outfit.previewImagePath.startsWith("content://") -> outfit.previewImagePath.toUri()
+                outfit.previewImagePath.startsWith("file://") -> outfit.previewImagePath.toUri()
                 File(outfit.previewImagePath).exists() -> File(outfit.previewImagePath)
                 else -> null
             }
@@ -73,8 +74,8 @@ class OutfitAdapter(
 
         if (firstOutfitItem != null) {
             val imageSource = when {
-                firstOutfitItem.imagePath.startsWith("content://") -> Uri.parse(firstOutfitItem.imagePath)
-                firstOutfitItem.imagePath.startsWith("file://") -> Uri.parse(firstOutfitItem.imagePath)
+                firstOutfitItem.imagePath.startsWith("content://") -> firstOutfitItem.imagePath.toUri()
+                firstOutfitItem.imagePath.startsWith("file://") -> firstOutfitItem.imagePath.toUri()
                 File(firstOutfitItem.imagePath).exists() -> File(firstOutfitItem.imagePath)
                 else -> null
             }

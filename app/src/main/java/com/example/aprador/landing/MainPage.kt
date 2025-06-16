@@ -22,6 +22,7 @@ import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.ArrayAdapter
 import android.widget.AdapterView
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.aprador.R
@@ -32,9 +33,10 @@ import com.example.aprador.login.UserPreferences
 import com.example.aprador.outfits.MyOutfits
 import com.example.aprador.outfit_recycler.Outfit
 import com.example.aprador.outfit_recycler.OutfitAdapter
-import com.example.aprador.outfit_recycler.OutfitDetails
+import com.example.aprador.outfits.OutfitDetails
 import com.example.aprador.item_recycler.Item
 import com.example.aprador.item_recycler.ItemAdapter
+import com.example.aprador.outfits.CreateOutfit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -77,6 +79,7 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         "All Categories" to listOf("All")
     )
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -292,6 +295,16 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         itemIconsView.setOnClickListener {
             showPhotoSelectionDialog()
         }
+
+        // Navigate to CreateOutfit fragment
+        val createOutfitView: View? = view.findViewById(R.id.OutfitIcons)
+        createOutfitView?.setOnClickListener {
+            val createOutfitFragment = CreateOutfit()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.flFragment, createOutfitFragment)
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     private fun loadItemsData() {
@@ -428,6 +441,7 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
         val itemDetailsFragment = ItemDetails()
         val bundle = Bundle().apply {
             putString("item_id", item.id)
+            putString("source_fragment", "MainPage")
         }
         itemDetailsFragment.arguments = bundle
 

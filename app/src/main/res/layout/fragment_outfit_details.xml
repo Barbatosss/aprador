@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#d9d9d9"
-    tools:context=".outfit_recycler.OutfitDetails">
+    tools:context=".outfits.OutfitDetails">
 
     <!-- Header Layout -->
     <LinearLayout

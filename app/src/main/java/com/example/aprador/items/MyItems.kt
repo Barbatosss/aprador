@@ -134,11 +134,6 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Hide bottom navigation when this fragment loads
-        view.post {
-            (activity as? NavBar)?.hideBottomNavigation()
-        }
-
         // Initialize views
         initializeViews(view)
 
@@ -221,7 +216,7 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun setupClickListeners(view: View) {
         // Tab click listener
-        tabAllItem.setOnClickListener { selectSubcategoryTab("All") }
+        tabAllItem.setOnClickListener { selectSubcategoryTab(this, "All") }
 
         // Back button
         val backButton: View = view.findViewById(R.id.BackItem)
@@ -389,21 +384,8 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     private fun createDynamicTab(subcategory: String, count: Int): TextView {
         val tabView = layoutInflater.inflate(R.layout.dynamic_tab, tabsLayout, false) as TextView
         tabView.text = "$subcategory ($count)"
-        tabView.setOnClickListener { selectSubcategoryTab(subcategory) }
+        tabView.setOnClickListener { selectSubcategoryTab(this, subcategory) }
         return tabView
-    }
-
-    private fun selectSubcategoryTab(subcategory: String) {
-        selectedSubcategory = subcategory
-
-        // Update tab appearances
-        updateTabAppearances()
-
-        // Update displayed items
-        updateCategorySections()
-
-        // Update empty state
-        updateEmptyState()
     }
 
     private fun updateTabAppearances() {
@@ -443,10 +425,10 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     }
 
     private fun onItemClicked(item: Item) {
-        // Navigate to item details fragment
         val itemDetailsFragment = ItemDetails()
         val bundle = Bundle().apply {
             putString("item_id", item.id)
+            putString("source_fragment", "MyItems")
         }
         itemDetailsFragment.arguments = bundle
 
@@ -643,5 +625,20 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
             .replace(R.id.flFragment, addItemFragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    companion object {
+        private fun selectSubcategoryTab(myItems: MyItems, subcategory: String) {
+            myItems.selectedSubcategory = subcategory
+
+            // Update tab appearances
+            myItems.updateTabAppearances()
+
+            // Update displayed items
+            myItems.updateCategorySections()
+
+            // Update empty state
+            myItems.updateEmptyState()
+        }
     }
 }

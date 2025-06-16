@@ -19,6 +19,7 @@ import com.example.aprador.R
 import com.example.aprador.navigation.NavBar
 import com.example.aprador.item_recycler.Item
 import com.example.aprador.item_recycler.ImageUtil
+import com.example.aprador.landing.MainPage  // Add this import
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -48,6 +49,9 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
     private var itemId: String? = null
     private var isEditMode = false
 
+    // Navigation data - NEW: Track where we came from
+    private var sourceFragment: String? = null
+
     // Photo data for editing
     private var newPhotoPath: String? = null
     private var newPhotoUri: String? = null
@@ -57,6 +61,10 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
     companion object {
         private const val DETAIL_IMAGE_MAX_WIDTH = 800
         private const val DETAIL_IMAGE_MAX_HEIGHT = 600
+
+        // Constants for source fragments
+        private const val SOURCE_MY_ITEMS = "MyItems"
+        private const val SOURCE_MAIN_PAGE = "MainPage"
     }
 
     // Category and subcategory data (from AddItem.kt)
@@ -112,9 +120,10 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
             (activity as? NavBar)?.hideBottomNavigation()
         }
 
-        // Get item ID from arguments
+        // Get item ID and source fragment from arguments
         arguments?.let { bundle ->
             itemId = bundle.getString("item_id")
+            sourceFragment = bundle.getString("source_fragment") // NEW: Get source fragment
         }
 
         // Initialize views
@@ -157,13 +166,16 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
         // Set listener for category changes to update subcategory options
         itemCategorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateSubcategorySpinner(categoryOptions[position])
+                // Only update subcategory when not in edit mode or when user actually changes category
+                if (!isEditMode) {
+                    updateSubcategorySpinner(categoryOptions[position])
+                }
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
-    private fun updateSubcategorySpinner(category: String) {
+    private fun updateSubcategorySpinner(category: String, selectedSubcategory: String? = null) {
         val subcategories = when (category) {
             "Top" -> topSubcategories
             "Bottom" -> bottomSubcategories
@@ -175,18 +187,26 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
         val subcategoryAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, subcategories)
         subcategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         itemSubcategorySpinner.adapter = subcategoryAdapter
+
+        // If a specific subcategory should be selected, set it after adapter is set
+        selectedSubcategory?.let { subcategory ->
+            val subcategoryIndex = subcategories.indexOf(subcategory)
+            if (subcategoryIndex >= 0) {
+                itemSubcategorySpinner.setSelection(subcategoryIndex)
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun setupClickListeners(view: View) {
-        // Back button
+        // Back button - UPDATED: Navigate based on source fragment
         val backButton: View = view.findViewById(R.id.BackItemDetails)
         backButton.setOnClickListener {
             if (isEditMode) {
                 // Ask user if they want to discard changes
                 showDiscardChangesDialog()
             } else {
-                navigateBackToMyItems()
+                navigateBack()
             }
         }
 
@@ -212,6 +232,28 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
             } else {
                 // Show full screen image view (existing functionality)
                 Toast.makeText(requireContext(), "Full screen view coming soon", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // Navigate back to the appropriate fragment based on source
+    private fun navigateBack() {
+        when (sourceFragment) {
+            SOURCE_MAIN_PAGE -> {
+                val mainPageFragment = MainPage()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.flFragment, mainPageFragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+            SOURCE_MY_ITEMS -> {
+                navigateBackToMyItems()
+            }
+            else -> {
+                // Default behavior - try to pop back stack first, then go to MyItems
+                if (!parentFragmentManager.popBackStackImmediate()) {
+                    navigateBackToMyItems()
+                }
             }
         }
     }
@@ -369,17 +411,8 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
                 itemCategorySpinner.setSelection(categoryIndex)
             }
 
-            // Update subcategory spinner and set selection
-            updateSubcategorySpinner(item.category)
-            itemSubcategorySpinner.post {
-                val subcategoryAdapter = itemSubcategorySpinner.adapter
-                for (i in 0 until subcategoryAdapter.count) {
-                    if (subcategoryAdapter.getItem(i).toString() == item.subcategory) {
-                        itemSubcategorySpinner.setSelection(i)
-                        break
-                    }
-                }
-            }
+            // Update subcategory spinner with the current item's subcategory selected
+            updateSubcategorySpinner(item.category, item.subcategory)
 
             // Update edit button appearance
             editButton.setBackgroundResource(R.drawable.ic_confirm_add)
@@ -437,6 +470,8 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
                 currentItem?.let { displayItemData(it) }
                 setViewMode()
                 dialog.dismiss()
+                // Navigate back to the previous page after discarding changes
+                navigateBack()
             }
             .setNegativeButton("Keep Editing") { dialog, _ ->
                 dialog.dismiss()
@@ -448,7 +483,7 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
     private fun loadItemData() {
         if (itemId.isNullOrEmpty()) {
             showToast("Item not found")
-            navigateBackToMyItems()
+            navigateBack()
             return
         }
 
@@ -459,7 +494,7 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
             displayItemData(currentItem!!)
         } else {
             showToast("Item not found")
-            navigateBackToMyItems()
+            navigateBack()
         }
     }
 
@@ -546,7 +581,7 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
                     file.writeText(updatedJson)
 
                     showToast("Item deleted successfully")
-                    navigateBackToMyItems()
+                    navigateBack() // UPDATED: Use navigateBack instead of navigateBackToMyItems
                 } else {
                     showToast("Failed to delete item")
                 }

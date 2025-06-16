@@ -1,4 +1,4 @@
-package com.example.aprador.outfit_recycler
+package com.example.aprador.outfits
 
 import android.content.Context
 import android.os.Bundle
@@ -11,11 +11,11 @@ import com.bumptech.glide.Glide
 import com.example.aprador.R
 import com.example.aprador.item_recycler.Item
 import com.example.aprador.item_recycler.ItemAdapter
-import com.example.aprador.outfits.MyOutfits
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
 import androidx.core.net.toUri
+import com.example.aprador.outfit_recycler.Outfit
 
 class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
 

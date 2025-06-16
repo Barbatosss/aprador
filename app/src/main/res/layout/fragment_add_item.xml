@@ -62,21 +62,37 @@
 
     </LinearLayout>
 
+    <!-- Edit Photo Hint Text (Hidden by default) -->
+    <TextView
+        android:id="@+id/edit_photo_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Tap photo to change"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        android:textStyle="italic"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header_layout_addItem" />
+
     <ImageView
         android:id="@+id/BlackShirt"
         android:layout_width="313dp"
         android:layout_height="229dp"
         android:layout_marginTop="16dp"
         android:adjustViewBounds="false"
-        android:background="@drawable/shirt"
+        android:background="#FFFFFF"
         android:clickable="true"
         android:contentDescription="Item Photo"
         android:cropToPadding="true"
         android:focusable="true"
         android:scaleType="centerCrop"
+        android:src="@drawable/shirt"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/header_layout_addItem" />
+        app:layout_constraintTop_toBottomOf="@+id/edit_photo_hint" />
 
     <!-- Item Name Section -->
 

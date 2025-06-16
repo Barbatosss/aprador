@@ -245,7 +245,6 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
     private fun setPlaceholderImage() {
         photoImageView.setImageResource(R.drawable.shirt)
         photoImageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
-        photoImageView.setBackgroundResource(R.drawable.shirt)
     }
 
     override fun onDestroyView() {

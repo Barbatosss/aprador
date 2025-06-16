@@ -14,7 +14,6 @@ import com.example.aprador.landing.MainPage
 import com.example.aprador.navigation.NavBar
 import com.example.aprador.item_recycler.Item
 import com.example.aprador.outfit_recycler.Outfit
-import com.example.aprador.outfit_recycler.OutfitDetails
 import com.example.aprador.outfit_recycler.OutfitSection
 import com.example.aprador.outfit_recycler.OutfitSectionAdapter
 import com.google.gson.Gson
@@ -34,11 +33,6 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Hide bottom navigation when this fragment loads
-        view.post {
-            (activity as? NavBar)?.hideBottomNavigation()
-        }
 
         setupViews(view)
         loadOutfitsData()

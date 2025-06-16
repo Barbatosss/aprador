@@ -3,7 +3,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#d9d9d9"
+    android:background="#c5bcb3"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".items.MyItems">
@@ -12,7 +12,7 @@
         android:id="@+id/header_layout_item"
         android:layout_width="match_parent"
         android:layout_height="88dp"
-        android:background="#FEFEFE"
+        android:background="#c5bcb3"
         android:elevation="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -64,7 +64,7 @@
         android:id="@+id/filter_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FEFEFE"
+        android:background="#c5bcb3"
         android:orientation="horizontal"
         android:paddingStart="16dp"
         android:paddingTop="8dp"
@@ -90,8 +90,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:minHeight="36dp"
-            android:backgroundTint="#666666"
-            android:popupBackground="#FFFFFF" />
+            android:background="@drawable/spinner_background_warm"/>
 
     </LinearLayout>
 
@@ -100,7 +99,7 @@
         android:id="@+id/tabs_scroll_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FEFEFE"
+        android:background="#c5bcb3"
         android:scrollbars="none"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -144,7 +143,7 @@
         android:id="@+id/main_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="#d9d9d9"
+        android:background="#c5bcb3"
         android:clipToPadding="false"
         android:paddingTop="8dp"
         android:paddingBottom="8dp"

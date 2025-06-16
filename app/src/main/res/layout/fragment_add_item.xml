@@ -5,17 +5,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#d9d9d9"
+    android:background="#c5bcb3"
     tools:context=".items.AddItem">
 
     <!-- Image Container - Fixed size for better photo display -->
 
+    <!-- Edit Photo Hint Text (Hidden by default) -->
+
     <LinearLayout
         android:id="@+id/header_layout_addItem"
-        android:layout_width="match_parent"
-        android:layout_height="88dp"
-        android:layout_marginTop="4dp"
-        android:background="#FEFEFE"
+        android:layout_width="406dp"
+        android:layout_height="97dp"
+        android:background="#c5bcb3"
         android:elevation="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -62,7 +63,6 @@
 
     </LinearLayout>
 
-    <!-- Edit Photo Hint Text (Hidden by default) -->
     <TextView
         android:id="@+id/edit_photo_hint"
         android:layout_width="wrap_content"

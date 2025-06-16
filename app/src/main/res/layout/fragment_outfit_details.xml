@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#d9d9d9"
+    android:background="#c5bcb3"
     tools:context=".outfits.OutfitDetails">
 
     <!-- Header Layout -->
@@ -13,8 +13,7 @@
         android:id="@+id/header_layout_outfitDetails"
         android:layout_width="match_parent"
         android:layout_height="88dp"
-        android:layout_marginTop="4dp"
-        android:background="#FEFEFE"
+        android:background="#c5bcb3"
         android:elevation="4dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"

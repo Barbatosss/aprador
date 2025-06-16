@@ -154,8 +154,12 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
 
         // Allow clicking on photo to retake
         photoImageView.setOnClickListener {
-            // Navigate back to MyItems to retake photo
+            // Navigate back to MyItems with retake flag
             val myItemsFragment = MyItems()
+            val bundle = Bundle()
+            bundle.putBoolean("retake_photo", true)
+            myItemsFragment.arguments = bundle
+
             parentFragmentManager.beginTransaction()
                 .replace(R.id.flFragment, myItemsFragment)
                 .addToBackStack(null)

@@ -153,6 +153,17 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
 
         // Setup click listeners
         setupClickListeners(view)
+
+        arguments?.let { bundle ->
+            if (bundle.getBoolean("retake_photo", false)) {
+                // Show photo selection dialog immediately
+                view.post {
+                    showPhotoSelectionDialog()
+                }
+                // Clear the argument to prevent showing dialog again on configuration changes
+                bundle.remove("retake_photo")
+            }
+        }
     }
 
     private fun initializeViews(view: View) {

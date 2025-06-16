@@ -340,7 +340,6 @@ class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
                 currentOutfit = updatedOutfit
                 displayOutfitData(updatedOutfit)
 
-                Toast.makeText(requireContext(), "Outfit updated successfully!", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(requireContext(), "Outfit name cannot be empty", Toast.LENGTH_SHORT).show()
                 outfitNameEdit.setText(outfit.title) // Reset to original name

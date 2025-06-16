@@ -429,7 +429,6 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
 
             // Validate name
             if (updatedName.isEmpty()) {
-                Toast.makeText(requireContext(), "Item name cannot be empty", Toast.LENGTH_SHORT).show()
                 return
             }
 
@@ -453,7 +452,6 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
                 currentItem = updatedItem
                 displayItemData(updatedItem)
                 setViewMode()
-                Toast.makeText(requireContext(), "Item updated successfully", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(requireContext(), "Failed to update item", Toast.LENGTH_SHORT).show()
             }

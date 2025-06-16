@@ -563,6 +563,9 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         if (selectedItems.contains(item)) {
             selectedItems.remove(item)
             Toast.makeText(requireContext(), "Removed ${item.name} from outfit", Toast.LENGTH_SHORT).show()
+
+            // When item is removed, go back to that category
+            navigateToCategoryAfterRemoval(item.category)
         } else {
             // Check if there's already an item from the same category
             val existingItemInCategory = selectedItems.find {
@@ -578,6 +581,9 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
                     "Replaced ${existingItemInCategory.name} with ${item.name} in ${item.category} category",
                     Toast.LENGTH_SHORT
                 ).show()
+
+                // After replacement, move to next category in sequence
+                navigateToNextCategory()
             } else {
                 // Check if we've reached the maximum of 4 items (one per main category)
                 val selectedMainCategories = selectedItems.map { it.category }.toSet()
@@ -595,6 +601,8 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
                 selectedItems.add(item)
                 Toast.makeText(requireContext(), "Added ${item.name} to outfit", Toast.LENGTH_SHORT).show()
 
+                // After adding item, move to next category in sequence
+                navigateToNextCategory()
 
                 if (selectedItems.size in 3..4) {
                     val bitmaps = selectedItems.mapNotNull { imagePathToBitmap(requireContext(), it.imagePath) }
@@ -604,9 +612,7 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
                     } else {
                         categoryPredection.text = "Unable to convert image(s)"
                     }
-                }
-
-                else{
+                } else {
                     categoryPredection.text = ""
                 }
             }
@@ -614,6 +620,89 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
 
         // Update outfit preview
         updateOutfitPreview()
+    }
+
+    private fun navigateToNextCategory() {
+        // Define the order of categories
+        val categoryOrder = listOf("Top", "Bottom", "Outerwear", "Footwear")
+        val selectedCategories = selectedItems.map { it.category.lowercase() }.toSet()
+
+        // Find the next category that hasn't been selected yet
+        val nextCategory = categoryOrder.find { category ->
+            !selectedCategories.contains(category.lowercase())
+        }
+
+        // If there's a next category, navigate to it
+        nextCategory?.let { category ->
+            navigateToCategory(category)
+        }
+    }
+
+    private fun navigateToCategoryAfterRemoval(removedCategory: String) {
+        // When an item is removed, go back to that category
+        navigateToCategory(removedCategory)
+    }
+
+    private fun navigateToCategory(category: String) {
+        // Update the category spinner selection
+        val categories = listOf("All Categories", "Top", "Bottom", "Outerwear", "Footwear")
+        val categoryIndex = categories.indexOf(category)
+
+        if (categoryIndex != -1) {
+            // Temporarily disable the listener to prevent infinite loops
+            categorySpinner.onItemSelectedListener = null
+
+            // Set the spinner selection
+            categorySpinner.setSelection(categoryIndex)
+
+            // Update the selected category
+            selectedItemCategory = category
+
+            // Reset subcategory to "All" when category changes
+            selectedItemSubcategory = "All"
+
+            // Update subcategory options and spinner
+            updateSubcategoryOptions()
+            updateSubcategorySpinner()
+
+            // Update filtered items
+            updateFilteredItems()
+
+            // Re-enable the listener
+            categorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    val selectedCategoryFromSpinner = categories[position]
+                    if (selectedCategoryFromSpinner != selectedItemCategory) {
+                        selectedItemCategory = selectedCategoryFromSpinner
+                        // Reset subcategory selection when category changes
+                        selectedItemSubcategory = "All"
+                        updateSubcategorySpinner()
+                        updateSubcategoryOptions()
+                        updateFilteredItems()
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    // Do nothing
+                }
+            }
+
+            Toast.makeText(
+                requireContext(),
+                "Switched to $category category",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun updateCategorySpinnerToCategory(itemCategory: String) {
+        val categories = listOf("All Categories", "Top", "Bottom", "Outerwear", "Footwear")
+        val categoryIndex = categories.indexOf(itemCategory)
+
+        if (categoryIndex != -1) {
+            categorySpinner.setSelection(categoryIndex)
+            // This will trigger the onItemSelected listener and update the filtered items
+        }
     }
 
     private fun updateOutfitPreview() {
@@ -759,6 +848,7 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         itemView.setOnClickListener {
             selectedItems.remove(item)
             Toast.makeText(requireContext(), "Removed ${item.name} from outfit", Toast.LENGTH_SHORT).show()
+            updateCategorySpinnerToCategory(item.category)
             updateOutfitPreview()
 
             // Update category prediction when items are removed
@@ -966,12 +1056,59 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         val predictedIndex = output[0].indices.maxByOrNull { output[0][it] } ?: -1
 
         return if (predictedIndex in categories.indices) {
-            "Predicted: ${categories[predictedIndex]}"
+            val predictedCategory = categories[predictedIndex]
+
+            // Update the spinner selection based on prediction
+            updateOutfitCategorySpinner(predictedCategory)
+
+            "Predicted: $predictedCategory"
         } else {
             "Prediction failed"
         }
     }
 
+    private fun updateOutfitCategorySpinner(predictedCategory: String) {
+        // Define the available outfit categories (same as in setupOutfitCategorySpinner)
+        val outfitCategories = listOf("Casual", "Ethnic", "Formal", "Sports", "Smart Casual", "Travel", "Party", "Home")
+
+        // Map ML prediction to spinner categories if needed
+        val mappedCategory = mapPredictionToSpinnerCategory(predictedCategory)
+
+        // Find the index of the predicted category
+        val categoryIndex = outfitCategories.indexOf(mappedCategory)
+
+        if (categoryIndex != -1) {
+            // Update the spinner selection
+            outfitCategorySpinner.setSelection(categoryIndex)
+            selectedOutfitCategory = mappedCategory
+
+            Toast.makeText(
+                requireContext(),
+                "Auto-selected category: $mappedCategory",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    private fun mapPredictionToSpinnerCategory(prediction: String): String {
+        // Map your ML model's categories to the spinner categories
+        // Adjust these mappings based on what categories your model returns
+        return when (prediction.lowercase()) {
+            "casual" -> "Casual"
+            "formal" -> "Formal"
+            "sport", "sports", "athletic" -> "Sports"
+            "smart casual", "smart_casual" -> "Smart Casual"
+            "party", "evening" -> "Party"
+            "ethnic", "traditional" -> "Ethnic"
+            "travel", "vacation" -> "Travel"
+            "home", "loungewear" -> "Home"
+            else -> {
+                // If no direct match, try to find the closest match or default to current selection
+                val outfitCategories = listOf("Casual", "Ethnic", "Formal", "Sports", "Smart Casual", "Travel", "Party", "Home")
+                outfitCategories.find { it.contains(prediction, ignoreCase = true) } ?: selectedOutfitCategory
+            }
+        }
+    }
 
     private fun loadLabelsFromAssets(context: Context): List<String> {
         val labels = mutableListOf<String>()

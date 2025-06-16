@@ -230,16 +230,13 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
                 loadedBitmap = bitmap
                 // Change ScaleType to FIT_CENTER to preserve aspect ratio
                 ImageUtil.setImageToView(photoImageView, bitmap, ImageView.ScaleType.FIT_CENTER)
-                showToast("Photo loaded successfully")
             } else {
                 setPlaceholderImage()
-                showToast("Failed to load photo")
             }
 
         } catch (e: Exception) {
             e.printStackTrace()
             setPlaceholderImage()
-            showToast("Error loading photo: ${e.message}")
         }
     }
 
@@ -257,10 +254,6 @@ class AddItem : Fragment(R.layout.fragment_add_item) {
         } else {
             (200 * resources.displayMetrics.density).toInt()
         }
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
     private fun setPlaceholderImage() {

@@ -1,7 +1,6 @@
 package com.example.aprador.outfit_recycler
 
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -16,6 +15,7 @@ import com.example.aprador.outfits.MyOutfits
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
+import androidx.core.net.toUri
 
 class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
 
@@ -160,8 +160,8 @@ class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
     private fun loadItemImage(imagePath: String, imageView: ImageView) {
         val context = requireContext()
         val imageSource = when {
-            imagePath.startsWith("content://") -> Uri.parse(imagePath)
-            imagePath.startsWith("file://") -> Uri.parse(imagePath)
+            imagePath.startsWith("content://") -> imagePath.toUri()
+            imagePath.startsWith("file://") -> imagePath.toUri()
             File(imagePath).exists() -> File(imagePath)
             else -> null
         }

@@ -179,13 +179,6 @@ class UserPreferences(private val context: Context) {
         saveUserProfileToJson(currentProfile)
     }
 
-    // Modified to not remove user profile data, just update login status
-    private fun removeUserProfileFromJson() {
-        // This method is no longer used since we want to preserve profile data
-        // Instead, we just update the login status to false
-        updateUserProfileInJson()
-    }
-
     // Updated to accept userId parameter for loading specific user profile
     private fun loadUserProfileFromJson(userId: String = getUserId()): UserProfile? {
         val file = File(context.filesDir, "user_profiles.json")

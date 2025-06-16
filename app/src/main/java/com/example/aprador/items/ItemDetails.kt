@@ -57,7 +57,6 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
     companion object {
         private const val DETAIL_IMAGE_MAX_WIDTH = 800
         private const val DETAIL_IMAGE_MAX_HEIGHT = 600
-        private const val CAMERA_PERMISSION_REQUEST_CODE = 100
     }
 
     // Category and subcategory data (from AddItem.kt)
@@ -503,8 +502,6 @@ class ItemDetails : Fragment(R.layout.fragment_item_details) {
             }
         }
     }
-
-    private fun dpToPx(dp: Int): Int = (dp * resources.displayMetrics.density).toInt()
 
     private fun setPlaceholderImage() {
         // Remove background to avoid conflicts

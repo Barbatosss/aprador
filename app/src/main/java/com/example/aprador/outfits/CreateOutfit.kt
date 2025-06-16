@@ -816,7 +816,6 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         }
     }
 
-
     private fun saveOutfit() {
         if (selectedItems.isEmpty()) {
             Toast.makeText(requireContext(), "Please select items for your outfit", Toast.LENGTH_SHORT).show()
@@ -910,7 +909,6 @@ class CreateOutfit : Fragment(R.layout.fragment_create_outfit) {
         val declaredLength = fileDescriptor.declaredLength
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
     }
-
 
     private fun imagePathToBitmap(context: Context, path: String): Bitmap? {
         return try {

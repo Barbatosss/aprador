@@ -70,6 +70,7 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
     private var currentPhotoPath: String = ""
     private var capturedImageUri: Uri? = null
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -373,14 +374,6 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
         updateTabAppearances()
     }
 
-    // Helper function to check if an item belongs to user's gender preferences
-    private fun isUserGenderPreferred(item: Item): Boolean {
-        val userGender = userPreferences.getUserGender()
-        val genderPreferences = getGenderPreferredSubcategories(userGender)
-        val category = item.category.lowercase()
-        val preferredSubcategories = genderPreferences[category] ?: emptyList()
-        return preferredSubcategories.contains(item.subcategory)
-    }
 
     private fun createDynamicTab(subcategory: String, count: Int): TextView {
         val tabView = layoutInflater.inflate(R.layout.dynamic_tab, tabsLayout, false) as TextView
@@ -466,11 +459,6 @@ class MyItems : Fragment(R.layout.fragment_my_items) {
             e.printStackTrace()
             emptyList()
         }
-    }
-
-    // Method to refresh data (call this when returning from AddItem)
-    fun refreshItems() {
-        loadItemsData()
     }
 
     override fun onResume() {

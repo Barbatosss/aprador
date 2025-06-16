@@ -1,7 +1,6 @@
 package com.example.aprador.outfit_recycler
 
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -114,8 +113,4 @@ class OutfitAdapter(
 
     override fun getItemCount(): Int = outfits.size
 
-    fun updateOutfits(newOutfits: List<Outfit>) {
-        outfits = newOutfits
-        notifyDataSetChanged()
-    }
 }

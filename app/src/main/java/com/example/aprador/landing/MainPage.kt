@@ -452,8 +452,8 @@ class MainPage : Fragment(R.layout.fragment_main_page) {
     }
 
     private fun onOutfitClicked(outfit: Outfit) {
-        // Navigate to OutfitDetails fragment with the outfit ID
-        val outfitDetailsFragment = OutfitDetails.newInstance(outfit.id)
+        // Navigate to OutfitDetails fragment with the outfit ID and source fragment
+        val outfitDetailsFragment = OutfitDetails.newInstance(outfit.id, "MainPage")
         parentFragmentManager.beginTransaction()
             .replace(R.id.flFragment, outfitDetailsFragment)
             .addToBackStack(null)

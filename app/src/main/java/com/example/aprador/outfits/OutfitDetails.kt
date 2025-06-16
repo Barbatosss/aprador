@@ -11,6 +11,7 @@ import com.bumptech.glide.Glide
 import com.example.aprador.R
 import com.example.aprador.item_recycler.Item
 import com.example.aprador.item_recycler.ItemAdapter
+import com.example.aprador.landing.MainPage  // Add this import
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -36,8 +37,16 @@ class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
     private var outfitItems = listOf<Item>()
     private var isEditMode = false
 
+    // Navigation data - NEW: Track where we came from
+    private var sourceFragment: String? = null
+
     companion object {
         private const val ARG_OUTFIT_ID = "outfit_id"
+        private const val ARG_SOURCE_FRAGMENT = "source_fragment"  // NEW
+
+        // Constants for source fragments
+        private const val SOURCE_MY_OUTFITS = "MyOutfits"
+        private const val SOURCE_MAIN_PAGE = "MainPage"
 
         fun newInstance(outfitId: String): OutfitDetails {
             val fragment = OutfitDetails()
@@ -46,10 +55,25 @@ class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
             fragment.arguments = args
             return fragment
         }
+
+        // NEW: Factory method that accepts source fragment
+        fun newInstance(outfitId: String, sourceFragment: String): OutfitDetails {
+            val fragment = OutfitDetails()
+            val args = Bundle()
+            args.putString(ARG_OUTFIT_ID, outfitId)
+            args.putString(ARG_SOURCE_FRAGMENT, sourceFragment)
+            fragment.arguments = args
+            return fragment
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Get source fragment from arguments - NEW
+        arguments?.let { bundle ->
+            sourceFragment = bundle.getString(ARG_SOURCE_FRAGMENT)
+        }
 
         initializeViews(view)
         setupRecyclerView()
@@ -85,8 +109,14 @@ class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
     }
 
     private fun setupClickListeners() {
+        // UPDATED: Back button now uses navigateBack() method
         backButton.setOnClickListener {
-            navigateBack()
+            if (isEditMode) {
+                // Ask user if they want to discard changes
+                showDiscardChangesDialog()
+            } else {
+                navigateBack()
+            }
         }
 
         editButton.setOnClickListener {
@@ -95,6 +125,61 @@ class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
 
         deleteButton.setOnClickListener {
             showDeleteConfirmationDialog()
+        }
+    }
+
+    // NEW: Show discard changes dialog when in edit mode
+    private fun showDiscardChangesDialog() {
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Discard Changes")
+            .setMessage("Are you sure you want to discard your changes?")
+            .setPositiveButton("Discard") { dialog, _ ->
+                // Reset to view mode and reload original data
+                currentOutfit?.let { displayOutfitData(it) }
+                isEditMode = false
+                setViewModeUI()
+                dialog.dismiss()
+                // Navigate back after discarding changes
+                navigateBack()
+            }
+            .setNegativeButton("Keep Editing") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
+    }
+
+    // NEW: Navigate back to the appropriate fragment based on source
+    private fun navigateBack() {
+        when (sourceFragment) {
+            SOURCE_MAIN_PAGE -> {
+                val mainPageFragment = MainPage()
+                parentFragmentManager.beginTransaction()
+                    .replace(R.id.flFragment, mainPageFragment)
+                    .addToBackStack(null)
+                    .commit()
+            }
+            SOURCE_MY_OUTFITS -> {
+                navigateBackToMyOutfits()
+            }
+            else -> {
+                // Default behavior - try to pop back stack first, then go to MyOutfits
+                if (!parentFragmentManager.popBackStackImmediate()) {
+                    navigateBackToMyOutfits()
+                }
+            }
+        }
+    }
+
+    // NEW: Navigate back to MyOutfits (renamed from navigateBack)
+    private fun navigateBackToMyOutfits() {
+        try {
+            val myOutfitsFragment = MyOutfits()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.flFragment, myOutfitsFragment)
+                .addToBackStack(null)
+                .commit()
+        } catch (e: Exception) {
+            parentFragmentManager.popBackStack()
         }
     }
 
@@ -211,23 +296,33 @@ class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
         isEditMode = !isEditMode
 
         if (isEditMode) {
-            // Switch to edit mode
-            outfitNameValue.visibility = View.GONE
-            outfitNameEdit.visibility = View.VISIBLE
-            outfitCategoryValue.visibility = View.GONE
-            outfitCategorySpinner.visibility = View.VISIBLE
-            deleteButton.visibility = View.VISIBLE
-            editButton.setBackgroundResource(R.drawable.ic_confirm_add)
+            setEditModeUI()
         } else {
             // Switch to view mode and save changes
             saveOutfitChanges()
-            outfitNameValue.visibility = View.VISIBLE
-            outfitNameEdit.visibility = View.GONE
-            outfitCategoryValue.visibility = View.VISIBLE
-            outfitCategorySpinner.visibility = View.GONE
-            deleteButton.visibility = View.GONE
-            editButton.setBackgroundResource(R.drawable.ic_edit)
+            setViewModeUI()
         }
+    }
+
+    // NEW: Separate UI setup for edit mode
+    private fun setEditModeUI() {
+        // Switch to edit mode
+        outfitNameValue.visibility = View.GONE
+        outfitNameEdit.visibility = View.VISIBLE
+        outfitCategoryValue.visibility = View.GONE
+        outfitCategorySpinner.visibility = View.VISIBLE
+        deleteButton.visibility = View.VISIBLE
+        editButton.setBackgroundResource(R.drawable.ic_confirm_add)
+    }
+
+    // NEW: Separate UI setup for view mode
+    private fun setViewModeUI() {
+        outfitNameValue.visibility = View.VISIBLE
+        outfitNameEdit.visibility = View.GONE
+        outfitCategoryValue.visibility = View.VISIBLE
+        outfitCategorySpinner.visibility = View.GONE
+        deleteButton.visibility = View.GONE
+        editButton.setBackgroundResource(R.drawable.ic_edit)
     }
 
     private fun saveOutfitChanges() {
@@ -278,7 +373,7 @@ class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
         }
 
         Toast.makeText(requireContext(), "Outfit '${outfit.title}' deleted", Toast.LENGTH_SHORT).show()
-        navigateBack()
+        navigateBack() // UPDATED: Use navigateBack instead of navigateBackToMyOutfits
     }
 
     private fun showItemDetails(item: Item) {
@@ -291,18 +386,6 @@ class OutfitDetails : Fragment(R.layout.fragment_outfit_details) {
             .setMessage(message)
             .setPositiveButton("OK", null)
             .show()
-    }
-
-    private fun navigateBack() {
-        try {
-            val myOutfitsFragment = MyOutfits()
-            parentFragmentManager.beginTransaction()
-                .replace(R.id.flFragment, myOutfitsFragment)
-                .addToBackStack(null)
-                .commit()
-        } catch (e: Exception) {
-            parentFragmentManager.popBackStack()
-        }
     }
 
     // Data loading and saving methods

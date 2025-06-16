@@ -227,9 +227,9 @@ class MyOutfits : Fragment(R.layout.fragment_my_outfits) {
         (activity as? NavBar)?.showBottomNavigation()
     }
 
+    // In MyOutfits.kt (if you have such navigation)
     private fun onOutfitClicked(outfit: Outfit) {
-        // Navigate to OutfitDetails fragment with the outfit ID
-        val outfitDetailsFragment = OutfitDetails.newInstance(outfit.id)
+        val outfitDetailsFragment = OutfitDetails.newInstance(outfit.id, "MyOutfits")
         parentFragmentManager.beginTransaction()
             .replace(R.id.flFragment, outfitDetailsFragment)
             .addToBackStack(null)

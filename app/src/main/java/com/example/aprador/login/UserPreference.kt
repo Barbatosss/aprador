@@ -79,7 +79,7 @@ class UserPreferences(private val context: Context) {
         return sharedPreferences.getString(KEY_USER_NAME, "User") ?: "User"
     }
 
-    private fun getUserEmail(): String {
+    fun getUserEmail(): String {
         return sharedPreferences.getString(KEY_USER_EMAIL, "") ?: ""
     }
 
@@ -105,8 +105,20 @@ class UserPreferences(private val context: Context) {
         updateUserProfileInJson()
     }
 
-    private fun getLocalPhotoPath(): String? {
+    fun getLocalPhotoPath(): String? {
         return sharedPreferences.getString(KEY_LOCAL_PHOTO_PATH, null)
+    }
+
+    fun clearLocalPhotoPath() {
+        sharedPreferences.edit {
+            remove(KEY_LOCAL_PHOTO_PATH)
+        }
+        // Update JSON database
+        updateUserProfileInJson()
+    }
+
+    fun getOriginalPhotoUrl(): String? {
+        return sharedPreferences.getString(KEY_USER_PHOTO_URL, null)
     }
 
     fun saveUserGender(gender: String) {

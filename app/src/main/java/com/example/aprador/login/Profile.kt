@@ -233,7 +233,14 @@ class Profile : Fragment(R.layout.fragment_profile) {
     }
 
     private fun showProfilePictureDialog() {
-        val options = arrayOf("View Full Picture", "Change Picture")
+        val photoUrl = userPreferences.getUserPhotoUrl()
+        val hasCustomPhoto = !userPreferences.getLocalPhotoPath().isNullOrEmpty()
+
+        val options = if (hasCustomPhoto) {
+            arrayOf("View Full Picture", "Change Photo", "Remove Photo")
+        } else {
+            arrayOf("View Full Picture", "Change Picture")
+        }
 
         AlertDialog.Builder(requireContext())
             .setTitle("Profile Picture")
@@ -241,9 +248,49 @@ class Profile : Fragment(R.layout.fragment_profile) {
                 when (which) {
                     0 -> viewFullPicture()
                     1 -> changeProfilePicture()
+                    2 -> if (hasCustomPhoto) deleteCustomProfilePicture()
                 }
             }
             .show()
+    }
+
+    private fun deleteCustomProfilePicture() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Delete Custom Picture")
+            .setMessage("This will restore your Google account profile picture. Are you sure?")
+            .setPositiveButton("Delete") { _, _ ->
+                performDeleteCustomPicture()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun performDeleteCustomPicture() {
+        try {
+            // Get the local photo path before clearing it
+            val localPhotoPath = userPreferences.getLocalPhotoPath()
+
+            // Delete the local image file if it exists
+            if (!localPhotoPath.isNullOrEmpty()) {
+                val file = File(localPhotoPath)
+                if (file.exists()) {
+                    file.delete()
+                }
+            }
+
+            // Clear the local photo path from preferences
+            userPreferences.clearLocalPhotoPath()
+
+            // Get the original Google photo URL and load it
+            val originalPhotoUrl = userPreferences.getOriginalPhotoUrl()
+            loadProfilePicture(originalPhotoUrl)
+
+            Toast.makeText(requireContext(), "Custom profile picture deleted", Toast.LENGTH_SHORT).show()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(requireContext(), "Error deleting profile picture", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun viewFullPicture() {

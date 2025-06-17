@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity() {
 
     private companion object {
         private const val TAG = "GoogleSignIn"
+        private const val RC_SIGN_IN = 9001
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,13 +52,9 @@ class MainActivity : AppCompatActivity() {
         googleSignInLauncher = registerForActivityResult(
             ActivityResultContracts.StartActivityForResult()
         ) { result ->
-            if (result.resultCode == RESULT_OK) {
-                val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-                handleSignInResult(task)
-            } else {
-                Log.w(TAG, "Google Sign-in was cancelled or failed")
-                Toast.makeText(this, "Sign in cancelled", Toast.LENGTH_SHORT).show()
-            }
+            Log.d(TAG, "Activity result received with code: ${result.resultCode}")
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            handleSignInResult(task)
         }
 
         // Check if user is already logged in
@@ -83,24 +80,24 @@ class MainActivity : AppCompatActivity() {
             .requestEmail()
             .requestId()
             .requestProfile()
-            .requestIdToken(getString(R.string.client_id))
+            .requestIdToken(getString(R.string.client_id)) // Make sure this is correct
             .build()
 
         googleSignInClient = GoogleSignIn.getClient(this, gso)
     }
 
     private fun signInWithGoogle() {
-        // Sign out first to ensure account picker is shown
-        googleSignInClient.signOut().addOnCompleteListener {
-            val signInIntent = googleSignInClient.signInIntent
-            googleSignInLauncher.launch(signInIntent)
-        }
+        Log.d(TAG, "Starting Google Sign-In process")
+
+        // Don't sign out first - this can cause issues
+        val signInIntent = googleSignInClient.signInIntent
+        googleSignInLauncher.launch(signInIntent)
     }
 
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
             val account = completedTask.getResult(ApiException::class.java)
-            Log.d(TAG, "signInResult:success")
+            Log.d(TAG, "signInResult:success - Account: ${account?.displayName}")
 
             // Save user data locally
             account?.let {
@@ -120,15 +117,23 @@ class MainActivity : AppCompatActivity() {
             Log.w(TAG, "signInResult:failed code=" + e.statusCode)
             when (e.statusCode) {
                 12501 -> {
+                    Log.d(TAG, "Sign in was cancelled by user")
                     Toast.makeText(this, "Sign in cancelled", Toast.LENGTH_SHORT).show()
                 }
+                12500 -> {
+                    Log.d(TAG, "Sign in failed - invalid configuration")
+                    Toast.makeText(this, "Sign in failed. Please check app configuration.", Toast.LENGTH_LONG).show()
+                }
                 7 -> {
+                    Log.d(TAG, "Network error during sign in")
                     Toast.makeText(this, "Network error. Please check your connection.", Toast.LENGTH_SHORT).show()
                 }
                 10 -> {
+                    Log.d(TAG, "Developer error - invalid client configuration")
                     Toast.makeText(this, "Developer error. Please check your configuration.", Toast.LENGTH_LONG).show()
                 }
                 else -> {
+                    Log.d(TAG, "Unknown error during sign in: ${e.statusCode}")
                     Toast.makeText(this, "Sign in failed. Please try again.", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -150,6 +155,7 @@ class MainActivity : AppCompatActivity() {
                         inputStream.copyTo(outputStream)
                     }
                 }
+                Log.d(TAG, "JSON file copied successfully")
             } catch (e: Exception) {
                 Log.e(TAG, "Error copying JSON file", e)
             }
